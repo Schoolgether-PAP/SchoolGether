@@ -1,0 +1,17 @@
+<Solution>
+  <Folder Name="/src/" />
+  <Folder Name="/src/Backend/">
+    <Project Path="src/Backend/SchoolGether.Api/SchoolGether.Api.csproj" />
+    <Project Path="src/Backend/SchoolGether.Application/SchoolGether.Application.csproj" />
+    <Project Path="src/Backend/SchoolGether.Domain/SchoolGether.Domain.csproj" />
+    <Project Path="src/Backend/SchoolGether.Infrastructure/SchoolGether.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Clients/">
+    <Project Path="src/Clients/SchoolGether.Mobile/SchoolGether.Mobile.csproj" />
+    <Project Path="src/Clients/SchoolGether.Web/SchoolGether.Web.csproj" />
+  </Folder>
+  <Folder Name="/src/Shared/">
+    <Project Path="src/Shared/SchoolGether.ApiClient/SchoolGether.ApiClient.csproj" />
+    <Project Path="src/Shared/SchoolGether.Contracts/SchoolGether.Contracts.csproj" />
+  </Folder>
+</Solution>
