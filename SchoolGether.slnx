@@ -14,4 +14,7 @@
     <Project Path="src/Shared/SchoolGether.ApiClient/SchoolGether.ApiClient.csproj" />
     <Project Path="src/Shared/SchoolGether.Contracts/SchoolGether.Contracts.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj" />
+  </Folder>
 </Solution>

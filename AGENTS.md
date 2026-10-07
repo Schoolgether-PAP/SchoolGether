@@ -57,7 +57,7 @@ SchoolGether/
 │   └── Clients/
 │       ├── SchoolGether.Mobile/          # .NET MAUI
 │       └── SchoolGether.Web/             # Blazor WebAssembly
-├── tests/                                # a criar (Domain, Application, Api.IntegrationTests)
+├── tests/                                # Domain criado; Application e Api.IntegrationTests por criar
 ├── docs/                                 # documentação e decisões (ADR)
 └── SchoolGether.slnx
 ```
@@ -116,6 +116,7 @@ dotnet run --project src/Backend/SchoolGether.Api
 
 - Feito: conta e organização no GitHub, repositório criado, solução com os 8 projetos, build local sem erros, primeiro commit em `main`.
 - Em curso: Etapa 4 — integração contínua (GitHub Actions) via pull request para `develop`.
+- Preparado localmente: Etapa 5 — contexto EF Core, entidade Institution, primeira migração e assistente MySQL; falta configurar a ligação privada e aplicar a migração local. Testes de domínio de instituições criados.
 - Por limpar: ficheiros de exemplo dos modelos (`WeatherForecast`, `Class1.cs`, páginas `Counter` e `Weather` do site).
 
 ### Próximas etapas da Fase 0
