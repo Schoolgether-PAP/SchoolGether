@@ -33,7 +33,9 @@ de autenticação e os membros das instituições. Não altera a tabela `institu
 
 O terceiro comando pede o e-mail e a palavra-passe do primeiro administrador global.
 Escolher uma palavra-passe privada com 12 a 128 caracteres, incluindo maiúscula,
-minúscula, número e símbolo. A palavra-passe não é mostrada durante a escrita.
+minúscula, número e símbolo. A escrita mostra apenas asteriscos; Backspace apaga
+o último carácter. Se a validação falhar, o assistente indica os requisitos em falta
+ou o problema com o e-mail. Voltar a executar o comando para tentar novamente.
 Se já existir um administrador global, nenhuma conta é alterada. Estes assistentes
 só estão disponíveis em `Development` e terminam sem iniciar o servidor HTTP.
 

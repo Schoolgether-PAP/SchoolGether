@@ -17,8 +17,19 @@ internal static class BootstrapConsole
         {
             var key = Console.ReadKey(intercept: true);
             if (key.Key == ConsoleKey.Enter) break;
-            if (key.Key == ConsoleKey.Backspace) { if (password.Length > 0) password.Length--; }
-            else if (!char.IsControl(key.KeyChar)) password.Append(key.KeyChar);
+            if (key.Key == ConsoleKey.Backspace)
+            {
+                if (password.Length > 0)
+                {
+                    password.Length--;
+                    Console.Write("\b \b");
+                }
+            }
+            else if (!char.IsControl(key.KeyChar))
+            {
+                password.Append(key.KeyChar);
+                Console.Write('*');
+            }
         }
         Console.WriteLine();
         using var scope = services.CreateScope();
@@ -28,9 +39,13 @@ internal static class BootstrapConsole
                 .CreateAsync(email, password.ToString(), CancellationToken.None);
             Console.WriteLine(messages[created ? "BootstrapCreated" : "BootstrapExists"]);
         }
-        catch (IdentityException)
+        catch (BootstrapValidationException exception)
         {
-            Console.WriteLine(messages["InvalidAccount"]);
+            foreach (var code in exception.ErrorCodes)
+            {
+                var message = messages["BootstrapError_" + code];
+                Console.WriteLine(message.ResourceNotFound ? messages["InvalidAccount"] : message);
+            }
             Environment.ExitCode = 1;
         }
         finally { password.Clear(); }

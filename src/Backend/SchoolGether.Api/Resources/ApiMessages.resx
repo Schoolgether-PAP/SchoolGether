@@ -26,4 +26,15 @@
   <data name="IdentityKeyExists" xml:space="preserve"><value>A chave JWT já está configurada. Nenhum segredo foi alterado.</value></data>
   <data name="IdentityKeyCreated" xml:space="preserve"><value>Chave JWT criada e guardada em user-secrets da API.</value></data>
   <data name="IdentityKeyFailed" xml:space="preserve"><value>Não foi possível guardar a chave privada em user-secrets.</value></data>
+  <data name="BootstrapError_PasswordTooShort" xml:space="preserve"><value>A palavra-passe precisa de pelo menos 12 caracteres.</value></data>
+  <data name="BootstrapError_PasswordTooLong" xml:space="preserve"><value>A palavra-passe não pode exceder 128 caracteres.</value></data>
+  <data name="BootstrapError_PasswordRequiresDigit" xml:space="preserve"><value>Falta um número na palavra-passe (0 a 9).</value></data>
+  <data name="BootstrapError_PasswordRequiresLower" xml:space="preserve"><value>Falta uma letra minúscula na palavra-passe (a a z).</value></data>
+  <data name="BootstrapError_PasswordRequiresUpper" xml:space="preserve"><value>Falta uma letra maiúscula na palavra-passe (A a Z).</value></data>
+  <data name="BootstrapError_PasswordRequiresNonAlphanumeric" xml:space="preserve"><value>Falta um símbolo na palavra-passe, por exemplo !, @ ou #.</value></data>
+  <data name="BootstrapError_PasswordRequiresUniqueChars" xml:space="preserve"><value>A palavra-passe precisa de caracteres distintos.</value></data>
+  <data name="BootstrapError_InvalidEmail" xml:space="preserve"><value>O formato do e-mail é inválido.</value></data>
+  <data name="BootstrapError_InvalidUserName" xml:space="preserve"><value>O e-mail contém caracteres não permitidos para o login.</value></data>
+  <data name="BootstrapError_DuplicateEmail" xml:space="preserve"><value>Já existe uma conta com este e-mail. Não é possível promovê-la através deste assistente.</value></data>
+  <data name="BootstrapError_DuplicateUserName" xml:space="preserve"><value>Já existe uma conta com este login. Escolha outro e-mail para o administrador inicial.</value></data>
 </root>
