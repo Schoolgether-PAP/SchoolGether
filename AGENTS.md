@@ -116,7 +116,7 @@ dotnet run --project src/Backend/SchoolGether.Api
 
 - Feito: conta e organização no GitHub, repositório criado, solução com os 8 projetos, build local sem erros, primeiro commit em `main`.
 - Em curso: Etapa 4 — integração contínua (GitHub Actions) via pull request para `develop`.
-- Preparado localmente: Etapa 5 — contexto EF Core, entidade Institution, primeira migração e assistente MySQL; falta configurar a ligação privada e aplicar a migração local. Testes de domínio de instituições criados.
+- Concluído localmente: Etapa 5 — contexto EF Core, entidade Institution, ligação privada em user-secrets e primeira migração aplicados ao MySQL local. Testes de domínio de instituições criados. A configuração Aiven permanece pendente.
 - Por limpar: ficheiros de exemplo dos modelos (`WeatherForecast`, `Class1.cs`, páginas `Counter` e `Weather` do site).
 
 ### Próximas etapas da Fase 0

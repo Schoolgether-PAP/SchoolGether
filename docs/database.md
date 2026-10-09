@@ -1,5 +1,9 @@
 # Base de dados local — Fase 0, etapa 5
 
+Estado do ambiente de desenvolvimento: o assistente foi executado e a migração
+`20261007225331_InitialInstitutions` foi aplicada com sucesso em 9 de outubro de 2026.
+Não é necessário voltar a executar o assistente neste computador.
+
 ## Preparar o MySQL
 
 Pré-requisitos: SDK .NET 10, MySQL Server 8.0 iniciado e acesso ao utilizador
