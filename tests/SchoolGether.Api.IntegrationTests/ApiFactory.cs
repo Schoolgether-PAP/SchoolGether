@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Hosting;
+using System.Security.Cryptography;
+using Microsoft.Extensions.Configuration;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -10,9 +12,17 @@ public sealed class ApiFactory(
     string environment = "Development", bool databaseReady = true, bool databaseThrows = false)
     : WebApplicationFactory<Program>
 {
+    private static readonly string TestKey = CreateTestKey();
+    private static string CreateTestKey()
+    {
+        using var rsa = RSA.Create(2048);
+        return rsa.ExportRSAPrivateKeyPem();
+    }
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseEnvironment(environment);
+        builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
+            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = TestKey }));
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IDatabaseReadiness>();

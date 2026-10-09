@@ -29,10 +29,13 @@ dotnet run --project src/Clients/SchoolGether.Web --launch-profile http
 ```
 
 A API usa `http://localhost:5265` e o site usa `http://localhost:5227`.
+Para configurar a chave privada, aplicar a migração de Identity e criar o primeiro
+administrador, seguir [o guia de Identity](docs/identity.md) antes de iniciar a API.
 Em desenvolvimento, abrir o Swagger em `http://localhost:5265/swagger`.
 A API base inclui diagnósticos, erros em `ProblemDetails` e CORS para o site local.
 Consultar [o guia da API](docs/api.md) para testar e configurar estes recursos.
-O site ainda contém exemplos dos modelos; o login será implementado na próxima etapa.
+O login e a gestão inicial de contas já estão na API. O site ainda contém exemplos
+dos modelos; os ecrãs de login da app e do site serão implementados na próxima etapa.
 
 ## Integração contínua
 
@@ -45,11 +48,11 @@ para `main` e `develop`, e manualmente no separador **Actions** quando o workflo
 estiver no ramo predefinido. A app MAUI é validada localmente em Windows.
 
 O job **Testes do domínio** executa os testes xUnit de instituições e o job
-**Testes da API** verifica os endpoints e o comportamento HTTP em memória.
+**Testes da API** verifica os endpoints e o comportamento HTTP em memória, incluindo
+login, JWT, refresh e isolamento entre instituições com SQLite relacional de teste.
 O job de compilação da API
 também verifica se o modelo EF corresponde às migrações guardadas, sem aceder ao
-MySQL. Os testes de aplicação e de isolamento entre instituições serão acrescentados
-com os respetivos módulos.
+MySQL. Os testes de aplicação serão acrescentados com os respetivos módulos.
 O workflow não publica a API nem o site.
 
 Consultar [o guia de CI](docs/ci.md) para o fluxo de pull requests e diagnóstico de falhas.

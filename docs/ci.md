@@ -23,11 +23,16 @@ O job `Testes da API` inicia a aplicação em memória com `WebApplicationFactor
 Verifica os endpoints de diagnóstico, erros e validação em `ProblemDetails`, CORS
 e disponibilidade do Swagger apenas em desenvolvimento. Substitui a verificação
 da base de dados por um serviço de teste: não precisa de MySQL nem de segredos.
+Os testes de Identity usam SQLite relacional em memória e as implementações reais
+de Identity/JWT, com contas e chave temporárias. Verificam também que um administrador
+não lista ou cria contas noutra instituição, a rotação/revogação de sessões e as
+restrições dos papéis. A versão atual do bundle SQLite evita a biblioteca nativa
+vulnerável que vinha na dependência original.
 Estes testes não verificam a integração real com o provider ou o servidor MySQL;
 essa ligação pode ser confirmada localmente seguindo [o guia da API](api.md).
 
-Adicionar os testes de Application e de isolamento entre instituições com os
-respetivos módulos, conforme definido no `AGENTS.md`.
+Adicionar os testes de Application com os respetivos módulos e estender os testes
+de isolamento às novas tabelas institucionais, conforme definido no `AGENTS.md`.
 
 ## Fluxo da equipa
 

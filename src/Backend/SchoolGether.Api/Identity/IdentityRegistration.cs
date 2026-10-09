@@ -1,0 +1,66 @@
+using System.Threading.RateLimiting;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi;
+using SchoolGether.Application.Identity;
+using SchoolGether.Infrastructure.Identity;
+using SchoolGether.Infrastructure.Institutions;
+
+namespace SchoolGether.Api.Identity;
+
+internal static class IdentityRegistration
+{
+    internal static IServiceCollection AddApiIdentity(this IServiceCollection services)
+    {
+        services.AddIdentityModule();
+        services.AddInstitutionsModule();
+        services.AddHttpContextAccessor();
+        services.AddScoped<ICurrentAccount, CurrentAccount>();
+        services.AddExceptionHandler<IdentityExceptionHandler>();
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
+        services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
+            .Configure<TokenSigningKey>((options, key) =>
+            {
+                options.MapInboundClaims = false;
+                options.IncludeErrorDetails = false;
+                options.TokenValidationParameters = new TokenValidationParameters {
+                    ValidateIssuerSigningKey = true, IssuerSigningKey = key.Key,
+                    ValidAlgorithms = [SecurityAlgorithms.RsaSha256],
+                    ValidateIssuer = true, ValidIssuer = TokenSigningKey.Issuer,
+                    ValidateAudience = true, ValidAudience = TokenSigningKey.Audience,
+                    ValidateLifetime = true, RequireExpirationTime = true, RequireSignedTokens = true,
+                    ClockSkew = TimeSpan.FromSeconds(15), NameClaimType = "sub", RoleClaimType = "role" };
+            }).ValidateOnStart();
+        services.AddAuthorization();
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            options.AddPolicy("identity", context => RateLimitPartition.GetFixedWindowLimiter(
+                context.Connection.RemoteIpAddress?.ToString() ?? "local",
+                _ => new FixedWindowRateLimiterOptions { PermitLimit = 10, Window = TimeSpan.FromMinutes(1),
+                    QueueLimit = 0, AutoReplenishment = true }));
+            options.OnRejected = async (context, cancellationToken) =>
+            {
+                context.HttpContext.Response.Headers.RetryAfter = "60";
+                await context.HttpContext.RequestServices.GetRequiredService<IProblemDetailsService>()
+                    .WriteAsync(new ProblemDetailsContext { HttpContext = context.HttpContext,
+                        ProblemDetails = new() { Status = StatusCodes.Status429TooManyRequests } });
+            };
+        });
+        services.AddOpenApi("v1", options => options.AddDocumentTransformer((document, context, cancellationToken) =>
+        {
+            document.Components ??= new();
+            document.Components.SecuritySchemes ??= new Dictionary<string, IOpenApiSecurityScheme>();
+            document.Components.SecuritySchemes["Bearer"] = new OpenApiSecurityScheme {
+                Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT" };
+            foreach (var path in document.Paths)
+                foreach (var operation in path.Value.Operations ?? [])
+                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions")
+                        operation.Value.Security = [new OpenApiSecurityRequirement {
+                            [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
+            return Task.CompletedTask;
+        }));
+        return services;
+    }
+}

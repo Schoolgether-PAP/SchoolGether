@@ -38,6 +38,7 @@ Fora do âmbito por agora: iOS, tutor com IA, notificações push, LTI/Moodle, a
 | Ficheiros | Interface `IFileStorage`, implementação em disco local |
 | Autenticação | JWT de curta duração + refresh token; papéis `PlatformAdmin`, `InstitutionAdmin`, `Teacher`, `Student` |
 | Multi-instituição | `institution_id` em todas as tabelas de dados de cliente + filtro global no EF Core |
+| Contas | Uma instituição por conta; criadas pelos administradores. `PlatformAdmin` é global, sem instituição |
 | Alojamento (demonstração) | API no MonsterASP.NET (gratuito), MySQL no Aiven (gratuito), site no GitHub Pages |
 | Pontos e regras | Tabelas `activity`, `grading_rule` (JSON versionado) e `reward`; `xp_event` guarda a versão da regra usada |
 
@@ -119,6 +120,9 @@ dotnet run --project src/Backend/SchoolGether.Api
 - Concluído localmente: Etapa 5 — contexto EF Core, entidade Institution, ligação privada em user-secrets e primeira migração aplicados ao MySQL local. Testes de domínio de instituições criados. A configuração Aiven permanece pendente.
 - O PR #2 da base de dados ainda precisa de revisão e integração em `develop`. O ramo `feature/api-base` inclui esse trabalho como dependência.
 - Concluído localmente: Etapa 6 — Swagger/OpenAPI em desenvolvimento, rotas `/api/v1`, `ProblemDetails`, CORS e diagnósticos de funcionamento/prontidão. Testes HTTP criados e incluídos no CI. Ligação real ao MySQL e migrações confirmadas por `/api/v1/health/ready`. Ver `docs/api.md`.
+- Preparado no ramo `feature/identity`: login JWT, refresh com rotação/revogação, papéis, criação de instituições/contas por administradores, filtro e guardas de escrita em `institution_member`. Credenciais e sessões são metadados globais de autenticação; dados institucionais ficam no perfil filtrado. O primeiro administrador é criado por assistente local, sem credenciais no repositório. Ver `docs/identity.md`.
+- Identity tem testes HTTP com SQLite relacional isolado, incluindo isolamento entre instituições. A migração `IdentityAccounts` ainda precisa de ser aplicada e verificada no MySQL local, seguida da criação do primeiro administrador.
+- Na última consulta, PRs #2 e #3 estavam abertos. O ramo `feature/identity` parte do trabalho de `feature/api-base`; integrar os anteriores antes de rever o PR de Identity.
 - Por limpar: ficheiros `Class1.cs` e páginas `Counter` e `Weather` do site. O exemplo `WeatherForecast` da API foi removido.
 
 ### Próximas etapas da Fase 0
