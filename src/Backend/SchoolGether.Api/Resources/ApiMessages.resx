@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="UnexpectedError" xml:space="preserve"><value>Ocorreu um erro inesperado.</value></data>
+  <data name="NotFound" xml:space="preserve"><value>O recurso pedido não foi encontrado.</value></data>
+  <data name="MethodNotAllowed" xml:space="preserve"><value>O método HTTP não é permitido neste recurso.</value></data>
+  <data name="ServiceUnavailable" xml:space="preserve"><value>O serviço está temporariamente indisponível.</value></data>
+  <data name="ReadinessUnavailable" xml:space="preserve"><value>Não foi possível confirmar a ligação à base de dados e as migrações aplicadas.</value></data>
+  <data name="ValidationFailed" xml:space="preserve"><value>Existem dados inválidos no pedido.</value></data>
+</root>

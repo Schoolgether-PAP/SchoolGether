@@ -76,3 +76,21 @@ jobs:
 
       - name: Testar em Release
         run: dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj --configuration Release
+
+  api-tests:
+    name: Testes da API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Preparar .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Testar em Release
+        run: dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj --configuration Release
