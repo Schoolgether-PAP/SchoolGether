@@ -29,8 +29,10 @@ dotnet run --project src/Clients/SchoolGether.Web --launch-profile http
 ```
 
 A API usa `http://localhost:5265` e o site usa `http://localhost:5227`.
-O código atual ainda contém os exemplos dos modelos; o login e a base de dados
-serão implementados nas próximas etapas.
+Em desenvolvimento, abrir o Swagger em `http://localhost:5265/swagger`.
+A API base inclui diagnósticos, erros em `ProblemDetails` e CORS para o site local.
+Consultar [o guia da API](docs/api.md) para testar e configurar estes recursos.
+O site ainda contém exemplos dos modelos; o login será implementado na próxima etapa.
 
 ## Integração contínua
 
@@ -42,8 +44,24 @@ dos projetos também compilam as cinco bibliotecas de backend e partilhadas.
 para `main` e `develop`, e manualmente no separador **Actions** quando o workflow
 estiver no ramo predefinido. A app MAUI é validada localmente em Windows.
 
-Ainda não existem projetos de testes; nesta etapa o CI verifica a compilação.
-Os testes xUnit devem entrar no workflow quando forem criados os primeiros módulos.
+O job **Testes do domínio** executa os testes xUnit de instituições e o job
+**Testes da API** verifica os endpoints e o comportamento HTTP em memória.
+O job de compilação da API
+também verifica se o modelo EF corresponde às migrações guardadas, sem aceder ao
+MySQL. Os testes de aplicação e de isolamento entre instituições serão acrescentados
+com os respetivos módulos.
 O workflow não publica a API nem o site.
 
 Consultar [o guia de CI](docs/ci.md) para o fluxo de pull requests e diagnóstico de falhas.
+
+## Base de dados local
+
+Consultar [o guia de MySQL e migrações](docs/database.md) para criar a base local,
+configurar a ligação privada da API e aplicar as migrações EF Core.
+
+Para executar os testes existentes:
+
+```powershell
+dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj --configuration Release
+dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj --configuration Release
+```

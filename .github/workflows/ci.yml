@@ -47,3 +47,50 @@ jobs:
 
       - name: Compilar em Release
         run: dotnet build "${{ matrix.project }}" --configuration Release --no-restore
+
+      - name: Restaurar ferramentas EF
+        if: matrix.name == 'API'
+        run: dotnet tool restore
+
+      - name: Verificar correspondência entre modelo e migrações
+        if: matrix.name == 'API'
+        env:
+          # Esta ligação só permite gerar o modelo; o check não acede ao servidor.
+          ConnectionStrings__SchoolGether: 'Server=localhost;Database=schoolgether;User=design_only;'
+        run: dotnet ef migrations has-pending-model-changes --project src/Backend/SchoolGether.Infrastructure --startup-project src/Backend/SchoolGether.Api --configuration Release --no-build
+
+  domain-tests:
+    name: Testes do domínio
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Preparar .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Testar em Release
+        run: dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj --configuration Release
+
+  api-tests:
+    name: Testes da API
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Obter código
+        uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Preparar .NET 10
+        uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Testar em Release
+        run: dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj --configuration Release
