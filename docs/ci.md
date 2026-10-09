@@ -14,16 +14,20 @@ A solução completa inclui a app MAUI e precisa de componentes específicos de 
 plataforma. Por isso, o CI usa os caminhos dos projetos da API e do site em vez de
 `dotnet build` na solução completa. A app continua a ser validada em Windows.
 
-Não existem projetos de testes nesta etapa. Quando forem criados, adicionar jobs
-com `dotnet test` para Domain, Application e Api.IntegrationTests, incluindo
-o teste de isolamento entre instituições definido no `AGENTS.md`.
+O job `Testes do domínio` executa os testes xUnit da entidade Institution.
+O job da API também executa `migrations has-pending-model-changes` para detetar
+alterações no modelo que ainda não tenham uma migração. Esse check usa uma ligação
+de design sem credenciais e não acede ao servidor MySQL.
+
+Adicionar os testes de Application e Api.IntegrationTests quando forem criados,
+incluindo o teste de isolamento entre instituições definido no `AGENTS.md`.
 
 ## Fluxo da equipa
 
 1. Trabalhar num ramo `feature/<modulo>-<descricao>` a partir de `develop`.
 2. Executar os comandos de compilação do README antes de enviar alterações.
 3. Enviar o ramo e abrir um pull request para `develop`.
-4. Confirmar que os dois jobs do CI estão verdes no separador **Checks** do pull request.
+4. Confirmar que os três jobs do CI estão verdes no separador **Checks** do pull request.
 5. Pedir revisão a outro elemento e integrar depois da aprovação.
 
 Na configuração inicial, criar `develop` a partir de `main` se ainda não existir.
@@ -31,7 +35,7 @@ O primeiro pull request acrescenta o workflow; os eventos de push nos ramos
 `feature/**` permitem validar esse workflow antes da integração.
 
 Depois da primeira execução, configurar a proteção de `main` e `develop` para
-exigir os checks `Compilar API` e `Compilar Site`, além da revisão de outro elemento.
+exigir os checks `Compilar API`, `Compilar Site` e `Testes do domínio`, além da revisão de outro elemento.
 A criação do workflow não ativa automaticamente a proteção dos ramos.
 
 ## Quando uma execução falha
