@@ -15,7 +15,7 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
     {
         cancellationToken.ThrowIfCancellationRequested();
         var user = await users.FindByEmailAsync(email);
-        if (user is null || user.DeletedAt.HasValue || await users.IsLockedOutAsync(user)) return null;
+        if (user is null || !user.IsActive || user.DeletedAt.HasValue || await users.IsLockedOutAsync(user)) return null;
         if (!await users.CheckPasswordAsync(user, password))
         {
             await users.AccessFailedAsync(user);
@@ -28,7 +28,7 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
     public async Task<Account?> FindForAuthenticationAsync(int userId, CancellationToken cancellationToken)
     {
         var user = await db.Users.AsNoTracking().SingleOrDefaultAsync(x => x.Id == userId && x.DeletedAt == null, cancellationToken);
-        if (user is null || (user.LockoutEnabled && user.LockoutEnd > clock.GetUtcNow())) return null;
+        if (user is null || !user.IsActive || (user.LockoutEnabled && user.LockoutEnd > clock.GetUtcNow())) return null;
         return await ToAccountAsync(user, cancellationToken);
     }
 
@@ -47,7 +47,8 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
 
     public async Task<Account> CreateAsync(CreateAccount account, int createdBy, CancellationToken cancellationToken)
     {
-        await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
+        await using var transaction = db.Database.CurrentTransaction is null
+            ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
         var user = new ApplicationUser { UserName = account.Email.Trim(), Email = account.Email.Trim(),
             Name = account.Name.Trim(), CreatedBy = createdBy, LockoutEnabled = true };
         IdentityResult result;
@@ -61,7 +62,7 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
                 ? "AccountExists" : "InvalidAccount");
         db.Members.Add(new InstitutionMember(user.Id, account.InstitutionId!.Value, account.Name, account.Role, createdBy));
         await db.SaveChangesAsync(cancellationToken);
-        await transaction.CommitAsync(cancellationToken);
+        if (transaction is not null) await transaction.CommitAsync(cancellationToken);
         return new Account(user.Id, user.Email!, user.Name, account.Role, account.InstitutionId, user.SecurityStamp!);
     }
 

@@ -75,6 +75,7 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var platform = new ApplicationUser { UserName = "platform@example.test", Email = "platform@example.test",
             Name = "Plataforma", IsPlatformAdmin = true, LockoutEnabled = true };
+        platform.PromoteMaster();
         Assert.True((await users.CreateAsync(platform, Password)).Succeeded);
         var a = new Institution("Instituição A", platform.Id);
         var b = new Institution("Instituição B", platform.Id);

@@ -42,6 +42,8 @@ public sealed class BootstrapTests
         Assert.False(await bootstrap.CreateAsync("other@example.test", IdentityFactory.Password, default));
         var user = Assert.Single(await db.Users.ToListAsync());
         Assert.True(user.IsPlatformAdmin);
+        Assert.False(user.IsMaster);
+        Assert.Empty(user.GetPermissions());
         Assert.Equal("admin@example.test", user.Email);
     }
 }

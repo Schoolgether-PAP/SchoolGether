@@ -5,14 +5,16 @@ using Microsoft.Extensions.Localization;
 using SchoolGether.Api;
 using SchoolGether.Api.Diagnostics;
 using SchoolGether.Api.Identity;
+using SchoolGether.Api.Platform;
 using SchoolGether.Infrastructure.Persistence;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
-var builder = WebApplication.CreateBuilder(args.Where(arg => arg is not ("--bootstrap-admin" or "--setup-identity-key")).ToArray());
+var promoteMaster = args.Contains("--promote-master");
+var builder = WebApplication.CreateBuilder(args.Where(arg => arg is not ("--bootstrap-admin" or "--setup-identity-key" or "--promote-master")).ToArray());
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-builder.Services.AddControllers().ConfigureApiBehaviorOptions(options =>
+builder.Services.AddControllers(options => options.Filters.Add<AdministrativeValidationAuditFilter>()).ConfigureApiBehaviorOptions(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
     {
@@ -68,6 +70,13 @@ builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
     policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
+
+if (promoteMaster)
+{
+    if (!await MasterSetupConsole.RunAsync(app.Services, app.Environment.IsDevelopment(), Console.In, Console.Out, CancellationToken.None))
+        Environment.ExitCode = 1;
+    return;
+}
 
 if (bootstrap || setupKey)
 {

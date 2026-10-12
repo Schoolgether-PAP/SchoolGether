@@ -14,6 +14,11 @@ internal static class IdentityModel
         user.Property(x => x.Name).HasMaxLength(150);
         user.HasIndex(x => x.NormalizedEmail).IsUnique();
         user.Property(x => x.RowVersion).IsConcurrencyToken();
+        user.Ignore(x => x.IsMaster);
+        user.Property(x => x.IsActive).HasDefaultValue(true);
+        user.Property(x => x.PermissionsJson).HasMaxLength(512).HasDefaultValue("[]");
+        // NULL para todas as restantes contas; o índice garante um só master mesmo com concorrência.
+        user.HasIndex(x => x.MasterSlot).IsUnique();
         var member = model.Entity<InstitutionMember>();
         member.ToTable("institution_member");
         member.Property(x => x.Name).HasMaxLength(150);

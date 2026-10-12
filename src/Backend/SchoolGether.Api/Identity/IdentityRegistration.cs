@@ -6,6 +6,10 @@ using Microsoft.OpenApi;
 using SchoolGether.Application.Identity;
 using SchoolGether.Infrastructure.Identity;
 using SchoolGether.Infrastructure.Institutions;
+using SchoolGether.Infrastructure.Audit;
+using SchoolGether.Infrastructure.Platform;
+using SchoolGether.Api.Platform;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolGether.Api.Identity;
 
@@ -15,9 +19,15 @@ internal static class IdentityRegistration
     {
         services.AddIdentityModule();
         services.AddInstitutionsModule();
+        services.AddAuditModule();
+        services.AddPlatformModule();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentAccount, CurrentAccount>();
         services.AddExceptionHandler<IdentityExceptionHandler>();
+        services.AddExceptionHandler<PlatformExceptionHandler>();
+        services.AddScoped<AdministrativeRefusalAudit>();
+        services.AddScoped<AdministrativeValidationAuditFilter>();
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuditedAuthorizationResultHandler>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<TokenSigningKey>((options, key) =>
@@ -56,7 +66,8 @@ internal static class IdentityRegistration
                 Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT" };
             foreach (var path in document.Paths)
                 foreach (var operation in path.Value.Operations ?? [])
-                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions")
+                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions" ||
+                        path.Key.StartsWith("/api/v1/platform/", StringComparison.Ordinal))
                         operation.Value.Security = [new OpenApiSecurityRequirement {
                             [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
             return Task.CompletedTask;

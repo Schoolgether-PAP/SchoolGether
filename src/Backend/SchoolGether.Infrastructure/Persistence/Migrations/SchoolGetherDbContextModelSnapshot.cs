@@ -93,6 +93,75 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.ToTable("user_token", (string)null);
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Audit.AuditEntry", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("action");
+
+                    b.Property<int>("ActorId")
+                        .HasColumnType("int")
+                        .HasColumnName("actor_id");
+
+                    b.Property<string>("ActorName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("actor_name");
+
+                    b.Property<string>("After")
+                        .HasColumnType("text")
+                        .HasColumnName("after");
+
+                    b.Property<string>("Before")
+                        .HasColumnType("text")
+                        .HasColumnName("before");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int?>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<string>("Reason")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("varchar(500)")
+                        .HasColumnName("reason");
+
+                    b.Property<string>("RequestReference")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("request_reference");
+
+                    b.Property<string>("Result")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("result");
+
+                    b.Property<string>("Target")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("varchar(150)")
+                        .HasColumnName("target");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CreatedAt");
+
+                    b.ToTable("audit_entry", (string)null);
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Identity.InstitutionMember", b =>
                 {
                     b.Property<int>("Id")
@@ -227,6 +296,12 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("email_confirmed");
 
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("tinyint(1)")
+                        .HasDefaultValue(true)
+                        .HasColumnName("is_active");
+
                     b.Property<bool>("IsPlatformAdmin")
                         .HasColumnType("tinyint(1)")
                         .HasColumnName("is_platform_admin");
@@ -238,6 +313,10 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetime")
                         .HasColumnName("lockout_end");
+
+                    b.Property<int?>("MasterSlot")
+                        .HasColumnType("int")
+                        .HasColumnName("master_slot");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -258,6 +337,14 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.Property<string>("PasswordHash")
                         .HasColumnType("longtext")
                         .HasColumnName("password_hash");
+
+                    b.Property<string>("PermissionsJson")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(512)
+                        .HasColumnType("varchar(512)")
+                        .HasDefaultValue("[]")
+                        .HasColumnName("permissions_json");
 
                     b.Property<string>("PhoneNumber")
                         .HasColumnType("longtext")
@@ -290,6 +377,9 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnName("user_name");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("MasterSlot")
+                        .IsUnique();
 
                     b.HasIndex("NormalizedEmail")
                         .IsUnique()

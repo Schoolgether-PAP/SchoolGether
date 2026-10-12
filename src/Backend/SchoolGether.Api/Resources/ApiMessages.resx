@@ -37,4 +37,16 @@
   <data name="BootstrapError_InvalidUserName" xml:space="preserve"><value>O e-mail contém caracteres não permitidos para o login.</value></data>
   <data name="BootstrapError_DuplicateEmail" xml:space="preserve"><value>Já existe uma conta com este e-mail. Não é possível promovê-la através deste assistente.</value></data>
   <data name="BootstrapError_DuplicateUserName" xml:space="preserve"><value>Já existe uma conta com este login. Escolha outro e-mail para o administrador inicial.</value></data>
+  <data name="InvalidPermissions" xml:space="preserve"><value>Uma ou mais permissões não são reconhecidas.</value></data>
+  <data name="InvalidSearch" xml:space="preserve"><value>A pesquisa deve ter no máximo 150 caracteres.</value></data>
+  <data name="MasterProtected" xml:space="preserve"><value>A conta master não pode ser alterada neste painel.</value></data>
+  <data name="PlatformAdminNotFound" xml:space="preserve"><value>O administrador global não foi encontrado.</value></data>
+  <data name="VersionConflict" xml:space="preserve"><value>Os dados foram alterados por outro pedido. Atualize antes de guardar novamente.</value></data>
+  <data name="MasterExists" xml:space="preserve"><value>Já existe uma conta master. Não é possível promover outra.</value></data>
+  <data name="InvalidMasterAccount" xml:space="preserve"><value>Escolha o identificador de uma conta global existente e ativa.</value></data>
+  <data name="MasterConfirmationMismatch" xml:space="preserve"><value>Os identificadores não coincidem ou são inválidos. A promoção foi recusada.</value></data>
+  <data name="MasterDevelopmentOnly" xml:space="preserve"><value>O assistente de promoção master só está disponível em Development.</value></data>
+  <data name="MasterAccountId" xml:space="preserve"><value>ID da conta global a promover: </value></data>
+  <data name="MasterConfirmId" xml:space="preserve"><value>Confirme escrevendo novamente o mesmo ID: </value></data>
+  <data name="MasterPromoted" xml:space="preserve"><value>A conta escolhida foi promovida a master e a operação foi registada no histórico.</value></data>
 </root>
