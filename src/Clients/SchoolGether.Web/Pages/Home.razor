@@ -70,7 +70,7 @@
                                 <p class="field-error" id="password-error">@passwordError</p>
                             }
                         </div>
-                        <button class="primary-action" type="submit">@T(busy ? "SigningIn" : "SignIn")</button>
+                        <button class="primary-action" type="submit">@T(busyAction == "logout" ? "SigningOut" : busyAction == "login" ? "SigningIn" : "SignIn")</button>
                     </fieldset>
                 </form>
                 <p class="account-help">@T("AccountHelp")<br /><strong>@T("AccessHelp")</strong></p>

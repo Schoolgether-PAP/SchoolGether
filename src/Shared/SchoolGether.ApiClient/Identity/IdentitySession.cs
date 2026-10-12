@@ -47,14 +47,7 @@ public sealed class IdentitySession(IdentityApiClient api, IRefreshTokenStore st
             stateGate.Release();
         }
 
-        try
-        {
-            return await LoadProfileAsync(currentGeneration, cancellationToken);
-        }
-        catch (SessionExpiredException)
-        {
-            return null;
-        }
+        return await LoadProfileAsync(currentGeneration, cancellationToken);
     }
 
     public async Task<AccountResponse> GetProfileAsync(CancellationToken cancellationToken = default)

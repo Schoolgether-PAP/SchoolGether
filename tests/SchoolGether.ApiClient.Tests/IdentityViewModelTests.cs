@@ -89,6 +89,47 @@ public sealed class IdentityViewModelTests
         Assert.False(model.CanRetryRestore);
     }
 
+    // Catches a rejected saved refresh token silently becoming an empty startup session.
+    [Fact]
+    public async Task RejectedSavedSessionExplainsExpiryAndAllowsNewLogin()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Store.WriteAsync(SessionTestFixture.FirstRefresh, default);
+        var respond = fixture.Respond;
+        fixture.Respond = (request, cancellation) => request.Path.EndsWith("/refresh")
+            ? Task.FromResult(new HttpResponseMessage(HttpStatusCode.Unauthorized))
+            : respond(request, cancellation);
+        var model = CreateModel(fixture);
+
+        await model.RestoreCommand.ExecuteAsync(null);
+
+        Assert.Equal("A sessão terminou. Entre novamente.", model.Error);
+        Assert.Null(model.Account);
+        Assert.Null(await fixture.Store.ReadAsync(default));
+        Assert.False(model.CanRetryRestore);
+        Assert.True(model.LoginCommand.CanExecute(null));
+
+        model.Password = "test-password";
+        await model.LoginCommand.ExecuteAsync(null);
+        Assert.Null(model.Error);
+        Assert.Equal("Aluno", model.Account?.Name);
+    }
+
+    // Catches treating a first launch without a saved token as an expired session.
+    [Fact]
+    public async Task RestoreWithoutSavedSessionStaysSilent()
+    {
+        using var fixture = new SessionTestFixture();
+        var model = CreateModel(fixture);
+
+        await model.RestoreCommand.ExecuteAsync(null);
+
+        Assert.Null(model.Error);
+        Assert.Null(model.Account);
+        Assert.Empty(fixture.Requests);
+        Assert.True(model.LoginCommand.CanExecute(null));
+    }
+
     // Catches showing authenticated success when the protected store cannot persist the refresh token.
     [Fact]
     public async Task StorageFailureShowsSafeError()
