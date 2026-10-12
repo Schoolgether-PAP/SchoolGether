@@ -484,3 +484,6 @@ $RECYCLE.BIN/
 appsettings.Production.json
 appsettings.*.local.json
 *.PublishSettings
+
+# Prévias visuais locais e estado do assistente de design
+.superpowers/

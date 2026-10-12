@@ -3,6 +3,24 @@
 Revisão de 2026-10-11, ramo `feature/identity`, código em `427b9c8`.
 Organização por dependências e critérios de conclusão, sem estimativas de tempo.
 
+## Estado atualizado após o merge — 2026-10-12
+
+O PR #4 foi aprovado por `Andreiaheh` e integrado em `develop`, no commit
+`93462d6`. PRs #1 a #4 estão integrados. A pasta local foi atualizada por
+fast-forward e o ramo `feature/client-login` criado a partir desse commit.
+
+A validação automática MySQL descrita no acompanhamento abaixo já foi
+concluída. As referências posteriores a PRs abertos ou demonstração pendente
+pertencem ao histórico da auditoria, não ao estado atual.
+
+Próxima entrega: entrar, consultar o próprio perfil e sair no site e na app.
+A proposta está em
+[design do login nos clientes](superpowers/specs/2026-10-12-client-login-design.md),
+ainda por confirmar antes de implementar. Aiven e publicação continuam
+pendentes. Nesta atualização foram verificadas a revisão/integração remota e
+a sincronização Git; não foram repetidos os testes de produto, porque só foram
+alterados documentos.
+
 ## Resultado
 
 A base local está funcional, mas as etapas anteriores ainda não estão todas
