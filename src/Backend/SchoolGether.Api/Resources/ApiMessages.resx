@@ -10,4 +10,31 @@
   <data name="ServiceUnavailable" xml:space="preserve"><value>O serviço está temporariamente indisponível.</value></data>
   <data name="ReadinessUnavailable" xml:space="preserve"><value>Não foi possível confirmar a ligação à base de dados e as migrações aplicadas.</value></data>
   <data name="ValidationFailed" xml:space="preserve"><value>Existem dados inválidos no pedido.</value></data>
+  <data name="InvalidField" xml:space="preserve"><value>O valor deste campo é inválido ou está em falta. Consulte os requisitos no Swagger.</value></data>
+  <data name="InvalidCredentials" xml:space="preserve"><value>E-mail ou palavra-passe inválidos, ou conta indisponível.</value></data>
+  <data name="InvalidSession" xml:space="preserve"><value>A sessão é inválida ou expirou. Entre novamente.</value></data>
+  <data name="Forbidden" xml:space="preserve"><value>Não tem permissão para realizar esta operação.</value></data>
+  <data name="AccountExists" xml:space="preserve"><value>Já existe uma conta com este e-mail.</value></data>
+  <data name="InvalidAccount" xml:space="preserve"><value>Não foi possível criar a conta. Use um e-mail válido e uma palavra-passe com 12 a 128 caracteres, maiúscula, minúscula, número e símbolo.</value></data>
+  <data name="InvalidInstitution" xml:space="preserve"><value>Indique uma instituição existente e ativa.</value></data>
+  <data name="InvalidPagination" xml:space="preserve"><value>Indique uma página entre 1 e 100000 e um tamanho entre 1 e 100.</value></data>
+  <data name="TooManyRequests" xml:space="preserve"><value>Foram efetuados demasiados pedidos. Aguarde um minuto e tente novamente.</value></data>
+  <data name="BootstrapEmail" xml:space="preserve"><value>E-mail do primeiro administrador da plataforma: </value></data>
+  <data name="BootstrapPassword" xml:space="preserve"><value>Palavra-passe (mínimo 12 caracteres, maiúscula, minúscula, número e símbolo): </value></data>
+  <data name="BootstrapCreated" xml:space="preserve"><value>Administrador criado. Pode iniciar a API e entrar no Swagger.</value></data>
+  <data name="BootstrapExists" xml:space="preserve"><value>Já existe um administrador da plataforma. Nenhuma conta foi alterada.</value></data>
+  <data name="IdentityKeyExists" xml:space="preserve"><value>A chave JWT já está configurada. Nenhum segredo foi alterado.</value></data>
+  <data name="IdentityKeyCreated" xml:space="preserve"><value>Chave JWT criada e guardada em user-secrets da API.</value></data>
+  <data name="IdentityKeyFailed" xml:space="preserve"><value>Não foi possível guardar a chave privada em user-secrets.</value></data>
+  <data name="BootstrapError_PasswordTooShort" xml:space="preserve"><value>A palavra-passe precisa de pelo menos 12 caracteres.</value></data>
+  <data name="BootstrapError_PasswordTooLong" xml:space="preserve"><value>A palavra-passe não pode exceder 128 caracteres.</value></data>
+  <data name="BootstrapError_PasswordRequiresDigit" xml:space="preserve"><value>Falta um número na palavra-passe (0 a 9).</value></data>
+  <data name="BootstrapError_PasswordRequiresLower" xml:space="preserve"><value>Falta uma letra minúscula na palavra-passe (a a z).</value></data>
+  <data name="BootstrapError_PasswordRequiresUpper" xml:space="preserve"><value>Falta uma letra maiúscula na palavra-passe (A a Z).</value></data>
+  <data name="BootstrapError_PasswordRequiresNonAlphanumeric" xml:space="preserve"><value>Falta um símbolo na palavra-passe, por exemplo !, @ ou #.</value></data>
+  <data name="BootstrapError_PasswordRequiresUniqueChars" xml:space="preserve"><value>A palavra-passe precisa de caracteres distintos.</value></data>
+  <data name="BootstrapError_InvalidEmail" xml:space="preserve"><value>O formato do e-mail é inválido.</value></data>
+  <data name="BootstrapError_InvalidUserName" xml:space="preserve"><value>O e-mail contém caracteres não permitidos para o login.</value></data>
+  <data name="BootstrapError_DuplicateEmail" xml:space="preserve"><value>Já existe uma conta com este e-mail. Não é possível promovê-la através deste assistente.</value></data>
+  <data name="BootstrapError_DuplicateUserName" xml:space="preserve"><value>Já existe uma conta com este login. Escolha outro e-mail para o administrador inicial.</value></data>
 </root>

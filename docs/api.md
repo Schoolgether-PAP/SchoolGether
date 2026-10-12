@@ -2,7 +2,8 @@
 
 ## Executar e verificar
 
-Na raiz do repositório, depois de [preparar o MySQL local](database.md):
+Na raiz do repositório, depois de [preparar o MySQL local](database.md) e
+[configurar Identity](identity.md):
 
 ```powershell
 dotnet run --project src/Backend/SchoolGether.Api --launch-profile http
@@ -53,8 +54,9 @@ Erros de validação também incluem `errors`, por campo. Os títulos comuns est
 recursos de texto em português. Exceções inesperadas devolvem uma mensagem genérica
 com HTTP 500; os detalhes permanecem nos registos do servidor.
 
-Não existem ainda endpoints de gestão de instituições ou de login. A etapa seguinte
-é Identity, com autenticação, papéis e isolamento entre instituições.
+O módulo Identity acrescenta login, refresh, logout, consulta da própria conta e
+criação de contas por administradores. O administrador global pode criar instituições.
+Consultar [o guia de Identity](identity.md) para as permissões e a demonstração.
 
 ## CORS e HTTPS
 
