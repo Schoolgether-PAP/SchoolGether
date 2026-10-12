@@ -29,7 +29,7 @@ houve alterações ao backend nem migrações novas. Ver [guia dos clientes](cli
 |---|---|
 | Testes Domain Release | 18 aprovados |
 | Testes API Release | 48 aprovados; 1 cenário MySQL ignorado por não preparar instância temporária |
-| Testes ApiClient Release | 23 aprovados: 10 sessão e 13 ViewModel |
+| Testes ApiClient Release | 25 aprovados: 10 sessão e 15 ViewModel |
 | Site Release | Sem erros nem avisos |
 | App Debug Windows/Android | Sem erros nem avisos |
 | Chromium, HTTP controlado | Entrada válida/inválida, perfil atualizado, renovação/rejeição, saída remota/local, rede, 429, configuração ausente, teclado e 390 px |
@@ -40,6 +40,14 @@ Os contrastes medidos do site foram pelo menos 4,5:1 em texto e 3,77:1 no
 contorno dos campos; isto não equivale a auditoria completa de acessibilidade.
 A revisão identificou e corrigiu a semântica dos Entry Android para preservar
 ações do TalkBack, conforme a documentação MAUI; a execução nativa não foi feita.
+
+A revisão independente do ramo não encontrou problemas críticos ou importantes.
+As duas observações menores foram corrigidas: legenda «A sair…» durante saída
+web lenta e mensagem de sessão expirada ao rejeitar refresh guardado no arranque
+da app. O arranque sem token continua silencioso. Os cenários correspondentes
+passaram após as correções. Na última verificação, reiniciar o preview após
+recompilar resolveu um 404 de ficheiro Blazor servido pelo processo desatualizado;
+ambos os cenários do navegador voltaram a passar sem erros JavaScript.
 
 Continuam por verificar: interface e SecureStorage reais em Windows/Android,
 ligação do emulador à API e configuração do alojamento. Os guards HTTPS Release
