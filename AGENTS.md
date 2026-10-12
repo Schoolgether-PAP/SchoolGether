@@ -57,7 +57,7 @@ SchoolGether/
 │   └── Clients/
 │       ├── SchoolGether.Mobile/          # .NET MAUI
 │       └── SchoolGether.Web/             # Blazor WebAssembly
-├── tests/                                # Domain criado; Application e Api.IntegrationTests por criar
+├── tests/                                # Domain e Api.IntegrationTests criados; Application por criar
 ├── docs/                                 # documentação e decisões (ADR)
 └── SchoolGether.slnx
 ```
@@ -115,9 +115,11 @@ dotnet run --project src/Backend/SchoolGether.Api
 ## 8. Estado atual
 
 - Feito: conta e organização no GitHub, repositório criado, solução com os 8 projetos, build local sem erros, primeiro commit em `main`.
-- Em curso: Etapa 4 — integração contínua (GitHub Actions) via pull request para `develop`.
+- Concluído: Etapa 4 — integração contínua (GitHub Actions), PR #1 integrado em `develop`.
 - Concluído localmente: Etapa 5 — contexto EF Core, entidade Institution, ligação privada em user-secrets e primeira migração aplicados ao MySQL local. Testes de domínio de instituições criados. A configuração Aiven permanece pendente.
-- Por limpar: ficheiros de exemplo dos modelos (`WeatherForecast`, `Class1.cs`, páginas `Counter` e `Weather` do site).
+- O PR #2 da base de dados ainda precisa de revisão e integração em `develop`. O ramo `feature/api-base` inclui esse trabalho como dependência.
+- Concluído localmente: Etapa 6 — Swagger/OpenAPI em desenvolvimento, rotas `/api/v1`, `ProblemDetails`, CORS e diagnósticos de funcionamento/prontidão. Testes HTTP criados e incluídos no CI. Ligação real ao MySQL e migrações confirmadas por `/api/v1/health/ready`. Ver `docs/api.md`.
+- Por limpar: ficheiros `Class1.cs` e páginas `Counter` e `Weather` do site. O exemplo `WeatherForecast` da API foi removido.
 
 ### Próximas etapas da Fase 0
 

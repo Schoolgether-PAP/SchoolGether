@@ -1,4 +1,4 @@
-# Integração contínua — Fase 0, etapa 4
+# Integração contínua
 
 ## O que é verificado
 
@@ -8,7 +8,7 @@ dependências e compilam em Release. Uma falha num job não impede o outro de te
 
 Compilar a API também valida Domain, Application, Infrastructure e Contracts.
 Compilar o site também valida ApiClient e Contracts. Assim, sete dos oito projetos
-são compilados sem exigir os componentes MAUI no servidor de CI.
+de aplicação são compilados sem exigir os componentes MAUI no servidor de CI.
 
 A solução completa inclui a app MAUI e precisa de componentes específicos de cada
 plataforma. Por isso, o CI usa os caminhos dos projetos da API e do site em vez de
@@ -19,15 +19,22 @@ O job da API também executa `migrations has-pending-model-changes` para detetar
 alterações no modelo que ainda não tenham uma migração. Esse check usa uma ligação
 de design sem credenciais e não acede ao servidor MySQL.
 
-Adicionar os testes de Application e Api.IntegrationTests quando forem criados,
-incluindo o teste de isolamento entre instituições definido no `AGENTS.md`.
+O job `Testes da API` inicia a aplicação em memória com `WebApplicationFactory`.
+Verifica os endpoints de diagnóstico, erros e validação em `ProblemDetails`, CORS
+e disponibilidade do Swagger apenas em desenvolvimento. Substitui a verificação
+da base de dados por um serviço de teste: não precisa de MySQL nem de segredos.
+Estes testes não verificam a integração real com o provider ou o servidor MySQL;
+essa ligação pode ser confirmada localmente seguindo [o guia da API](api.md).
+
+Adicionar os testes de Application e de isolamento entre instituições com os
+respetivos módulos, conforme definido no `AGENTS.md`.
 
 ## Fluxo da equipa
 
 1. Trabalhar num ramo `feature/<modulo>-<descricao>` a partir de `develop`.
 2. Executar os comandos de compilação do README antes de enviar alterações.
 3. Enviar o ramo e abrir um pull request para `develop`.
-4. Confirmar que os três jobs do CI estão verdes no separador **Checks** do pull request.
+4. Confirmar que os quatro jobs do CI estão verdes no separador **Checks** do pull request.
 5. Pedir revisão a outro elemento e integrar depois da aprovação.
 
 Na configuração inicial, criar `develop` a partir de `main` se ainda não existir.
@@ -35,7 +42,8 @@ O primeiro pull request acrescenta o workflow; os eventos de push nos ramos
 `feature/**` permitem validar esse workflow antes da integração.
 
 Depois da primeira execução, configurar a proteção de `main` e `develop` para
-exigir os checks `Compilar API`, `Compilar Site` e `Testes do domínio`, além da revisão de outro elemento.
+exigir os checks `Compilar API`, `Compilar Site`, `Testes do domínio` e `Testes da API`,
+além da revisão de outro elemento.
 A criação do workflow não ativa automaticamente a proteção dos ramos.
 
 ## Quando uma execução falha
