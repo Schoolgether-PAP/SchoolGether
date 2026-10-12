@@ -70,11 +70,11 @@
                         <Label Text="{x:Static local:UiMessages.LoginSubtitle}" TextColor="{StaticResource IdentityMuted}" />
                         <Label Text="{x:Static local:UiMessages.Email}" />
                         <Entry Text="{Binding Email}" Keyboard="Email" MaxLength="256" ReturnType="Next" IsEnabled="{Binding CanInteract}"
-                               IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" SemanticProperties.Description="{x:Static local:UiMessages.Email}" />
+                               IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" SemanticProperties.Hint="{x:Static local:UiMessages.Email}" />
                         <Label Text="{x:Static local:UiMessages.Password}" />
                         <Entry Text="{Binding Password}" IsPassword="{Binding IsPasswordHidden}" MaxLength="128" ReturnType="Go"
                                Completed="OnPasswordCompleted" IsEnabled="{Binding CanInteract}" IsSpellCheckEnabled="False" IsTextPredictionEnabled="False"
-                               SemanticProperties.Description="{x:Static local:UiMessages.Password}" />
+                               SemanticProperties.Hint="{x:Static local:UiMessages.Password}" />
                         <Button Text="{Binding PasswordToggleText}" Command="{Binding TogglePasswordCommand}" IsEnabled="{Binding CanInteract}"
                                 SemanticProperties.Description="{Binding PasswordToggleText}" />
                         <Button Text="{x:Static local:UiMessages.SignIn}" Command="{Binding LoginCommand}" SemanticProperties.Description="{x:Static local:UiMessages.SignIn}" />
