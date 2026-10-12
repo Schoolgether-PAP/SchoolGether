@@ -131,6 +131,15 @@ dotnet run --project src/Backend/SchoolGether.Api
 - Revisão independente do ramo sem problemas críticos/importantes; duas observações menores corrigidas: legenda durante saída web e mensagem ao rejeitar sessão guardada no arranque da app. Próximo: revisão visual do utilizador, envio do ramo/PR para develop quando autorizado e revisão do colega. Verificar também execução nativa antes de distribuir. Aiven, API HTTPS e GitHub Pages continuam pendentes; ainda não há publicação desta entrega nem CI remoto confirmado para o quinto job.
 - Painel global em definição, ramo `feature/platform-admin-design`: utilizador aprovou acesso dos administradores a qualquer instituição, com permissões por ação geridas pelo master. Pagamentos, receitas e ofertas financeiras são exclusivamente fictícios para demonstração, sem gateways nem faturação real. Objetivos incluem suporte/acesso assistido, instituições, administradores, conteúdos/moderação, planos/ofertas, relatórios, avaliações, auditoria e logs. Primeira entrega proposta: navegação, master/permissões, instituições e histórico. Especificação detalhada em `docs/superpowers/specs/2026-10-12-platform-admin-design.md`; builder check sem questões importantes em falta. Prévia visual separada com dados de exemplo; descrição detalhada/visual aguardam validação, não existe ainda código de produto deste painel. Painéis escolares/docentes/alunos serão definidos posteriormente.
 
+Referência visual adicional de 2026-10-12: PHC GO observado em sessão autorizada
+para adaptar pesquisa, favoritos/recentes, listas configuráveis e detalhe lateral.
+Suporte em lista/quadro complementado pela documentação oficial. Prévia v2 local
+verificada em Chromium desktop/390 px, sem API real; revisão da proposta sem
+questões importantes em falta. Ver `docs/superpowers/specs/2026-10-12-phc-go-reference.md`.
+Descrição detalhada e prévia ainda aguardam validação; nenhum dado/credencial
+da conta de referência integra o repositório. Primeira entrega mantém foco em
+instituições, master/permissões e auditoria; suporte/avisos e finanças vêm depois.
+
 ### Próximas etapas da Fase 0
 
 5. Base de dados: MySQL local, Aiven e primeira migração.

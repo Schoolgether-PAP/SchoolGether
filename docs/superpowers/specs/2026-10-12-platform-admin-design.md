@@ -20,6 +20,8 @@ Decisões expressas:
 - Pagamentos, cobranças e receitas são fictícios, exclusivamente para demonstração.
 - Nome SchoolGether, logo original e paleta castanha/laranja já escolhidos.
 - Sem prazos ou estimativas de duração como critério de organização.
+- PHC GO é uma referência de organização e interação. Adaptar os padrões úteis,
+  conservando a identidade SchoolGether e o contexto educativo.
 
 ## Estado existente
 
@@ -50,6 +52,41 @@ Visão geral privilegia trabalho pendente e atalhos úteis. Indicadores e gráfi
 abrem a respetiva lista filtrada. Ausência de dados apresenta estado vazio e
 ação concreta, sem inventar indicadores. Nesta primeira proposta, a logo
 identifica o menu; o conteúdo principal usa o espaço antes reservado à logo grande.
+
+### Adaptação da referência PHC GO
+
+Análise em 2026-10-12: dashboard, lista e detalhe de clientes observados numa
+sessão autorizada, sem alterar registos. A documentação oficial complementa a
+análise de suporte; esse módulo não foi observado na conta. Ver
+[análise e referências](2026-10-12-phc-go-reference.md).
+
+- Cabeçalho com pesquisa, avisos e perfil; menu organizado por trabalho diário
+  e administração. Primeira entrega: pesquisa de áreas autorizadas. A pesquisa
+  transversal de registos depende de contratos próprios e não pesquisa apenas
+  a página carregada como se abrangesse toda a base.
+- Favoritos de áreas e acessos recentes aceleram tarefas repetidas. Na entrega A
+  são preferências em memória, limpas ao sair; não guardar tokens ou dados de
+  instituições no armazenamento do navegador. Persistência por conta é posterior.
+- Instituições: filtro de nome/estado, escolha de colunas não essenciais, densidade
+  compacta opcional e detalhe lateral com resumo, responsáveis e histórico.
+  Fechar o detalhe preserva filtros/página; criação de responsável usa operação
+  autorizada separada. No móvel, o detalhe ocupa o ecrã; tabelas têm scroll local.
+- Visão geral personalizável por mostrar/ocultar blocos disponíveis, sem editor
+  livre de layouts nesta entrega. Métricas abrem listas filtradas quando existirem.
+  Não mostrar suporte, avaliações ou finanças fictícias no produto da entrega A.
+- Entrega B: avisos internos e suporte em lista/quadro, com filtros de prioridade,
+  responsável e estado; filas por atribuir e sem resposta. Mudanças de estado e
+  atribuição são ações explícitas auditadas; arrastar cartões não é necessário.
+- Entrega C: relatórios por período e instituição, com exportação autorizada e
+  valores financeiros identificados como simulação.
+
+A prévia v2 mostra a direção completa com dados inventados. Pesquisa global de
+exemplos, suporte e avisos são interações demonstrativas, não novas funcionalidades
+da API nem compromissos adicionais para a entrega A.
+
+Padrões reutilizáveis posteriormente: listas/detalhes para cursos e materiais,
+quadro de atividades para docentes, favoritos e pendências para alunos. São
+possibilidades a discutir ao definir cada painel, não especificações já aprovadas.
 
 ## Master e permissões
 
@@ -275,3 +312,11 @@ histórico e menu a 390 px. Sem pedidos à API real, sem erros JavaScript e sem
 overflow horizontal global nas vistas verificadas. Capturas desktop/mobile
 inspecionadas. Isto verifica o protótipo, não o painel de produto nem auditoria
 completa de acessibilidade.
+
+Adaptação PHC GO: builder check independente sem questões importantes em falta
+para planear A. Prévia v2 verificada em Chromium a 1440 e 390 px: pesquisa de
+exemplos, favoritos/recentes, ocultação de blocos, colunas/densidade, detalhe com
+secções e preservação do filtro, suporte em lista/quadro, avisos, permissões e
+pesquisa do histórico. Sem pedidos à API real nem erros JavaScript; sem overflow
+horizontal global nas vistas verificadas. Capturas desktop e detalhe móvel
+inspecionados. Continua a ser um protótipo, separado do produto.
