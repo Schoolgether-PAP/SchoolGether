@@ -118,11 +118,13 @@ dotnet run --project src/Backend/SchoolGether.Api
 - Feito: conta e organização no GitHub, repositório criado, solução com os 8 projetos, build local sem erros, primeiro commit em `main`.
 - Concluído: Etapa 4 — integração contínua (GitHub Actions), PR #1 integrado em `develop`.
 - Concluído localmente: Etapa 5 — contexto EF Core, entidade Institution, ligação privada em user-secrets e primeira migração aplicados ao MySQL local. Testes de domínio de instituições criados. A configuração Aiven permanece pendente.
-- O PR #2 da base de dados ainda precisa de revisão e integração em `develop`. O ramo `feature/api-base` inclui esse trabalho como dependência.
+- PR #2 da base de dados integrado em `develop`, confirmado no GitHub em 2026-10-12.
 - Concluído localmente: Etapa 6 — Swagger/OpenAPI em desenvolvimento, rotas `/api/v1`, `ProblemDetails`, CORS e diagnósticos de funcionamento/prontidão. Testes HTTP criados e incluídos no CI. Ligação real ao MySQL e migrações confirmadas por `/api/v1/health/ready`. Ver `docs/api.md`.
 - Preparado no ramo `feature/identity`: login JWT, refresh com rotação/revogação, papéis, criação de instituições/contas por administradores, filtro e guardas de escrita em `institution_member`. Credenciais e sessões são metadados globais de autenticação; dados institucionais ficam no perfil filtrado. O primeiro administrador é criado por assistente local, sem credenciais no repositório. Ver `docs/identity.md`.
-- Identity tem testes HTTP com SQLite relacional isolado, incluindo isolamento entre instituições. A migração `IdentityAccounts` foi aplicada ao MySQL local. A criação do primeiro administrador permanece pendente; o assistente passou a mostrar asteriscos e os motivos específicos de rejeição da conta. O fluxo de login MySQL ainda precisa de verificação.
-- Na última consulta, PRs #2 e #3 estavam abertos. O ramo `feature/identity` parte do trabalho de `feature/api-base`; integrar os anteriores antes de rever o PR de Identity.
+- Identity tem testes HTTP com SQLite relacional isolado, incluindo isolamento entre instituições. As duas migrações foram confirmadas no MySQL local. O utilizador confirmou o administrador global, criação de instituição (ID 2), criação/login do administrador institucional, criação de docente/aluno, consulta do perfil, listagem pelo administrador, rejeição da listagem para docente/aluno e refresh/logout (200/204/401). Falta concluir o isolamento manual no MySQL entre duas instituições distintas: a conta chamada “instituição B” mostrada também está ligada à instituição 2, pelo que a listagem dos mesmos membros é esperada.
+- Auditoria de 2026-10-11: 18 testes de domínio e 46 da API passaram; o site compilou em Release e a base MAUI para Windows e Android em Debug. Modelo EF sem alterações pendentes; diagnósticos de funcionamento/prontidão devolveram 200 numa execução temporária da API. Estes resultados não demonstram um login funcional nos clientes. Ver `docs/revisao-etapas.md`.
+- Na consulta de 2026-10-12, PRs #2 e #3 confirmados como integrados. `origin/develop` atualizado para `ce69c62`; `feature/identity` ainda é local, sem ramo remoto. Próximo trabalho: atualizar Identity com develop, preparar a validação isolada em MySQL e depois o PR de Identity.
+- Ajuste concluído localmente em 2026-10-12: `IdentityStore.ToAccountAsync` usa `IInstitutionDirectory` para respeitar a fronteira entre módulos. Dois testes adicionais verificam login/refresh quando Institutions rejeita uma instituição, mantendo o acesso da outra. Verificação: 18 testes de domínio + 48 da API passaram; modelo EF sem alterações pendentes. Novamente executados os 66 testes após as confirmações do utilizador; API local em 5265 respondeu 200 nos dois diagnósticos e 401 em perfil/listagem sem autenticação. Os testes HTTP automatizados ainda usam SQLite, não uma base MySQL de teste isolada.
 - Por limpar: ficheiros `Class1.cs` e páginas `Counter` e `Weather` do site. O exemplo `WeatherForecast` da API foi removido.
 
 ### Próximas etapas da Fase 0
@@ -142,6 +144,7 @@ dotnet run --project src/Backend/SchoolGether.Api
 ## 9. Como trabalhar neste projeto
 
 - A equipa está a aprender: explicar as decisões, fazer alterações pequenas e fáceis de rever.
+- Sempre que uma tarefa for concluída e verificada, comunicar o resultado e indicar imediatamente o próximo passo concreto para dar continuidade ao projeto. Distinguir o trabalho que o agente executa das ações necessárias do utilizador; assumir os testes automatizados e evitar repetições manuais desnecessárias no Swagger.
 - Não mudar as decisões da secção 3 sem as discutir primeiro.
 - Quando algo for ambíguo, perguntar antes de assumir.
 - Ao criar uma funcionalidade nova: módulo nas quatro camadas do backend, contratos em `Contracts`, cliente em `ApiClient`, ecrãs na app e no site, e testes.

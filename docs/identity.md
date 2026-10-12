@@ -78,6 +78,45 @@ Para terminar, enviar o refresh token atual para `POST /api/v1/identity/logout`.
 A resposta é 204. Um token inexistente também devolve 204. O logout revoga a renovação
 daquela sessão; um access token já emitido pode continuar válido até expirar.
 
+## Retomar o teste com a instituição já criada
+
+Para o ambiente local atual, a instituição de demonstração já tem o ID **2**.
+Não é necessário voltar a criar a instituição nem o administrador global.
+
+1. Depois de atualizar o código, parar a API com `Ctrl+C` e iniciá-la novamente
+   com o comando da secção anterior. Esta correção não exige nova migração.
+2. Fazer login como administrador global e colocar o novo `accessToken` em
+   **Authorize**. Se existir um token anterior, usar **Logout** nessa janela antes
+   de autorizar novamente; isto limpa a autorização guardada pelo Swagger.
+3. Abrir `POST /api/v1/identity/users`, clicar em **Try it out** e usar:
+
+   ```json
+   {
+     "email": "admin.instituicao@example.test",
+     "password": "SUBSTITUIR_PELA_TUA_SENHA_PRIVADA",
+     "name": "Administrador da instituição",
+     "role": "InstitutionAdmin",
+     "institutionId": 2
+   }
+   ```
+
+   Escolher um e-mail de teste diferente do administrador global e uma senha
+   privada de 12 a 128 caracteres, com maiúscula, minúscula, número e símbolo.
+   Substituir o texto do campo `password` antes de executar. O e-mail acima é
+   apenas para testes locais; esta etapa não envia mensagens de e-mail.
+4. Clicar em **Execute**. Esperar **201**. Um **409** significa que o e-mail já
+   existe: se for uma conta previamente criada cuja senha conheces, tentar o login
+   com ela; caso contrário, escolher outro e-mail de teste para a nova conta.
+5. Em `POST /api/v1/identity/login`, enviar apenas o e-mail e a senha da nova
+   conta. Esperar **200** e confirmar no objeto `account`:
+   `role: "InstitutionAdmin"` e `institutionId: 2`.
+6. Trocar a autorização do Swagger pelo `accessToken` desta conta. Executar
+   `GET /api/v1/identity/me` e confirmar **200**, o mesmo papel e a instituição 2.
+
+Depois, continuar nos passos 6 a 8 da demonstração acima e testar refresh/logout.
+Comunicar apenas os códigos de resposta e o papel/instituição apresentados;
+não enviar senhas nem tokens.
+
 ## Endpoints e permissões
 
 | Endpoint | Permissão |

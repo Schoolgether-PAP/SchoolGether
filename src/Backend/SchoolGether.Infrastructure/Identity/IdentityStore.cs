@@ -2,13 +2,14 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
 using SchoolGether.Application.Identity;
+using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
 using SchoolGether.Infrastructure.Persistence;
 
 namespace SchoolGether.Infrastructure.Identity;
 
 internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGetherDbContext db,
-    TimeProvider clock) : IIdentityStore
+    TimeProvider clock, IInstitutionDirectory institutions) : IIdentityStore
 {
     public async Task<Account?> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -40,7 +41,7 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
             x => x.UserId == user.Id && x.DeletedAt == null, cancellationToken);
         if (member is null) return null;
         // A desativação da instituição também impede entrar e renovar a sessão.
-        if (!await db.Institutions.AnyAsync(x => x.Id == member.InstitutionId, cancellationToken)) return null;
+        if (!await institutions.ExistsAsync(member.InstitutionId, cancellationToken)) return null;
         return new Account(user.Id, user.Email!, member.Name, member.Role, member.InstitutionId, user.SecurityStamp!);
     }
 

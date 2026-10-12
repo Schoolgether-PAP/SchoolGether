@@ -9,6 +9,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using SchoolGether.Application.Identity;
+using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
 using SchoolGether.Domain.Institutions;
 using SchoolGether.Infrastructure.Identity;
@@ -20,12 +21,14 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
 {
     public const string Password = "Test-Only-Password42!";
     private readonly SqliteConnection connection = new("Data Source=:memory:");
+    private readonly IInstitutionDirectory? institutionDirectory;
     public string PrivateKey { get; }
     public int InstitutionA { get; private set; }
     public int InstitutionB { get; private set; }
 
-    public IdentityFactory()
+    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null)
     {
+        this.institutionDirectory = institutionDirectory;
         connection.Open();
         using var rsa = RSA.Create(2048);
         PrivateKey = rsa.ExportRSAPrivateKeyPem();
@@ -41,6 +44,11 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
             services.RemoveAll<DbContextOptions<SchoolGetherDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<SchoolGetherDbContext>>();
             services.AddDbContext<SchoolGetherDbContext>(options => options.UseSqlite(connection));
+            if (institutionDirectory is not null)
+            {
+                services.RemoveAll<IInstitutionDirectory>();
+                services.AddSingleton<IInstitutionDirectory>(institutionDirectory);
+            }
         });
     }
 
