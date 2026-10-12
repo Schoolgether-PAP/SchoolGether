@@ -140,6 +140,16 @@ Descrição detalhada e prévia ainda aguardam validação; nenhum dado/credenci
 da conta de referência integra o repositório. Primeira entrega mantém foco em
 instituições, master/permissões e auditoria; suporte/avisos e finanças vêm depois.
 
+Revisão v3 do dashboard em 2026-10-12: utilizador pediu gráficos mais cuidados e
+personalização individual por administrador. Proposta acrescenta catálogo de
+blocos, ordem/largura/visibilidade, modelos Gestão/Atendimento/Análise e preferências
+guardadas na própria conta no produto. Prévia local é descartável e mantém escolhas
+apenas em memória. Persistência de layout passa a integrar a entrega A; dados de
+suporte, utilização e finanças só entram quando os módulos os fornecerem. Ver a
+secção «Dashboard individual e gráficos — revisão v3» na especificação do painel.
+Sugestões de tarefas internas, filtros guardados, entrada assistida e importação
+CSV são propostas para evolução, sem aprovação nem inclusão automática na entrega A.
+
 ### Próximas etapas da Fase 0
 
 5. Base de dados: MySQL local, Aiven e primeira migração.

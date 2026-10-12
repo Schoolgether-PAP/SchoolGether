@@ -22,6 +22,8 @@ Decisões expressas:
 - Sem prazos ou estimativas de duração como critério de organização.
 - PHC GO é uma referência de organização e interação. Adaptar os padrões úteis,
   conservando a identidade SchoolGether e o contexto educativo.
+- Dashboard mais organizado, gráficos melhorados e personalização individual
+  por administrador, confirmada pelo utilizador em 2026-10-12.
 
 ## Estado existente
 
@@ -71,8 +73,8 @@ análise de suporte; esse módulo não foi observado na conta. Ver
   compacta opcional e detalhe lateral com resumo, responsáveis e histórico.
   Fechar o detalhe preserva filtros/página; criação de responsável usa operação
   autorizada separada. No móvel, o detalhe ocupa o ecrã; tabelas têm scroll local.
-- Visão geral personalizável por mostrar/ocultar blocos disponíveis, sem editor
-  livre de layouts nesta entrega. Métricas abrem listas filtradas quando existirem.
+- Visão geral personalizável por blocos disponíveis, conforme o detalhe abaixo.
+  Métricas abrem listas filtradas quando existirem.
   Não mostrar suporte, avaliações ou finanças fictícias no produto da entrega A.
 - Entrega B: avisos internos e suporte em lista/quadro, com filtros de prioridade,
   responsável e estado; filas por atribuir e sem resposta. Mudanças de estado e
@@ -87,6 +89,75 @@ da API nem compromissos adicionais para a entrega A.
 Padrões reutilizáveis posteriormente: listas/detalhes para cursos e materiais,
 quadro de atividades para docentes, favoritos e pendências para alunos. São
 possibilidades a discutir ao definir cada painel, não especificações já aprovadas.
+
+### Dashboard individual e gráficos — revisão v3
+
+Decisão expressa: cada administrador tem a sua organização; o master não impõe
+um layout único. Escolhas propostas pelo agente para concretizar esse pedido:
+
+- Ordem visual: contexto e filtros, alertas prioritários, indicadores essenciais,
+  blocos de análise e trabalho. Evitar misturar ações urgentes com finanças.
+- Editor com catálogo de blocos autorizados: mostrar/ocultar, mover para cima ou
+  baixo e escolher largura pequena (1/3), larga (2/3) ou linha completa. Não há
+  posicionamento livre, alturas manuais ou arrastar obrigatório. Em ecrã estreito,
+  todos os blocos passam a uma coluna, mantendo a ordem de leitura.
+- Modelos Gestão, Atendimento e Análise servem de ponto de partida; só incluem
+  blocos já implementados e autorizados. Restaurar padrão, Guardar e Cancelar são
+  explícitos. Alterações só entram em vigor ao guardar; fechar/Escape cancela o
+  rascunho. Ocultar tudo produz um estado vazio com ação para adicionar blocos.
+- No produto, guardar o layout na conta, via API, com versão de esquema e controlo
+  de concorrência. Só o próprio administrador lê/altera as suas preferências;
+  master não edita o layout dos outros. API valida identificadores, larguras,
+  duplicados e tamanho do documento. Não guardar dados de gráficos, HTML ou tokens.
+  Remover acesso a um módulo impede consultar os seus dados imediatamente, mesmo
+  com preferência antiga. Bloco indisponível fica omitido até voltar a ser permitido.
+- Personalização persistente de blocos é agora parte de A; isto substitui a escolha
+  anterior de apenas mostrar/ocultar em memória. Favoritos/recentes mantêm a
+  definição anterior. Na prévia descartável, tudo continua em memória e recarregar
+  repõe o exemplo. Não confundir essa limitação do protótipo com a decisão do produto.
+- Primeira entrega disponibiliza apenas indicadores de instituições/contas e
+  ações administrativas suportados pela API; não inventar histórico de acessos.
+  Utilização depende de recolha agregada de eventos; suporte e estado operacional
+  entram com B/D, finanças simuladas com C. O catálogo cresce com essas entregas.
+- Gráficos: linhas para evolução e comparação temporal; barras horizontais para
+  distribuições por estado. Eixos a partir de zero, unidades, legenda, períodos
+  explícitos, descrição breve e tabela com valores. Sem gráficos 3D ou significado
+  transmitido apenas por cor. Pontos consultáveis por teclado; tabela serve também
+  quem não usa hover. Se o gráfico não couber, scroll local preserva os rótulos.
+- Filtros de instituição e período aplicam-se só aos blocos compatíveis. Mostrar
+  claramente fotografia atual, âmbito global ou intervalo efetivo. Comparações
+  usam períodos completos equivalentes; período incompleto não deve aparentar
+  comparação justa sem indicação. Sem dados = vazio; falha = indisponível com
+  repetição; nunca mostrar zero como substituto de uma falha de recolha.
+- Dados educativos futuros são agregados por instituição, sem expor a atividade
+  individual de alunos no dashboard global. Relatórios mais detalhados exigem
+  especificação própria, autorização e retenção antes de implementação.
+
+Critérios adicionais de A: dois administradores guardam layouts diferentes; sair
+e voltar mantém a preferência da respetiva conta; Cancelar não grava; conflito de
+versão é explicado; payload inválido é recusado; permissões prevalecem sobre o
+layout; teclado/390 px e estados vazio/erro são verificados automaticamente.
+
+### Funções adicionais recomendadas, ainda não aprovadas
+
+Propostas do agente para evolução, sem aumentar automaticamente a entrega A:
+
+1. Filas e alertas acionáveis: sem responsável, sem resposta e incidentes técnicos;
+   evitar avisos repetidos sem ação útil. Complementa suporte B e operação D.
+2. Tarefas internas com responsável e estado, notas da equipa e ligação ao cliente
+   ou pedido; não confundir notas internas com mensagens enviadas ao cliente.
+3. Filtros guardados e pesquisas frequentes por administrador, além dos favoritos.
+4. Entrada assistida de instituições: checklist de configuração, primeira conta e
+   estado dos passos, sem criar contas ou dados silenciosamente.
+5. Importação de contas por CSV com pré-visualização, validação e relatório de erros;
+   depende do painel escolar e das regras de cada papel.
+
+MFA, convites e recuperação já constam da evolução de segurança;
+devem manter prioridade antes de dados reais alojados. Estas propostas adicionais
+precisam de discussão e desenho próprio quando forem escolhidas.
+
+Referências de acessibilidade: [gráficos e alternativas textuais W3C](https://www.w3.org/WAI/tutorials/images/complex/)
+e [alternativas a movimentos de arrastar W3C](https://www.w3.org/WAI/WCAG22/Understanding/dragging-movements.html).
 
 ## Master e permissões
 
@@ -227,6 +298,8 @@ testados fora do painel; não adicionar um botão de restauro sem fluxo verifica
   primeira conta institucional, com motivo e confirmação nas ações sensíveis.
 - Histórico das operações anteriores, com pesquisa e paginação.
 - Visão geral alimentada pelos dados disponíveis. Sem métricas fictícias.
+- Personalização individual persistente de blocos: ordem, visibilidade, largura,
+  modelos disponíveis, reposição do padrão e controlo de versão das preferências.
 - Estados vazios, carregamento, erro/repetição, sessão expirada, acesso recusado
   e conflito de edição concorrente; não perder dados de formulário numa falha recuperável.
 - Migration EF, testes e documentação local; não publicar ou modificar contas
@@ -320,3 +393,13 @@ secções e preservação do filtro, suporte em lista/quadro, avisos, permissõe
 pesquisa do histórico. Sem pedidos à API real nem erros JavaScript; sem overflow
 horizontal global nas vistas verificadas. Capturas desktop e detalhe móvel
 inspecionados. Continua a ser um protótipo, separado do produto.
+
+Revisão v3: builder check independente sem questões importantes em falta para
+planear A, incluindo persistência individual e limites dos dados disponíveis.
+Chromium verificou filtros de instituição/período, tabela dos gráficos, movimento
+por teclado, larguras, visibilidade, Guardar/Cancelar/Escape, modelos/reposição,
+estado vazio, preservação ao navegar e reposição ao recarregar a prévia. Desktop
+e 390 px sem overflow global ou do editor; zero erros JavaScript e pedidos à API
+real. Capturas inspecionadas; gráficos estreitos usam scroll local para manter
+rótulos legíveis. Não equivale a verificar persistência por conta na API, que
+ainda será implementada.
