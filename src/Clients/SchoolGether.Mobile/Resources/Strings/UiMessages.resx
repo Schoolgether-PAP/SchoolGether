@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <data name="Brand" xml:space="preserve">
+    <value>SchoolGether</value>
+  </data>
+  <data name="Welcome" xml:space="preserve">
+    <value>A tua escola, mais próxima.</value>
+  </data>
+  <data name="Intro" xml:space="preserve">
+    <value>Entra com a conta fornecida pela tua instituição.</value>
+  </data>
+  <data name="LoginTitle" xml:space="preserve">
+    <value>Bem-vindo de volta</value>
+  </data>
+  <data name="LoginSubtitle" xml:space="preserve">
+    <value>Entra para consultar o teu perfil.</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>E-mail</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Palavra-passe</value>
+  </data>
+  <data name="ShowPassword" xml:space="preserve">
+    <value>Mostrar palavra-passe</value>
+  </data>
+  <data name="HidePassword" xml:space="preserve">
+    <value>Ocultar palavra-passe</value>
+  </data>
+  <data name="SignIn" xml:space="preserve">
+    <value>Entrar</value>
+  </data>
+  <data name="AccountHelp" xml:space="preserve">
+    <value>As contas são criadas pela instituição. Se precisares de ajuda, contacta a administração.</value>
+  </data>
+  <data name="ProfileTitle" xml:space="preserve">
+    <value>O meu perfil</value>
+  </data>
+  <data name="ProfileSubtitle" xml:space="preserve">
+    <value>Os dados da tua conta, confirmados pela instituição.</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Nome</value>
+  </data>
+  <data name="Role" xml:space="preserve">
+    <value>Papel</value>
+  </data>
+  <data name="Institution" xml:space="preserve">
+    <value>Instituição</value>
+  </data>
+  <data name="RefreshProfile" xml:space="preserve">
+    <value>Atualizar perfil</value>
+  </data>
+  <data name="SignOut" xml:space="preserve">
+    <value>Sair</value>
+  </data>
+  <data name="RetryRestore" xml:space="preserve">
+    <value>Tentar recuperar sessão novamente</value>
+  </data>
+  <data name="Busy" xml:space="preserve">
+    <value>A comunicar com o SchoolGether…</value>
+  </data>
+  <data name="LogoDescription" xml:space="preserve">
+    <value>Logo SchoolGether, com um sagui e as iniciais SG</value>
+  </data>
+  <data name="PlatformAdmin" xml:space="preserve">
+    <value>Administrador da plataforma</value>
+  </data>
+  <data name="InstitutionAdmin" xml:space="preserve">
+    <value>Administrador da instituição</value>
+  </data>
+  <data name="Teacher" xml:space="preserve">
+    <value>Docente</value>
+  </data>
+  <data name="Student" xml:space="preserve">
+    <value>Aluno</value>
+  </data>
+  <data name="UnknownRole" xml:space="preserve">
+    <value>Papel desconhecido</value>
+  </data>
+  <data name="InstitutionFormat" xml:space="preserve">
+    <value>Instituição {0}</value>
+  </data>
+  <data name="PlatformAdministration" xml:space="preserve">
+    <value>Administração da plataforma</value>
+  </data>
+  <data name="RequiredFields" xml:space="preserve">
+    <value>Indica um e-mail válido e a palavra-passe (até 128 caracteres).</value>
+  </data>
+  <data name="InvalidLogin" xml:space="preserve">
+    <value>E-mail ou palavra-passe incorretos.</value>
+  </data>
+  <data name="SessionExpired" xml:space="preserve">
+    <value>A sessão terminou. Entre novamente.</value>
+  </data>
+  <data name="RateLimited" xml:space="preserve">
+    <value>Demasiadas tentativas. Aguarda um pouco e tenta novamente.</value>
+  </data>
+  <data name="NetworkError" xml:space="preserve">
+    <value>Não foi possível contactar o serviço. Verifica a ligação e tenta novamente.</value>
+  </data>
+  <data name="StorageError" xml:space="preserve">
+    <value>Não foi possível aceder ao armazenamento protegido. A entrada não foi concluída. Tenta novamente.</value>
+  </data>
+  <data name="LogoutStorageError" xml:space="preserve">
+    <value>O perfil foi fechado neste ecrã, mas não foi possível confirmar a remoção da sessão guardada nem a revogação no servidor. Tenta novamente antes de partilhar este dispositivo.</value>
+  </data>
+  <data name="LogoutConfirmed" xml:space="preserve">
+    <value>Sessão terminada.</value>
+  </data>
+  <data name="LogoutLocal" xml:space="preserve">
+    <value>Saíste neste dispositivo. Não foi possível confirmar a revogação da sessão no servidor.</value>
+  </data>
+  <data name="RequestError" xml:space="preserve">
+    <value>Não foi possível concluir o pedido. Tenta novamente.</value>
+  </data>
+  <data name="ConfigurationError" xml:space="preserve">
+    <value>A ligação ao serviço não está configurada. É necessária uma URL HTTPS válida da API na versão distribuída.</value>
+  </data>
+</root>

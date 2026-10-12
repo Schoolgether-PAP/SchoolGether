@@ -1,16 +1,17 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
 namespace SchoolGether.Mobile;
 
 public partial class App : Application
 {
-	public App()
-	{
-		InitializeComponent();
-	}
+    private readonly IServiceProvider services;
 
-	protected override Window CreateWindow(IActivationState? activationState)
-	{
-		return new Window(new AppShell());
-	}
+    public App(IServiceProvider services)
+    {
+        InitializeComponent();
+        UserAppTheme = AppTheme.Light;
+        this.services = services;
+    }
+
+    // Criar as páginas depois de carregar os recursos globais usados pelo XAML.
+    protected override Window CreateWindow(IActivationState? activationState)
+        => new(services.GetRequiredService<AppShell>());
 }
