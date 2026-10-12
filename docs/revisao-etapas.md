@@ -100,7 +100,32 @@ Os testes relacionais SQLite não substituem a demonstração com o provider MyS
 Atualização de 2026-10-12: o GitHub confirmou os PRs #2 e #3 integrados, nos
 commits `eb38f87` e `ce69c62`, respetivamente. As referências remotas locais foram
 atualizadas. As menções anteriores a PRs abertos são o retrato da auditoria de
-2026-10-11. O ramo Identity permanece local e será atualizado antes do seu PR.
+2026-10-11. O ramo Identity foi atualizado com `origin/develop` pelo merge local
+`e256670`, sem conflitos, preservando a correção no commit `ca89a99`.
+
+### Validação automática MySQL após o merge
+
+O cenário `MySqlIdentityTests` aplicou as migrações reais numa instância MySQL 8
+temporária e verificou por HTTP criação de instituição e administrador/aluno,
+perfil, isolamento de listagens entre instituições de IDs diferentes, recusa de
+escrita noutra instituição, permissões de docente/aluno e refresh/logout.
+**Um cenário executado e aprovado**, sem testes ignorados nessa execução.
+
+O script `scripts/Test-MySqlIdentity.ps1` cria uma pasta/porta/credenciais próprias,
+exige TLS para a ligação de teste, verifica no relatório TRX que o cenário correu
+e encerra/remove a instância. Foi executado também em Windows PowerShell 5.1.
+Não usou a senha de root do serviço existente nem alterou a base `schoolgether`.
+A suite normal passou com 18 testes de domínio e 48 da API; o cenário MySQL é
+explicitamente ignorado nessa suite quando o ambiente próprio não está ativo.
+A revisão independente encontrou um problema no caminho de falha da limpeza,
+corrigido e novamente aprovado em revisão estática.
+Foi ainda simulada uma falha de CIM no encerramento: o ambiente anterior foi
+restaurado e o diretório temporário removido, conforme esperado.
+
+O isolamento funcional no provider MySQL está agora confirmado automaticamente;
+o roteiro manual abaixo fica como alternativa de demonstração/aprendizagem.
+Próximo passo: enviar Identity e abrir PR para `develop`, com CI e revisão da
+equipa. O código ainda não foi enviado ao GitHub nesta etapa.
 
 ### 1. Fechar a revisão de Identity
 

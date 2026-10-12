@@ -188,6 +188,42 @@ palavra-passe, convites, MFA, auditoria detalhada e configuração dos proxies d
 alojamento serão tratadas nas próximas etapas. O emissor atual serve apenas os
 clientes próprios do projeto; integrações externas exigirão um fluxo OAuth/OIDC.
 
+### Teste automático com MySQL 8 no Windows
+
+Na raiz do repositório, executar:
+
+```powershell
+.\scripts\Test-MySqlIdentity.ps1
+```
+
+O assistente usa os binários do MySQL Server 8 já instalado, numa **nova instância
+temporária**, com pasta e porta próprias, acessível apenas pelo computador local.
+Não exige a senha do root existente, não muda o serviço instalado e não usa a
+base `schoolgether`. Gera credenciais temporárias e uma chave JWT de teste;
+aplica as migrações EF na base `schoolgether_test_identity` dessa instância.
+No final, encerra os processos temporários e remove a pasta criada.
+
+O cenário verifica via HTTP a criação de instituição/administrador/aluno, login,
+perfil, listagens separadas por instituição, bloqueio de criação noutra
+instituição, permissões de docente/aluno e renovação/logout. O script verifica
+também que o teste foi executado e aprovado; um teste ignorado não conta como
+sucesso. Senhas, chaves e tokens não são mostrados.
+
+Se o MySQL estiver instalado noutro caminho, indicar a pasta dos executáveis:
+
+```powershell
+.\scripts\Test-MySqlIdentity.ps1 -MySqlBinPath 'D:\MySQL\bin'
+```
+
+O comando habitual `dotnet test` continua a executar a suite SQLite, ignorando
+explicitamente este cenário quando `SCHOOLGETHER_TEST_MYSQL` não estiver definida.
+O script configura essa variável apenas durante a execução e restaura o ambiente
+anterior. O CI atual continua sem servidor MySQL; este teste é executado pelo
+script local. Não configurar essa variável com a ligação da base de desenvolvimento.
+
+Este teste confirma o provider e as migrações reais numa base nova. Não avalia
+carga concorrente, publicação, backups ou dados já existentes na base local.
+
 ## Dependências acrescentadas
 
 - `Microsoft.AspNetCore.Identity.EntityFrameworkCore`: credenciais e persistência oficial Identity.

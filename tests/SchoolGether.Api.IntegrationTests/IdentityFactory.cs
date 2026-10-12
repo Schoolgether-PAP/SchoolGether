@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using MySql.Data.MySqlClient;
 using SchoolGether.Application.Identity;
 using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
@@ -22,14 +23,23 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     public const string Password = "Test-Only-Password42!";
     private readonly SqliteConnection connection = new("Data Source=:memory:");
     private readonly IInstitutionDirectory? institutionDirectory;
+    private readonly string? mySqlConnectionString;
     public string PrivateKey { get; }
     public int InstitutionA { get; private set; }
     public int InstitutionB { get; private set; }
 
-    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null)
+    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null)
     {
         this.institutionDirectory = institutionDirectory;
-        connection.Open();
+        this.mySqlConnectionString = mySqlConnectionString;
+        if (mySqlConnectionString is null) connection.Open();
+        else
+        {
+            var settings = new MySqlConnectionStringBuilder(mySqlConnectionString);
+            if (settings.Database != "schoolgether_test_identity" ||
+                settings.Server is not ("localhost" or "127.0.0.1"))
+                throw new ArgumentException("O teste MySQL exige a base schoolgether_test_identity num servidor local.");
+        }
         using var rsa = RSA.Create(2048);
         PrivateKey = rsa.ExportRSAPrivateKeyPem();
     }
@@ -43,7 +53,11 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
         {
             services.RemoveAll<DbContextOptions<SchoolGetherDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<SchoolGetherDbContext>>();
-            services.AddDbContext<SchoolGetherDbContext>(options => options.UseSqlite(connection));
+            services.AddDbContext<SchoolGetherDbContext>(options =>
+            {
+                if (mySqlConnectionString is null) options.UseSqlite(connection);
+                else options.UseMySQL(mySqlConnectionString);
+            });
             if (institutionDirectory is not null)
             {
                 services.RemoveAll<IInstitutionDirectory>();
@@ -56,7 +70,8 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     {
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
-        await db.Database.EnsureCreatedAsync();
+        if (mySqlConnectionString is null) await db.Database.EnsureCreatedAsync();
+        else await db.Database.MigrateAsync();
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var platform = new ApplicationUser { UserName = "platform@example.test", Email = "platform@example.test",
             Name = "Plataforma", IsPlatformAdmin = true, LockoutEnabled = true };
