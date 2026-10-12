@@ -34,8 +34,12 @@ administrador, seguir [o guia de Identity](docs/identity.md) antes de iniciar a 
 Em desenvolvimento, abrir o Swagger em `http://localhost:5265/swagger`.
 A API base inclui diagnósticos, erros em `ProblemDetails` e CORS para o site local.
 Consultar [o guia da API](docs/api.md) para testar e configurar estes recursos.
-O login e a gestão inicial de contas já estão na API. O site ainda contém exemplos
-dos modelos; os ecrãs de login da app e do site serão implementados na próxima etapa.
+O site e a app já têm entrada, consulta do próprio perfil e saída. As contas são
+criadas pelos administradores. Consultar [o guia dos clientes](docs/client-login.md)
+para configuração, sessão em memória no site e armazenamento protegido na app.
+Esta entrega está no ramo local `feature/client-login`; o alojamento ainda está
+pendente. A interface nativa e o SecureStorage real precisam de execução em
+Windows/Android, além dos testes de lógica e das compilações já verificados.
 
 ## Integração contínua
 
@@ -53,6 +57,8 @@ login, JWT, refresh e isolamento entre instituições com SQLite relacional de t
 O job de compilação da API
 também verifica se o modelo EF corresponde às migrações guardadas, sem aceder ao
 MySQL. Os testes de aplicação serão acrescentados com os respetivos módulos.
+O job **Testes do cliente API** verifica a gestão de sessão e o ViewModel da app
+com HTTP controlado, sem precisar dos componentes MAUI ou de credenciais.
 O workflow não publica a API nem o site.
 
 Consultar [o guia de CI](docs/ci.md) para o fluxo de pull requests e diagnóstico de falhas.
@@ -67,4 +73,5 @@ Para executar os testes existentes:
 ```powershell
 dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj --configuration Release
 dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj --configuration Release
+dotnet test tests/SchoolGether.ApiClient.Tests/SchoolGether.ApiClient.Tests.csproj --configuration Release
 ```

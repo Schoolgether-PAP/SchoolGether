@@ -1,6 +1,6 @@
 # Revisão das etapas e próximos passos
 
-Revisão de 2026-10-11, ramo `feature/identity`, código em `427b9c8`.
+Histórico da revisão de 2026-10-11, ramo `feature/identity`, código em `427b9c8`.
 Organização por dependências e critérios de conclusão, sem estimativas de tempo.
 
 ## Estado atualizado após o merge — 2026-10-12
@@ -13,15 +13,46 @@ A validação automática MySQL descrita no acompanhamento abaixo já foi
 concluída. As referências posteriores a PRs abertos ou demonstração pendente
 pertencem ao histórico da auditoria, não ao estado atual.
 
-Próxima entrega: entrar, consultar o próprio perfil e sair no site e na app.
-A proposta está em
+Entrega local atual: entrar, consultar o próprio perfil e sair no site e na app.
+A proposta escolhida está em
 [design do login nos clientes](superpowers/specs/2026-10-12-client-login-design.md),
-ainda por confirmar antes de implementar. Aiven e publicação continuam
-pendentes. Nesta atualização foram verificadas a revisão/integração remota e
-a sincronização Git; não foram repetidos os testes de produto, porque só foram
-alterados documentos.
+e foi implementada no ramo `feature/client-login`. Aiven e publicação continuam
+pendentes. Os resultados abaixo distinguem esta entrega dos registos históricos.
 
-## Resultado
+## Login nos clientes — 2026-10-12
+
+O utilizador escolheu o visual B e delegou a primeira versão após entrar:
+perfil real e saída. Site Blazor e app XAML partilham a gestão de sessão; não
+houve alterações ao backend nem migrações novas. Ver [guia dos clientes](client-login.md).
+
+| Verificação local | Resultado |
+|---|---|
+| Testes Domain Release | 18 aprovados |
+| Testes API Release | 48 aprovados; 1 cenário MySQL ignorado por não preparar instância temporária |
+| Testes ApiClient Release | 23 aprovados: 10 sessão e 13 ViewModel |
+| Site Release | Sem erros nem avisos |
+| App Debug Windows/Android | Sem erros nem avisos |
+| Chromium, HTTP controlado | Entrada válida/inválida, perfil atualizado, renovação/rejeição, saída remota/local, rede, 429, configuração ausente, teclado e 390 px |
+| Logo | Cópias web/app iguais ao original, confirmado por SHA256 |
+
+Os cenários do navegador não usaram contas pessoais nem a base existente.
+Os contrastes medidos do site foram pelo menos 4,5:1 em texto e 3,77:1 no
+contorno dos campos; isto não equivale a auditoria completa de acessibilidade.
+A revisão identificou e corrigiu a semântica dos Entry Android para preservar
+ações do TalkBack, conforme a documentação MAUI; a execução nativa não foi feita.
+
+Continuam por verificar: interface e SecureStorage reais em Windows/Android,
+ligação do emulador à API e configuração do alojamento. Os guards HTTPS Release
+foram revistos, mas uma tentativa de invocar isoladamente um target privado
+do SDK para o manifesto falhou por preparação incompleta; não se alega build
+Release completo ou manifesto Release gerado. A execução normal Debug passou.
+
+Os commits são locais, sem push/PR desta entrega. O próximo passo é rever o
+aspeto no site, enviar `feature/client-login` quando autorizado, obter CI verde
+e revisão do colega. Depois, preparar Aiven, API HTTPS e GitHub Pages e verificar
+o login alojado, antes do módulo Academic.
+
+## Resultado histórico — 2026-10-11
 
 A base local está funcional, mas as etapas anteriores ainda não estão todas
 encerradas. Faltam a integração dos PRs de base e a confirmação do fluxo
