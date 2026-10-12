@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Brand" xml:space="preserve"><value>SchoolGether</value></data>
+  <data name="PlatformTagline" xml:space="preserve"><value>Plataforma educativa</value></data>
+  <data name="SkipToContent" xml:space="preserve"><value>Saltar para o conteúdo</value></data>
+  <data name="Footer" xml:space="preserve"><value>SchoolGether · Aprende em conjunto.</value></data>
+  <data name="LogoAlternative" xml:space="preserve"><value>Logo SchoolGether</value></data>
+  <data name="BrandTagline" xml:space="preserve"><value>Aprende. Partilha. Cresce.</value></data>
+  <data name="LoginTitle" xml:space="preserve"><value>Entra na tua conta</value></data>
+  <data name="LoginIntroduction" xml:space="preserve"><value>Bem-vindo ao SchoolGether.</value></data>
+  <data name="Email" xml:space="preserve"><value>E-mail</value></data>
+  <data name="EmailPlaceholder" xml:space="preserve"><value>O teu e-mail</value></data>
+  <data name="Password" xml:space="preserve"><value>Palavra-passe</value></data>
+  <data name="PasswordPlaceholder" xml:space="preserve"><value>A tua palavra-passe</value></data>
+  <data name="ShowPassword" xml:space="preserve"><value>Mostrar</value></data>
+  <data name="HidePassword" xml:space="preserve"><value>Ocultar</value></data>
+  <data name="SignIn" xml:space="preserve"><value>Entrar</value></data>
+  <data name="SigningIn" xml:space="preserve"><value>A entrar…</value></data>
+  <data name="AccountHelp" xml:space="preserve"><value>A tua conta é criada pela instituição.</value></data>
+  <data name="AccessHelp" xml:space="preserve"><value>Precisas de acesso? Contacta o administrador.</value></data>
+  <data name="EmailRequired" xml:space="preserve"><value>Indica o teu e-mail.</value></data>
+  <data name="EmailInvalid" xml:space="preserve"><value>Indica um e-mail válido, com até 256 caracteres.</value></data>
+  <data name="PasswordRequired" xml:space="preserve"><value>Indica a tua palavra-passe.</value></data>
+  <data name="PasswordTooLong" xml:space="preserve"><value>A palavra-passe deve ter até 128 caracteres.</value></data>
+  <data name="ValidationError" xml:space="preserve"><value>Revê os campos assinalados.</value></data>
+  <data name="InvalidCredentials" xml:space="preserve"><value>E-mail ou palavra-passe inválidos. Tenta novamente.</value></data>
+  <data name="NetworkError" xml:space="preserve"><value>Não foi possível comunicar com o serviço. Verifica a ligação e tenta novamente.</value></data>
+  <data name="RateLimit" xml:space="preserve"><value>Demasiadas tentativas. Aguarda um pouco e tenta novamente.</value></data>
+  <data name="SessionExpired" xml:space="preserve"><value>A sessão terminou. Entra novamente.</value></data>
+  <data name="ConfigurationError" xml:space="preserve"><value>O serviço de entrada não está configurado. Contacta o administrador.</value></data>
+  <data name="ServiceError" xml:space="preserve"><value>O serviço está indisponível. Tenta novamente mais tarde.</value></data>
+  <data name="ProfileTitle" xml:space="preserve"><value>O meu perfil</value></data>
+  <data name="ProfileIntroduction" xml:space="preserve"><value>Os dados da tua conta SchoolGether.</value></data>
+  <data name="Name" xml:space="preserve"><value>Nome</value></data>
+  <data name="Role" xml:space="preserve"><value>Papel</value></data>
+  <data name="Institution" xml:space="preserve"><value>Instituição</value></data>
+  <data name="RoleStudent" xml:space="preserve"><value>Aluno</value></data>
+  <data name="RoleTeacher" xml:space="preserve"><value>Docente</value></data>
+  <data name="RoleInstitutionAdmin" xml:space="preserve"><value>Administrador da instituição</value></data>
+  <data name="RolePlatformAdmin" xml:space="preserve"><value>Administrador da plataforma</value></data>
+  <data name="RoleUnknown" xml:space="preserve"><value>Papel não disponível</value></data>
+  <data name="InstitutionNumber" xml:space="preserve"><value>Instituição {0}</value></data>
+  <data name="PlatformAdministration" xml:space="preserve"><value>Administração da plataforma</value></data>
+  <data name="InstitutionUnavailable" xml:space="preserve"><value>Instituição não disponível</value></data>
+  <data name="RefreshProfile" xml:space="preserve"><value>Atualizar perfil</value></data>
+  <data name="RefreshingProfile" xml:space="preserve"><value>A atualizar…</value></data>
+  <data name="ProfileUpdated" xml:space="preserve"><value>Perfil atualizado.</value></data>
+  <data name="SignOut" xml:space="preserve"><value>Sair</value></data>
+  <data name="SigningOut" xml:space="preserve"><value>A sair…</value></data>
+  <data name="SignedOut" xml:space="preserve"><value>Saíste da tua conta.</value></data>
+  <data name="LocalSignOut" xml:space="preserve"><value>Saíste neste dispositivo. Não foi possível confirmar a revogação da sessão no servidor.</value></data>
+  <data name="NotFoundTitle" xml:space="preserve"><value>Página não encontrada</value></data>
+  <data name="NotFoundMessage" xml:space="preserve"><value>Esta página não existe.</value></data>
+  <data name="BackToStart" xml:space="preserve"><value>Voltar ao início</value></data>
+</root>

@@ -1,77 +1,10 @@
-.page {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-}
-
-main {
-    flex: 1;
-}
-
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
-    display: flex;
-    align-items: center;
-}
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
-
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
-
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
-@media (max-width: 640.98px) {
-    .top-row {
-        justify-content: space-between;
-    }
-
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        margin-left: 0;
-    }
-}
-
-@media (min-width: 641px) {
-    .page {
-        flex-direction: row;
-    }
-
-    .sidebar {
-        width: 250px;
-        height: 100vh;
-        position: sticky;
-        top: 0;
-    }
-
-    .top-row {
-        position: sticky;
-        top: 0;
-        z-index: 1;
-    }
-
-    .top-row.auth ::deep a:first-child {
-        flex: 1;
-        text-align: right;
-        width: 0;
-    }
-
-    .top-row, article {
-        padding-left: 2rem !important;
-        padding-right: 1.5rem !important;
-    }
-}
+.site-shell { min-height: 100dvh; display: flex; flex-direction: column; }
+.site-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 16px 32px; background: white; border-bottom: 1px solid var(--line-soft); min-height: 65px; }
+.wordmark { display: flex; align-items: center; gap: 10px; font-size: 19px; font-weight: 650; letter-spacing: -.4px; }
+.brand-dot { width: 10px; height: 10px; background: var(--accent); border-radius: 50%; }
+.site-tag { font-size: 13px; color: var(--muted); }
+main { flex: 1; display: flex; outline: none; }
+footer { color: var(--muted); font-size: 12px; text-align: center; padding: 16px 20px; background: var(--canvas); }
+.skip-link { position: absolute; top: -100px; left: 20px; z-index: 10; padding: 12px 16px; background: white; color: var(--action); }
+.skip-link:focus { top: 10px; }
+@media (max-width: 760px) { .site-header { padding: 14px 20px; } .site-tag { display: none; } }
