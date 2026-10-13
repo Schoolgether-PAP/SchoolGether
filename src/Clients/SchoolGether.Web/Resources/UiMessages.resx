@@ -401,6 +401,21 @@
   <data name="NoPermissions" xml:space="preserve">
     <value>Sem capacidades concedidas</value>
   </data>
+  <data name="ReconcileHelp" xml:space="preserve">
+    <value>O registo foi alterado entretanto. Consulte os dados atuais antes de decidir se mantém o seu rascunho.</value>
+  </data>
+  <data name="FetchCurrentRecord" xml:space="preserve">
+    <value>Obter registo atual</value>
+  </data>
+  <data name="CurrentRecord" xml:space="preserve">
+    <value>Registo atual</value>
+  </data>
+  <data name="KeepDraftHelp" xml:space="preserve">
+    <value>Manter o rascunho aplica os seus campos sobre a versão atual. Reveja as diferenças antes de guardar.</value>
+  </data>
+  <data name="KeepDraftVersion" xml:space="preserve">
+    <value>Manter rascunho e usar versão atual</value>
+  </data>
   <data name="ProtectedAccount" xml:space="preserve">
     <value>Conta protegida</value>
   </data>

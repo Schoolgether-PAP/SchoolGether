@@ -2,12 +2,13 @@
 @implements IAsyncDisposable
 @inject IJSRuntime JS
 <dialog @ref="element" class="platform-dialog @(Drawer ? "drawer" : "")" aria-labelledby="platform-dialog-title">
-    <header><h2 id="platform-dialog-title">@Title</h2><button type="button" @onclick="Cancel">@UiMessages.Get("Close")</button></header>
+    <header><h2 id="platform-dialog-title">@Title</h2><button type="button" disabled="@Busy" @onclick="CancelAsync">@UiMessages.Get("Close")</button></header>
     <div class="dialog-body">@ChildContent</div>
 </dialog>
 @code {
     [Parameter] public string Title { get; set; } = "";
     [Parameter] public bool Drawer { get; set; }
+    [Parameter] public bool Busy { get; set; }
     [Parameter] public RenderFragment? ChildContent { get; set; }
     [Parameter] public EventCallback Cancel { get; set; }
     private ElementReference element;
@@ -22,7 +23,7 @@
         reference = DotNetObjectReference.Create(this);
         await module.InvokeVoidAsync("open", element, reference);
     }
-    [JSInvokable] public Task CancelAsync() => Cancel.InvokeAsync();
+    [JSInvokable] public Task CancelAsync() => Busy ? Task.CompletedTask : Cancel.InvokeAsync();
     public async ValueTask DisposeAsync()
     {
         disposed = true;

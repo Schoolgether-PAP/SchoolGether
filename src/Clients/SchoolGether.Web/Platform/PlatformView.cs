@@ -13,6 +13,8 @@ public abstract class PlatformView : ComponentBase, IDisposable
     protected readonly CancellationTokenSource Lifetime = new();
     protected bool Busy { get; private set; }
     protected string? Error { get; private set; }
+    protected HttpStatusCode? FailureStatus { get; private set; }
+    [Parameter] public EventCallback<bool> BusyChanged { get; set; }
     protected string? Notice { get; set; }
     protected bool Disposed { get; private set; }
     private int request;
@@ -24,9 +26,11 @@ public abstract class PlatformView : ComponentBase, IDisposable
         var current = ++request;
         Busy = true;
         Error = null;
+        FailureStatus = null;
         Notice = null;
         try
         {
+            await BusyChanged.InvokeAsync(true);
             var value = await operation(Lifetime.Token);
             if (!Disposed && current == request) apply(value);
         }
@@ -35,6 +39,7 @@ public abstract class PlatformView : ComponentBase, IDisposable
         catch (Exception exception)
         {
             if (Disposed || current != request) return;
+            FailureStatus = (exception as IdentityApiException)?.StatusCode;
             Error = T(exception switch
             {
                 IdentityApiException { StatusCode: HttpStatusCode.Forbidden } => "PlatformForbidden",
@@ -46,7 +51,14 @@ public abstract class PlatformView : ComponentBase, IDisposable
             if (exception is IdentityApiException { StatusCode: HttpStatusCode.Forbidden })
                 await PermissionsChanged.InvokeAsync();
         }
-        finally { if (!Disposed && current == request) Busy = false; }
+        finally
+        {
+            if (!Disposed && current == request)
+            {
+                Busy = false;
+                await BusyChanged.InvokeAsync(false);
+            }
+        }
     }
     public virtual void Dispose()
     {

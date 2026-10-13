@@ -1,8 +1,8 @@
 @inherits PlatformView
 @inject PlatformApiClient Api
-<PlatformDialog Title="@(detail?.Institution.Name ?? T("Institution"))" Drawer Cancel="Cancel">
+<PlatformDialog Busy="saving" Title="@(detail?.Institution.Name ?? T("Institution"))" Drawer Cancel="Cancel">
     @if (mode is not null && detail is not null)
-    { <h3>@T(mode == "institution-edit" ? "EditInstitution" : mode == "responsible" ? "CreateResponsible" : detail.Institution.IsSuspended ? "ReactivateInstitution" : "SuspendInstitution")</h3><PlatformMutationForm @key="mode" Context="Context" PermissionsChanged="PermissionsChanged" Kind="@mode" Institution="detail.Institution" Saved="Saved" Cancel="Cancel" /> }
+    { <h3>@T(mode == "institution-edit" ? "EditInstitution" : mode == "responsible" ? "CreateResponsible" : detail.Institution.IsSuspended ? "ReactivateInstitution" : "SuspendInstitution")</h3><PlatformMutationForm BusyChanged="value => saving = value" @key="mode" Context="Context" PermissionsChanged="PermissionsChanged" Kind="@mode" Institution="detail.Institution" Saved="Saved" Cancel="Cancel" /> }
     else if (!Can(PlatformPermissions.InstitutionsRead)) { <p role="alert" class="feedback error-message">@T("PlatformForbidden")</p> }
     else if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
     else if (detail is null) { <p role="status">@T("Loading")</p> }
@@ -26,6 +26,7 @@
     private PlatformInstitutionDetailResponse? detail;
     private string tab = "summary";
     private string? mode;
+    private bool saving;
     protected override Task OnInitializedAsync() => LoadAsync();
     private Task LoadAsync() => RunAsync(token => Api.GetInstitutionAsync(Id, token), value => detail = value);
 }

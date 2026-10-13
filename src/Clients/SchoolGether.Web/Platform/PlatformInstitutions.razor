@@ -23,7 +23,7 @@
     @if (data is not null) { <PlatformPagination Page="page" Total="data.Total" PageSize="20" Busy="Busy" Changed="PageAsync" /> }
 }
 @if (creating)
-{ <PlatformDialog Title="@T("NewInstitution")" Cancel="() => creating = false"><PlatformMutationForm Context="Context" PermissionsChanged="PermissionsChanged" Kind="institution-create" Saved="SavedAsync" Cancel="() => creating = false" /></PlatformDialog> }
+{ <PlatformDialog Busy="saving" Title="@T("NewInstitution")" Cancel="() => creating = false"><PlatformMutationForm BusyChanged="value => saving = value" Context="Context" PermissionsChanged="PermissionsChanged" Kind="institution-create" Saved="SavedAsync" Cancel="() => creating = false" /></PlatformDialog> }
 @if (selected is { } id)
 { <PlatformInstitutionDetail @key="id" Context="Context" PermissionsChanged="PermissionsChanged" Id="id" Cancel="() => selected = null" Saved="SavedAsync" /> }
 @code {
@@ -33,6 +33,7 @@
     private int page = 1;
     private bool showState = true, showAccounts = true, showCreated, compact, creating;
     private int? selected;
+    private bool saving;
     protected override Task OnInitializedAsync() { state = InitialSuspended?.ToString().ToLowerInvariant() ?? ""; return Can(PlatformPermissions.InstitutionsRead) ? LoadAsync() : Task.CompletedTask; }
     private Task LoadAsync() => RunAsync(token => Api.ListInstitutionsAsync(page, 20, search, state == "" ? null : state == "true", token), value => data = value);
     private async Task SearchAsync() { page = 1; await LoadAsync(); }

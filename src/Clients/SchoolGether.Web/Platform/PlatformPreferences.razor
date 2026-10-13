@@ -1,6 +1,6 @@
 @inherits PlatformView
 @inject PlatformApiClient Api
-<PlatformDialog Title="@T("CustomizeTitle")" Cancel="Cancel">
+<PlatformDialog Title="@T("CustomizeTitle")" Busy="Busy" Cancel="CancelAsync">
     <p>@T("LayoutDraftHelp")</p>
     <div class="preset-actions"><span>@T("LayoutPresets")</span>@foreach (var preset in new[] { "ManagementPreset", "ServicePreset", "AnalysisPreset" }) { <button type="button" disabled="@Busy" @onclick="() => Preset(preset)">@T(preset)</button> }</div>
     @for (var i = 0; i < draft.Count; i++)
@@ -13,7 +13,7 @@
         </div>
     }
     @if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="ReloadAsync">@T("ReloadPreferences")</button> }
-    <div class="dialog-actions"><button type="button" disabled="@Busy" @onclick='() => Preset("ManagementPreset")'>@T("RestoreDefault")</button><button type="button" @onclick="Cancel">@T("Cancel")</button><button class="platform-primary" type="button" disabled="@Busy" @onclick="SaveAsync">@T(Busy ? "Saving" : "Save")</button></div>
+    <div class="dialog-actions"><button type="button" disabled="@Busy" @onclick='() => Preset("ManagementPreset")'>@T("RestoreDefault")</button><button type="button" disabled="@Busy" @onclick="CancelAsync">@T("Cancel")</button><button class="platform-primary" type="button" disabled="@Busy" @onclick="SaveAsync">@T(Busy ? "Saving" : "Save")</button></div>
 </PlatformDialog>
 @code {
     [Parameter, EditorRequired] public DashboardPreferenceResponse Preference { get; set; } = default!;
@@ -38,6 +38,7 @@
         var ids = name == "ServicePreset" ? new[] { "recent-actions", "institutions-status", "institutions-trend" } : name == "AnalysisPreset" ? new[] { "institutions-trend", "institutions-status", "recent-actions" } : new[] { "institutions-trend", "institutions-status", "recent-actions" };
         draft = ids.Where(Authorized).Select(id => new DashboardWidget(id, name == "AnalysisPreset" && id == "institutions-trend" ? "full" : id == "institutions-trend" ? "wide" : id == "institutions-status" ? "small" : "full", true)).ToList();
     }
+    private Task CancelAsync() => Busy ? Task.CompletedTask : Cancel.InvokeAsync();
     private async Task SaveAsync()
     {
         DashboardPreferenceResponse? saved = null;

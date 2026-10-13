@@ -12,11 +12,12 @@ else
     </tbody></table></div><PlatformPagination Page="page" Total="data.Total" PageSize="20" Busy="Busy" Changed="PageAsync" />
 }
 @if (editing)
-{ <PlatformDialog Title="@T(selected is null ? "NewAdmin" : "EditPermissions")" Cancel="() => editing = false"><PlatformMutationForm Context="Context" PermissionsChanged="PermissionsChanged" Kind="@(selected is null ? "admin-create" : "admin-edit")" Admin="selected" Saved="SavedAsync" Cancel="() => editing = false" /></PlatformDialog> }
+{ <PlatformDialog Busy="saving" Title="@T(selected is null ? "NewAdmin" : "EditPermissions")" Cancel="() => editing = false"><PlatformMutationForm BusyChanged="value => saving = value" Context="Context" PermissionsChanged="PermissionsChanged" Kind="@(selected is null ? "admin-create" : "admin-edit")" Admin="selected" Saved="SavedAsync" Cancel="() => editing = false" /></PlatformDialog> }
 @code {
     private PagedResponse<PlatformAdminResponse>? data;
     private int page = 1;
     private bool editing;
+    private bool saving;
     private PlatformAdminResponse? selected;
     protected override Task OnInitializedAsync() => LoadAsync();
     private Task LoadAsync() => RunAsync(token => Api.ListAdminsAsync(page, 20, token), value => data = value);
