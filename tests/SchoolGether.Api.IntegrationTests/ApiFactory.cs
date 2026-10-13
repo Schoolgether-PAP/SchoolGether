@@ -22,7 +22,11 @@ public sealed class ApiFactory(
     {
         builder.UseEnvironment(environment);
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
-            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = TestKey }));
+            new Dictionary<string, string?> {
+                ["Jwt:PrivateKeyPem"] = TestKey,
+                // Diagnósticos usam o stub, nunca a ligação dos user-secrets locais.
+                ["ConnectionStrings:SchoolGether"] = null
+            }));
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<IDatabaseReadiness>();
