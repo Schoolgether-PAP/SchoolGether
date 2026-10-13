@@ -18,6 +18,7 @@ public static class MemorySessionRegistration
         services.AddSingleton(new ApiConfiguration(valid));
         services.AddScoped(_ => new HttpClient { BaseAddress = apiAddress });
         services.AddScoped<IdentityApiClient>();
+        services.AddScoped<SchoolGether.ApiClient.Platform.PlatformApiClient>();
         services.AddScoped<IRefreshTokenStore, MemoryRefreshTokenStore>();
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IdentitySession>();

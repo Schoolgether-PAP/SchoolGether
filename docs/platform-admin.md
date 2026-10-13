@@ -16,8 +16,8 @@ condição. As contas novas recebem apenas as permissões selecionadas.
 | `institutions.suspend` | Suspensão/reativação de instituições |
 | `audit.read` | Consulta do histórico administrativo |
 
-Esta fundação disponibiliza as rotas seguintes; a gestão detalhada de instituições
-e o dashboard pertencem à entrega seguinte.
+A fundação de administradores disponibiliza as rotas seguintes. As operações
+de instituições e dashboard estão descritas nas secções posteriores.
 
 | Método e rota | Acesso |
 |---|---|
@@ -135,3 +135,91 @@ não foi usada. Para evitar DLLs bloqueadas por uma API em execução:
 O script executa exatamente um cenário Oracle, verifica execução/aprovação e
 remove a instância/dados temporários. A suite normal ignora explicitamente esse
 cenário quando não existe ambiente temporário preparado.
+
+## Painel web da entrega A
+
+Implementado localmente e verificado em 2026-10-13. Após entrar com
+`PlatformAdmin`, o site abre Visão geral; outros papéis mantêm o próprio perfil.
+O meu perfil e Sair ficam acessíveis no cabeçalho administrativo. A app MAUI
+conserva entrada/perfil/saída; esta entrega não acrescenta painel nativo.
+
+A navegação contém apenas Visão geral, Instituições, Administradores (master),
+Histórico de ações (`audit.read`) e perfil. A pesquisa encontra áreas autorizadas.
+Favoritos e áreas recentes vivem em memória e desaparecem ao sair ou recarregar;
+não são gravados no armazenamento do navegador. O layout do dashboard, por sua
+vez, é lido e guardado na conta pelo endpoint de preferências.
+
+O dashboard mostra a fotografia global atual e a série fixa dos seis meses UTC,
+com o mês atual identificado como parcial. Não oferece filtros de período ou
+instituição sem suporte do contrato, nem comparações fictícias. «Contas existentes»
+inclui contas globais/escolares, bloqueadas e inativas, excluindo as eliminadas;
+não representa utilizadores ativos. Os indicadores institucionais abrem a lista
+com o estado correspondente. O gráfico inclui eixo zero, unidades, legenda,
+pontos focáveis, rótulos e tabela de valores; em larguras estreitas tem scroll local.
+
+Personalizar cria um rascunho com os blocos autorizados: Instituições criadas,
+Estado das instituições e Ações recentes. Pode alterar ordem, largura e
+visibilidade, usar Gestão/Atendimento/Análise como ponto de partida ou restaurar
+o padrão. Estes modelos só usam os três blocos de A. Guardar envia a versão
+atual; Cancelar, Fechar ou Escape descarta o rascunho. Um 409 mantém as alterações
+e oferece Recarregar preferências explicitamente; esta ação substitui o rascunho
+pelo estado atual do servidor. O master não edita layouts de outros administradores.
+Permissões atuais prevalecem sobre preferências guardadas.
+
+Instituições tem pesquisa/estado aplicados no servidor, paginação, colunas
+opcionais e densidade compacta. O detalhe lateral conserva os filtros e a página,
+com resumo, responsáveis e histórico institucional exato quando existe `audit.read`.
+A instituição e o responsável são criados em operações distintas. Edição,
+suspensão/reativação e criação de responsável enviam motivo e a versão aplicável.
+Suspensão e desativação exigem confirmação explícita; leituras e edição reversível
+não exigem confirmação. O master é protegido e o e-mail do administrador é
+imutável nesta edição. A criação de administrador global não pede motivo: o DTO
+não o aceita e o servidor define o motivo dessa operação.
+
+403 e 409 explicam a recusa/conflito sem terminar a sessão ou apagar campos.
+Falhas de rede permitem repetir; não são apresentadas como listas vazias ou zero.
+401 após tentativa de renovação regressa à entrada. Pedidos usam cancelamento e
+um ciclo de vida por vista para impedir que resultados de vistas antigas alterem
+a interface. A saída pertence à página Home, permitindo terminar a revogação
+remota mesmo depois de o painel ser removido.
+
+## Aplicar a entrega à base escolhida
+
+O operador deve escolher a configuração da API/base antes destes comandos;
+a implementação e a verificação web não os executaram na base pessoal.
+As migrações administrativas não promovem contas automaticamente.
+
+```powershell
+dotnet ef database update --project src/Backend/SchoolGether.Infrastructure --startup-project src/Backend/SchoolGether.Api
+dotnet run --project src/Backend/SchoolGether.Api -- --promote-master
+```
+
+O segundo comando requer Development e uma conta global existente/ativa.
+O assistente pede o ID duas vezes e recusa promover outro master. Depois, entrar
+no site com essa conta, criar os administradores necessários e conceder somente
+as capacidades pretendidas. Sem promoção, uma conta global sem capacidades
+continua a poder entrar e consultar o perfil/contexto, mas não administra clientes.
+
+## Verificação de 2026-10-13 e limites
+
+- `dotnet test --artifacts-path .superpowers/test-artifacts --verbosity quiet`:
+  18 Domain, 45 ApiClient e 98 API aprovados; 1 cenário MySQL explicitamente
+  ignorado na suite normal; zero falhas.
+- Web Release e MAUI Debug Windows/Android compilados sem avisos/erros, com
+  `--artifacts-path .superpowers/test-artifacts` para isolar os binários da API pessoal.
+- Chromium com HTTP controlado verificou master/global limitado/escolar,
+  instituições/responsáveis, suspensão/reativação, administradores/capacidades,
+  confirmação de desativação, histórico, layouts diferentes por conta, rascunhos
+  em 403/409, recarga explícita, retry de rede, 401, saída/resposta tardia, teclado,
+  foco/Escape/retorno e 390 px. Guardar/Cancelar no fundo do editor móvel ficam
+  acessíveis por foco e scroll. Capturas desktop/móvel inspecionadas; sem erros
+  JavaScript nem overflow horizontal global nos cenários verificados.
+- As regressões anteriores de login/perfil escolar e de validação/renovação/saída
+  lenta foram repetidas; o segundo script foi adaptado para abrir o perfil dentro
+  do shell global. Fixtures e capturas locais em `.superpowers/verification/platform-admin/`.
+
+A tarefa web não voltou a executar o cenário MySQL separado, já aprovado na
+entrega de instituições; não aplicou migrações, promoveu contas ou chamou a API
+pessoal. Não houve execução da UI nativa/SecureStorage, publicação, push ou merge.
+Suporte, finanças, conteúdos, avaliações e operação técnica continuam fora de A.
+MFA, convites e recuperação administrativa pertencem à entrega posterior.

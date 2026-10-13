@@ -1,7 +1,8 @@
 # Painel da plataforma SchoolGether — proposta detalhada
 
-Data: 2026-10-12. Estado: objetivos e regras gerais aprovados na conversa;
-esta descrição detalhada e a prévia visual aguardam validação antes de código de produto.
+Data: 2026-10-12. Estado: descrição e prévia v3 aprovadas pelo utilizador para
+implementação da entrega A. Produto A implementado localmente e verificado em
+2026-10-13; operação e limites em `docs/platform-admin.md`. Entregas B/C/D mantêm-se futuras.
 
 ## Intenção e decisões do utilizador
 
@@ -27,12 +28,12 @@ Decisões expressas:
 
 ## Estado existente
 
-Há API Identity com JWT/refresh, administrador global `PlatformAdmin`, instituições,
+No início do desenho (2026-10-12), havia API Identity com JWT/refresh, administrador global `PlatformAdmin`, instituições,
 administrador institucional, docentes/alunos e isolamento por instituição. Site e
-app permitem entrada, próprio perfil e saída. Ainda não há painel administrativo,
+app permitiam entrada, próprio perfil e saída. Nessa altura ainda não havia painel administrativo,
 distinção de master, permissões granulares, auditoria de produto ou faturação.
 
-`PlatformAdmin` atualmente não pode criar outro `PlatformAdmin` pela API. O
+Nesse estado inicial, `PlatformAdmin` não podia criar outro `PlatformAdmin` pela API. O
 administrador inicial é criado num assistente local. Não confundir o novo desenho
 com funcionalidades já disponíveis, nem o protótipo com dados reais.
 
@@ -402,4 +403,5 @@ estado vazio, preservação ao navegar e reposição ao recarregar a prévia. De
 e 390 px sem overflow global ou do editor; zero erros JavaScript e pedidos à API
 real. Capturas inspecionadas; gráficos estreitos usam scroll local para manter
 rótulos legíveis. Não equivale a verificar persistência por conta na API, que
-ainda será implementada.
+ainda não estava implementada na data dessa prévia; a verificação do produto A
+está registada em `docs/platform-admin.md` (2026-10-13).

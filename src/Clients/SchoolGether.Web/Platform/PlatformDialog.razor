@@ -1,0 +1,36 @@
+@using Microsoft.JSInterop
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+<dialog @ref="element" class="platform-dialog @(Drawer ? "drawer" : "")" aria-labelledby="platform-dialog-title">
+    <header><h2 id="platform-dialog-title">@Title</h2><button type="button" @onclick="Cancel">@UiMessages.Get("Close")</button></header>
+    <div class="dialog-body">@ChildContent</div>
+</dialog>
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public bool Drawer { get; set; }
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    private ElementReference element;
+    private bool disposed;
+    private IJSObjectReference? module;
+    private DotNetObjectReference<PlatformDialog>? reference;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        module = await JS.InvokeAsync<IJSObjectReference>("import", "./platform-dialog.js");
+        if (disposed) { await module.DisposeAsync(); return; }
+        reference = DotNetObjectReference.Create(this);
+        await module.InvokeVoidAsync("open", element, reference);
+    }
+    [JSInvokable] public Task CancelAsync() => Cancel.InvokeAsync();
+    public async ValueTask DisposeAsync()
+    {
+        disposed = true;
+        if (module is not null)
+        {
+            try { await module.InvokeVoidAsync("close", element); await module.DisposeAsync(); }
+            catch (JSDisconnectedException) { }
+        }
+        reference?.Dispose();
+    }
+}

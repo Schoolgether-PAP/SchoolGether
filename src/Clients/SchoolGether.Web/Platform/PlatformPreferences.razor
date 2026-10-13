@@ -1,0 +1,48 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+<PlatformDialog Title="@T("CustomizeTitle")" Cancel="Cancel">
+    <p>@T("LayoutDraftHelp")</p>
+    <div class="preset-actions"><span>@T("LayoutPresets")</span>@foreach (var preset in new[] { "ManagementPreset", "ServicePreset", "AnalysisPreset" }) { <button type="button" disabled="@Busy" @onclick="() => Preset(preset)">@T(preset)</button> }</div>
+    @for (var i = 0; i < draft.Count; i++)
+    {
+        var index = i; var widget = draft[index];
+        <div class="widget-setting">
+            <label class="check"><input type="checkbox" checked="@widget.Visible" disabled="@Busy" aria-label="@UiMessages.Format("ShowWidget", Label(widget.Id))" @onchange="e => Set(index, widget with { Visible = (bool)e.Value! })" />@Label(widget.Id)</label>
+            <label>@T("Width")<select disabled="@Busy" aria-label="@UiMessages.Format("WidgetWidth", Label(widget.Id))" value="@widget.Size" @onchange="e => Set(index, widget with { Size = e.Value!.ToString()! })"><option value="small">@T("SmallWidth")</option><option value="wide">@T("WideWidth")</option><option value="full">@T("FullWidth")</option></select></label>
+            <div class="actions"><button type="button" disabled="@(Busy || index == 0)" aria-label="@UiMessages.Format("MoveUp", Label(widget.Id))" @onclick="() => Move(index, -1)">@T("Up")</button><button type="button" disabled="@(Busy || index == draft.Count - 1)" aria-label="@UiMessages.Format("MoveDown", Label(widget.Id))" @onclick="() => Move(index, 1)">@T("Down")</button></div>
+        </div>
+    }
+    @if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="ReloadAsync">@T("ReloadPreferences")</button> }
+    <div class="dialog-actions"><button type="button" disabled="@Busy" @onclick='() => Preset("ManagementPreset")'>@T("RestoreDefault")</button><button type="button" @onclick="Cancel">@T("Cancel")</button><button class="platform-primary" type="button" disabled="@Busy" @onclick="SaveAsync">@T(Busy ? "Saving" : "Save")</button></div>
+</PlatformDialog>
+@code {
+    [Parameter, EditorRequired] public DashboardPreferenceResponse Preference { get; set; } = default!;
+    [Parameter] public EventCallback<DashboardPreferenceResponse> Saved { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    private List<DashboardWidget> draft = [];
+    private long version;
+    protected override void OnInitialized() { version = Preference.RowVersion; draft = Complete(Preference.Widgets); }
+    private bool Authorized(string id) => id == "recent-actions" ? Can(PlatformPermissions.AuditRead) : Can(PlatformPermissions.InstitutionsRead);
+    private List<DashboardWidget> Complete(IReadOnlyList<DashboardWidget> widgets)
+    {
+        var values = widgets.Where(w => Authorized(w.Id)).ToList();
+        foreach (var id in new[] { "institutions-trend", "institutions-status", "recent-actions" })
+            if (Authorized(id) && !values.Any(w => w.Id == id)) values.Add(new(id, id == "institutions-trend" ? "wide" : id == "institutions-status" ? "small" : "full", false));
+        return values;
+    }
+    private static string Label(string id) => T(id switch { "institutions-trend" => "TrendTitle", "institutions-status" => "InstitutionStatus", _ => "RecentActions" });
+    private void Set(int index, DashboardWidget widget) => draft[index] = widget;
+    private void Move(int index, int direction) { var widget = draft[index]; draft.RemoveAt(index); draft.Insert(index + direction, widget); }
+    private void Preset(string name)
+    {
+        var ids = name == "ServicePreset" ? new[] { "recent-actions", "institutions-status", "institutions-trend" } : name == "AnalysisPreset" ? new[] { "institutions-trend", "institutions-status", "recent-actions" } : new[] { "institutions-trend", "institutions-status", "recent-actions" };
+        draft = ids.Where(Authorized).Select(id => new DashboardWidget(id, name == "AnalysisPreset" && id == "institutions-trend" ? "full" : id == "institutions-trend" ? "wide" : id == "institutions-status" ? "small" : "full", true)).ToList();
+    }
+    private async Task SaveAsync()
+    {
+        DashboardPreferenceResponse? saved = null;
+        await RunAsync(token => Api.SaveDashboardPreferencesAsync(new() { SchemaVersion = 1, RowVersion = version, Widgets = draft.Where(w => Authorized(w.Id)).ToArray() }, token), value => saved = value);
+        if (saved is not null && !Disposed) await Saved.InvokeAsync(saved);
+    }
+    private Task ReloadAsync() => RunAsync(Api.GetDashboardPreferencesAsync, value => { version = value.RowVersion; draft = Complete(value.Widgets); });
+}

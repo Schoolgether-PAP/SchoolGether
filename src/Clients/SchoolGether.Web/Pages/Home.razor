@@ -7,6 +7,12 @@
 
 <PageTitle>@T("Brand")</PageTitle>
 
+@if (Session.Account?.Role == "PlatformAdmin")
+{
+    <SchoolGether.Web.Platform.PlatformPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
+}
+else
+{
 <div class="identity-layout">
     <section class="brand-panel" aria-label="@T("Brand")">
         <div>
@@ -87,6 +93,7 @@
     </section>
 </div>
 
+}
 @code {
     private readonly CancellationTokenSource lifetime = new();
     private string email = "";
@@ -107,7 +114,7 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (focusHeading)
+        if (focusHeading && Session.Account?.Role != "PlatformAdmin")
         {
             focusHeading = false;
             await heading.FocusAsync();
@@ -118,6 +125,17 @@
             await emailInput.FocusAsync();
         }
     }
+
+    protected override void OnInitialized() => Session.Changed += SessionChanged;
+    private void SessionChanged() => _ = InvokeAsync(() =>
+    {
+        if (Session.Account is null && busyAction is not ("login" or "logout"))
+        {
+            SetMessage("SessionExpired", true);
+            focusEmail = true;
+        }
+        StateHasChanged();
+    });
 
     private void TogglePassword() => showPassword = !showPassword;
 
@@ -254,6 +272,7 @@
 
     public void Dispose()
     {
+        Session.Changed -= SessionChanged;
         lifetime.Cancel();
         lifetime.Dispose();
     }

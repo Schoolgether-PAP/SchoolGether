@@ -56,4 +56,396 @@
   <data name="NotFoundTitle" xml:space="preserve"><value>Página não encontrada</value></data>
   <data name="NotFoundMessage" xml:space="preserve"><value>Esta página não existe.</value></data>
   <data name="BackToStart" xml:space="preserve"><value>Voltar ao início</value></data>
+  <data name="PlatformAreas" xml:space="preserve">
+    <value>Áreas da plataforma</value>
+  </data>
+  <data name="MobileAreas" xml:space="preserve">
+    <value>Áreas no menu móvel</value>
+  </data>
+  <data name="SearchAreas" xml:space="preserve">
+    <value>Pesquisar áreas</value>
+  </data>
+  <data name="Menu" xml:space="preserve">
+    <value>Menu</value>
+  </data>
+  <data name="Favorites" xml:space="preserve">
+    <value>Favoritos</value>
+  </data>
+  <data name="RecentAreas" xml:space="preserve">
+    <value>Recentes</value>
+  </data>
+  <data name="AddFavorite" xml:space="preserve">
+    <value>Adicionar área aos favoritos</value>
+  </data>
+  <data name="RemoveFavorite" xml:space="preserve">
+    <value>Remover área dos favoritos</value>
+  </data>
+  <data name="Overview" xml:space="preserve">
+    <value>Visão geral</value>
+  </data>
+  <data name="Institutions" xml:space="preserve">
+    <value>Instituições</value>
+  </data>
+  <data name="Administrators" xml:space="preserve">
+    <value>Administradores</value>
+  </data>
+  <data name="Audit" xml:space="preserve">
+    <value>Histórico de ações</value>
+  </data>
+  <data name="PlatformProfile" xml:space="preserve">
+    <value>O meu perfil</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Fechar</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Cancelar</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Guardar</value>
+  </data>
+  <data name="Saving" xml:space="preserve">
+    <value>A guardar…</value>
+  </data>
+  <data name="Loading" xml:space="preserve">
+    <value>A carregar…</value>
+  </data>
+  <data name="Retry" xml:space="preserve">
+    <value>Repetir</value>
+  </data>
+  <data name="PlatformForbidden" xml:space="preserve">
+    <value>Não tens permissão para esta operação. O rascunho foi mantido; consulta as tuas capacidades atuais.</value>
+  </data>
+  <data name="PlatformConflict" xml:space="preserve">
+    <value>Conflito de edição: o registo foi alterado entretanto. O teu rascunho foi mantido. Recarrega os dados antes de voltar a guardar.</value>
+  </data>
+  <data name="PlatformInvalid" xml:space="preserve">
+    <value>Os dados não foram aceites. Verifica os campos e volta a guardar.</value>
+  </data>
+  <data name="DashboardScope" xml:space="preserve">
+    <value>Âmbito global · fotografia atual das instituições e contas.</value>
+  </data>
+  <data name="RefreshData" xml:space="preserve">
+    <value>Atualizar dados</value>
+  </data>
+  <data name="Customize" xml:space="preserve">
+    <value>Personalizar</value>
+  </data>
+  <data name="InstitutionsTotal" xml:space="preserve">
+    <value>Instituições</value>
+  </data>
+  <data name="AccountsTotal" xml:space="preserve">
+    <value>Contas existentes</value>
+  </data>
+  <data name="AccountsScope" xml:space="preserve">
+    <value>Inclui globais, bloqueadas e inativas; exclui contas eliminadas.</value>
+  </data>
+  <data name="TrendTitle" xml:space="preserve">
+    <value>Instituições criadas</value>
+  </data>
+  <data name="TrendScope" xml:space="preserve">
+    <value>Seis meses UTC; o último mês é parcial. Sem comparação entre períodos.</value>
+  </data>
+  <data name="TrendEmpty" xml:space="preserve">
+    <value>Não há pontos disponíveis para este período.</value>
+  </data>
+  <data name="TrendPoint" xml:space="preserve">
+    <value>{0}: {1} instituições</value>
+  </data>
+  <data name="TrendLegend" xml:space="preserve">
+    <value>Instituições criadas por mês (unidade: instituições)</value>
+  </data>
+  <data name="ShowDataTable" xml:space="preserve">
+    <value>Consultar tabela de valores</value>
+  </data>
+  <data name="MonthUtc" xml:space="preserve">
+    <value>Mês UTC</value>
+  </data>
+  <data name="InstitutionStatus" xml:space="preserve">
+    <value>Estado das instituições</value>
+  </data>
+  <data name="CurrentGlobalSnapshot" xml:space="preserve">
+    <value>Fotografia atual global · instituições não eliminadas.</value>
+  </data>
+  <data name="ActiveInstitutions" xml:space="preserve">
+    <value>Ativas</value>
+  </data>
+  <data name="SuspendedInstitutions" xml:space="preserve">
+    <value>Suspensas</value>
+  </data>
+  <data name="DistributionZero" xml:space="preserve">
+    <value>Barras proporcionais ao total; escala a partir de zero.</value>
+  </data>
+  <data name="RecentActions" xml:space="preserve">
+    <value>Ações recentes</value>
+  </data>
+  <data name="DashboardEmpty" xml:space="preserve">
+    <value>Não há blocos visíveis. Personaliza a visão geral para adicionar os blocos disponíveis.</value>
+  </data>
+  <data name="CustomizeTitle" xml:space="preserve">
+    <value>Personalizar visão geral</value>
+  </data>
+  <data name="LayoutDraftHelp" xml:space="preserve">
+    <value>As alterações ficam em rascunho até guardar. Cancelar ou Escape descarta este rascunho.</value>
+  </data>
+  <data name="LayoutPresets" xml:space="preserve">
+    <value>Modelos</value>
+  </data>
+  <data name="ManagementPreset" xml:space="preserve">
+    <value>Gestão</value>
+  </data>
+  <data name="ServicePreset" xml:space="preserve">
+    <value>Atendimento</value>
+  </data>
+  <data name="AnalysisPreset" xml:space="preserve">
+    <value>Análise</value>
+  </data>
+  <data name="ShowWidget" xml:space="preserve">
+    <value>Mostrar {0}</value>
+  </data>
+  <data name="WidgetWidth" xml:space="preserve">
+    <value>Largura de {0}</value>
+  </data>
+  <data name="MoveUp" xml:space="preserve">
+    <value>Mover {0} para cima</value>
+  </data>
+  <data name="MoveDown" xml:space="preserve">
+    <value>Mover {0} para baixo</value>
+  </data>
+  <data name="Width" xml:space="preserve">
+    <value>Largura</value>
+  </data>
+  <data name="SmallWidth" xml:space="preserve">
+    <value>Pequena (1/3)</value>
+  </data>
+  <data name="WideWidth" xml:space="preserve">
+    <value>Larga (2/3)</value>
+  </data>
+  <data name="FullWidth" xml:space="preserve">
+    <value>Linha completa</value>
+  </data>
+  <data name="Up" xml:space="preserve">
+    <value>Subir</value>
+  </data>
+  <data name="Down" xml:space="preserve">
+    <value>Descer</value>
+  </data>
+  <data name="ReloadPreferences" xml:space="preserve">
+    <value>Recarregar preferências</value>
+  </data>
+  <data name="RestoreDefault" xml:space="preserve">
+    <value>Restaurar padrão</value>
+  </data>
+  <data name="AuditEmpty" xml:space="preserve">
+    <value>Não há ações para mostrar neste âmbito.</value>
+  </data>
+  <data name="WhenUtc" xml:space="preserve">
+    <value>Quando (UTC)</value>
+  </data>
+  <data name="Actor" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="ActionTarget" xml:space="preserve">
+    <value>Ação e alvo</value>
+  </data>
+  <data name="ResultReason" xml:space="preserve">
+    <value>Resultado e motivo</value>
+  </data>
+  <data name="Changes" xml:space="preserve">
+    <value>Ver alterações</value>
+  </data>
+  <data name="Before" xml:space="preserve">
+    <value>Antes</value>
+  </data>
+  <data name="After" xml:space="preserve">
+    <value>Depois</value>
+  </data>
+  <data name="AuditHelp" xml:space="preserve">
+    <value>Consulta as operações administrativas e os seus motivos. O histórico não pode ser editado.</value>
+  </data>
+  <data name="SearchAudit" xml:space="preserve">
+    <value>Pesquisar histórico</value>
+  </data>
+  <data name="ApplyFilters" xml:space="preserve">
+    <value>Aplicar filtros</value>
+  </data>
+  <data name="PageSummary" xml:space="preserve">
+    <value>Página {0} de {1} · {2} registos</value>
+  </data>
+  <data name="PreviousPage" xml:space="preserve">
+    <value>Página anterior</value>
+  </data>
+  <data name="NextPage" xml:space="preserve">
+    <value>Página seguinte</value>
+  </data>
+  <data name="InstitutionsHelp" xml:space="preserve">
+    <value>Consulta o estado e os responsáveis de qualquer instituição.</value>
+  </data>
+  <data name="NewInstitution" xml:space="preserve">
+    <value>Nova instituição</value>
+  </data>
+  <data name="SearchInstitutions" xml:space="preserve">
+    <value>Pesquisar instituições</value>
+  </data>
+  <data name="FilterStatus" xml:space="preserve">
+    <value>Filtrar por estado</value>
+  </data>
+  <data name="AllStates" xml:space="preserve">
+    <value>Todos os estados</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Ativa</value>
+  </data>
+  <data name="Suspended" xml:space="preserve">
+    <value>Suspensa</value>
+  </data>
+  <data name="Inactive" xml:space="preserve">
+    <value>Inativa</value>
+  </data>
+  <data name="StateColumn" xml:space="preserve">
+    <value>Mostrar estado</value>
+  </data>
+  <data name="AccountsColumn" xml:space="preserve">
+    <value>Mostrar contas</value>
+  </data>
+  <data name="CreatedColumn" xml:space="preserve">
+    <value>Mostrar data de criação</value>
+  </data>
+  <data name="CompactRows" xml:space="preserve">
+    <value>Densidade compacta</value>
+  </data>
+  <data name="InstitutionsEmpty" xml:space="preserve">
+    <value>Nenhuma instituição encontrada. Experimenta outro nome ou estado.</value>
+  </data>
+  <data name="State" xml:space="preserve">
+    <value>Estado</value>
+  </data>
+  <data name="Accounts" xml:space="preserve">
+    <value>Contas</value>
+  </data>
+  <data name="CreatedUtc" xml:space="preserve">
+    <value>Criada em (UTC)</value>
+  </data>
+  <data name="RecordSaved" xml:space="preserve">
+    <value>Alteração guardada.</value>
+  </data>
+  <data name="Summary" xml:space="preserve">
+    <value>Resumo</value>
+  </data>
+  <data name="Responsibles" xml:space="preserve">
+    <value>Responsáveis</value>
+  </data>
+  <data name="History" xml:space="preserve">
+    <value>Histórico</value>
+  </data>
+  <data name="ResponsiblesEmpty" xml:space="preserve">
+    <value>Esta instituição ainda não tem responsáveis. A criação da instituição e da conta são operações separadas.</value>
+  </data>
+  <data name="EditInstitution" xml:space="preserve">
+    <value>Editar instituição</value>
+  </data>
+  <data name="CreateResponsible" xml:space="preserve">
+    <value>Criar responsável</value>
+  </data>
+  <data name="SuspendInstitution" xml:space="preserve">
+    <value>Suspender instituição</value>
+  </data>
+  <data name="ReactivateInstitution" xml:space="preserve">
+    <value>Reativar instituição</value>
+  </data>
+  <data name="InitialPassword" xml:space="preserve">
+    <value>Palavra-passe inicial</value>
+  </data>
+  <data name="Permissions" xml:space="preserve">
+    <value>Capacidades</value>
+  </data>
+  <data name="AdminActive" xml:space="preserve">
+    <value>Conta ativa</value>
+  </data>
+  <data name="Reason" xml:space="preserve">
+    <value>Motivo</value>
+  </data>
+  <data name="AccessChangeHelp" xml:space="preserve">
+    <value>Esta alteração afeta o acesso. Suspender preserva os dados; reativar mantém as sanções individuais.</value>
+  </data>
+  <data name="ConfirmAccessChange" xml:space="preserve">
+    <value>Confirmo a alteração de acesso</value>
+  </data>
+  <data name="PermissionInstitutionsRead" xml:space="preserve">
+    <value>Consultar instituições</value>
+  </data>
+  <data name="PermissionInstitutionsWrite" xml:space="preserve">
+    <value>Criar e editar instituições</value>
+  </data>
+  <data name="PermissionInstitutionsSuspend" xml:space="preserve">
+    <value>Suspender e reativar instituições</value>
+  </data>
+  <data name="PermissionAuditRead" xml:space="preserve">
+    <value>Consultar histórico</value>
+  </data>
+  <data name="AdministratorsHelp" xml:space="preserve">
+    <value>Só o master gere as contas globais. As capacidades valem para qualquer instituição.</value>
+  </data>
+  <data name="NewAdmin" xml:space="preserve">
+    <value>Novo administrador</value>
+  </data>
+  <data name="Administrator" xml:space="preserve">
+    <value>Administrador</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Ações</value>
+  </data>
+  <data name="Master" xml:space="preserve">
+    <value>Administrador master</value>
+  </data>
+  <data name="NoPermissions" xml:space="preserve">
+    <value>Sem capacidades concedidas</value>
+  </data>
+  <data name="ProtectedAccount" xml:space="preserve">
+    <value>Conta protegida</value>
+  </data>
+  <data name="EditPermissions" xml:space="preserve">
+    <value>Editar capacidades</value>
+  </data>
+  <data name="EditAdminName" xml:space="preserve">
+    <value>Editar {0}</value>
+  </data>
+  <data name="ActiveInstitutionsCount" xml:space="preserve">
+    <value>Ativas: {0}</value>
+  </data>
+  <data name="SuspendedInstitutionsCount" xml:space="preserve">
+    <value>Suspensas: {0}</value>
+  </data>
+  <data name="AuditInstitutionList" xml:space="preserve"><value>Consultou instituições</value></data>
+  <data name="AuditInstitutionRead" xml:space="preserve"><value>Consultou instituição e responsáveis</value></data>
+  <data name="AuditInstitutionCreate" xml:space="preserve"><value>Criou instituição</value></data>
+  <data name="AuditInstitutionUpdate" xml:space="preserve"><value>Alterou instituição</value></data>
+  <data name="AuditInstitutionSuspension" xml:space="preserve"><value>Alterou suspensão da instituição</value></data>
+  <data name="AuditResponsibleCreate" xml:space="preserve"><value>Criou responsável institucional</value></data>
+  <data name="AuditAccountCreate" xml:space="preserve"><value>Criou conta institucional</value></data>
+  <data name="AuditAdminList" xml:space="preserve"><value>Consultou administradores</value></data>
+  <data name="AuditAdminCreate" xml:space="preserve"><value>Criou administrador global</value></data>
+  <data name="AuditAdminUpdate" xml:space="preserve"><value>Alterou administrador e capacidades</value></data>
+  <data name="AuditHistoryList" xml:space="preserve"><value>Consultou histórico</value></data>
+  <data name="AuditMasterPromote" xml:space="preserve"><value>Promoveu administrador master</value></data>
+  <data name="AuditDashboardRead" xml:space="preserve"><value>Consultou visão geral</value></data>
+  <data name="AuditPreferencesRead" xml:space="preserve"><value>Consultou preferências</value></data>
+  <data name="AuditPreferencesSave" xml:space="preserve"><value>Guardou preferências</value></data>
+  <data name="AuditAdminManage" xml:space="preserve"><value>Acedeu à gestão de administradores</value></data>
+  <data name="AuditAccess" xml:space="preserve"><value>Acedeu à administração global</value></data>
+  <data name="AuditRequest" xml:space="preserve"><value>Efetuou pedido administrativo</value></data>
+  <data name="AuditOtherAction" xml:space="preserve"><value>Operação administrativa</value></data>
+  <data name="AuditSuccess" xml:space="preserve"><value>Concluída</value></data>
+  <data name="AuditRefused" xml:space="preserve"><value>Recusada</value></data>
+  <data name="AuditOtherResult" xml:space="preserve"><value>Resultado registado</value></data>
+  <data name="AuditDetails" xml:space="preserve"><value>Detalhes da ação</value></data>
+  <data name="AuditActionCode" xml:space="preserve"><value>Código da ação</value></data>
+  <data name="AuditResultCode" xml:space="preserve"><value>Código do resultado</value></data>
+  <data name="AuditReasonForbidden" xml:space="preserve"><value>Permissão em falta</value></data>
+  <data name="AuditReasonVersionConflict" xml:space="preserve"><value>Conflito de versão</value></data>
+  <data name="AuditReasonInvalidAccount" xml:space="preserve"><value>Dados de conta inválidos</value></data>
+  <data name="AuditReasonMasterProtected" xml:space="preserve"><value>Conta master protegida</value></data>
+  <data name="AuditReasonInvalidInstitution" xml:space="preserve"><value>Instituição inválida</value></data>
+  <data name="AuditReasonInvalidSearch" xml:space="preserve"><value>Pesquisa inválida</value></data>
+  <data name="AuditReasonInvalidPagination" xml:space="preserve"><value>Paginação inválida</value></data>
 </root>

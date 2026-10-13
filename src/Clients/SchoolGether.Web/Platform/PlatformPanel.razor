@@ -1,0 +1,81 @@
+@using SchoolGether.Contracts.Platform
+@using SchoolGether.ApiClient.Platform
+@inherits PlatformView
+@inject PlatformApiClient Api
+@inject IdentitySession Session
+<div class="platform-shell">
+    <aside class="platform-sidebar">
+        <img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" />
+        <strong>@T("Brand")</strong><span>@T("PlatformAdministration")</span>
+        <nav aria-label="@T("PlatformAreas")">
+            @foreach (var item in Areas.Where(x => string.IsNullOrWhiteSpace(search) || T(x).Contains(search, StringComparison.CurrentCultureIgnoreCase)))
+            {
+                <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button>
+            }
+        </nav>
+    </aside>
+    <div class="platform-main">
+        <header class="platform-topbar">
+            <button type="button" class="mobile-menu" @onclick="() => menu = true">@T("Menu")</button>
+            <div class="area-search"><label for="area-search">@T("SearchAreas")</label><input id="area-search" type="search" @bind="search" @bind:event="oninput" /></div>
+            <button type="button" @onclick='() => NavigateAsync("PlatformProfile")'>@T("ProfileTitle")</button>
+            <button type="button" @onclick="SignOut">@T("SignOut")</button>
+        </header>
+        <div class="platform-shortcuts">
+            <span>@T("Favorites")</span>
+            @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
+            <span class="recent-label">@T("RecentAreas")</span>
+            @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+        </div>
+        <section class="platform-workspace" aria-busy="@Busy">
+            @if (Error is not null) { <p role="alert" class="feedback error-message">@Error</p><button type="button" @onclick="LoadContextAsync">@T("Retry")</button> }
+            @if (context is null) { <p role="status">@T("Loading")</p> }
+            else if (area == "Overview") { <PlatformDashboard Context="context" PermissionsChanged="LoadContextAsync" ContextUpdated="SetContext" InstitutionsRequested="FilterInstitutionsAsync" /> }
+            else if (area == "Institutions") { <PlatformInstitutions Context="context" PermissionsChanged="LoadContextAsync" InitialSuspended="institutionFilter" /> }
+            else if (area == "Administrators" && context.IsMaster) { <PlatformAdministrators Context="context" PermissionsChanged="LoadContextAsync" /> }
+            else if (area == "Audit" && Can(PlatformPermissions.AuditRead)) { <PlatformAudit Context="context" PermissionsChanged="LoadContextAsync" /> }
+            else if (area == "PlatformProfile")
+            {
+                <PlatformHeading>@T("ProfileTitle")</PlatformHeading><p class="platform-intro">@T("ProfileIntroduction")</p>
+                @if (Session.Account is { } account)
+                { <dl class="profile-details"><div><dt>@T("Name")</dt><dd>@account.Name</dd></div><div><dt>@T("Email")</dt><dd>@account.Email</dd></div><div><dt>@T("Role")</dt><dd>@T(context.IsMaster ? "Master" : "RolePlatformAdmin")</dd></div></dl> }
+                <button type="button" disabled="@Busy" @onclick="RefreshProfileAsync">@T("RefreshProfile")</button>
+                @if (Notice is not null) { <p role="status">@Notice</p> }
+            }
+        </section>
+    </div>
+</div>
+@if (menu)
+{
+    <PlatformDialog Title="@T("Menu")" Drawer Cancel="() => menu = false">
+        <nav aria-label="@T("MobileAreas")">@foreach (var item in Areas) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }</nav>
+    </PlatformDialog>
+}
+@code {
+    [Parameter] public EventCallback SignOut { get; set; }
+    private PlatformContextResponse? context;
+    private string area = "Overview", search = "";
+    private bool menu;
+    private bool? institutionFilter;
+    private void SetContext(PlatformContextResponse value) { context = value; Context = value; }
+    private async Task FilterInstitutionsAsync(bool? suspended) { institutionFilter = suspended; await NavigateAsync("Institutions", true); }
+    private readonly HashSet<string> favorites = [];
+    private readonly List<string> recent = [];
+    private List<string> Areas => ["Overview", ..(context is not null && (Can(PlatformPermissions.InstitutionsRead) || Can(PlatformPermissions.InstitutionsWrite)) ? new[] { "Institutions" } : []), ..(context?.IsMaster == true ? new[] { "Administrators" } : []), ..(context is not null && Can(PlatformPermissions.AuditRead) ? new[] { "Audit" } : []), "PlatformProfile"];
+    protected override Task OnInitializedAsync() => LoadContextAsync();
+    private Task LoadContextAsync() => RunAsync(Api.GetContextAsync, value => { context = value; Context = value; });
+    private async Task NavigateAsync(string target, bool preserveInstitutionFilter = false)
+    {
+        if (!Areas.Contains(target)) return;
+        if (target == "Institutions" && !preserveInstitutionFilter) institutionFilter = null;
+        await LoadContextAsync();
+        if (Disposed || Error is not null || !Areas.Contains(target)) return;
+        area = target;
+        menu = false;
+        recent.Remove(target); recent.Insert(0, target);
+        if (recent.Count > 3) recent.RemoveAt(3);
+    }
+    private void ToggleFavorite() { if (!favorites.Remove(area)) favorites.Add(area); }
+    private Task RefreshProfileAsync() => RunAsync(Session.GetProfileAsync, _ => Notice = T("ProfileUpdated"));
+}

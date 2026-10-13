@@ -30,7 +30,9 @@ HTTP é aceite apenas no ambiente Development.
 Indicar e-mail e palavra-passe. A ação Mostrar/Ocultar controla a visibilidade
 da palavra-passe, que é limpa após cada resposta. O perfil é consultado na API
 após a entrada e mostra nome, e-mail, papel traduzido e ID de instituição.
-O administrador global vê Administração da plataforma.
+Desde a entrega A de administração global (2026-10-13), PlatformAdmin abre
+Visão geral e consulta o perfil em O meu perfil, no cabeçalho do painel.
+Outros papéis continuam a abrir o próprio perfil. Ver `platform-admin.md`.
 
 Atualizar perfil volta a consultar a API através da gestão partilhada de
 sessão. Se o acesso tiver expirado, a sessão tenta renovar uma vez; uma
@@ -110,3 +112,17 @@ SecureStorage real e a ligação do emulador à API não foram executados neste
 ambiente; requerem verificação num anfitrião MAUI com execução disponível.
 A compilação não demonstra esse funcionamento nem conformidade completa de
 acessibilidade.
+
+## Integração administrativa de 2026-10-13
+
+O site regista `PlatformApiClient` com a sessão existente e apresenta o painel
+apenas a `PlatformAdmin`. Home observa a expiração/saída partilhada; a revogação
+remota continua no ciclo de vida de Home, mesmo quando o painel já foi removido.
+A sessão web continua apenas em memória; preferências do dashboard ficam no
+servidor, por conta, e favoritos/recentes são limpos com o painel ao sair.
+
+A regressão Chromium voltou a verificar login/perfil escolar, renovação, falha
+recuperável, saída lenta/remota e foco/390 px, com HTTP controlado. O painel global
+foi verificado separadamente com master e permissões limitadas. Web Release e
+MAUI Debug Windows/Android passaram; a UI nativa e SecureStorage real continuam
+sem execução nesta verificação. Não houve chamadas às contas/API pessoais.

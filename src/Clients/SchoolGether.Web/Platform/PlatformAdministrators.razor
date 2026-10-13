@@ -1,0 +1,27 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+<div class="page-heading"><div><PlatformHeading>@T("Administrators")</PlatformHeading><p class="platform-intro">@T("AdministratorsHelp")</p></div><button type="button" class="platform-primary" @onclick="Create">@T("NewAdmin")</button></div>
+@if (Notice is not null) { <p role="status">@Notice</p> }
+@if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+else if (data is null) { <p role="status">@T("Loading")</p> }
+else
+{
+    <div class="data-panel table-scroll"><table><thead><tr><th>@T("Administrator")</th><th>@T("Permissions")</th><th>@T("State")</th><th>@T("Actions")</th></tr></thead><tbody>
+    @foreach (var admin in data.Items)
+    { <tr><td><strong>@admin.Name</strong><small>@admin.Email</small></td><td>@if (admin.IsMaster) { @T("Master") } else if (admin.Permissions.Length == 0) { @T("NoPermissions") } else { @foreach (var permission in admin.Permissions) { <small>@PlatformMutationForm.PermissionLabel(permission)</small> } }</td><td>@T(admin.IsActive ? "Active" : "Inactive")</td><td>@if (admin.IsMaster || admin.Id == Context.AccountId) { <span>@T("ProtectedAccount")</span> } else { <button type="button" aria-label="@UiMessages.Format("EditAdminName", admin.Name)" @onclick="() => Edit(admin)">@T("EditPermissions")</button> }</td></tr> }
+    </tbody></table></div><PlatformPagination Page="page" Total="data.Total" PageSize="20" Busy="Busy" Changed="PageAsync" />
+}
+@if (editing)
+{ <PlatformDialog Title="@T(selected is null ? "NewAdmin" : "EditPermissions")" Cancel="() => editing = false"><PlatformMutationForm Context="Context" PermissionsChanged="PermissionsChanged" Kind="@(selected is null ? "admin-create" : "admin-edit")" Admin="selected" Saved="SavedAsync" Cancel="() => editing = false" /></PlatformDialog> }
+@code {
+    private PagedResponse<PlatformAdminResponse>? data;
+    private int page = 1;
+    private bool editing;
+    private PlatformAdminResponse? selected;
+    protected override Task OnInitializedAsync() => LoadAsync();
+    private Task LoadAsync() => RunAsync(token => Api.ListAdminsAsync(page, 20, token), value => data = value);
+    private void Create() { selected = null; editing = true; }
+    private void Edit(PlatformAdminResponse value) { selected = value; editing = true; }
+    private async Task PageAsync(int value) { page = value; await LoadAsync(); }
+    private async Task SavedAsync() { editing = false; await LoadAsync(); Notice = T("RecordSaved"); }
+}

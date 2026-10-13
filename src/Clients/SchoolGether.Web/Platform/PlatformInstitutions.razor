@@ -1,0 +1,41 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+<div class="page-heading"><div><PlatformHeading>@T("Institutions")</PlatformHeading><p class="platform-intro">@T("InstitutionsHelp")</p></div>@if (Can(PlatformPermissions.InstitutionsWrite)) { <button type="button" class="platform-primary" @onclick="() => creating = true">@T("NewInstitution")</button> }</div>
+@if (Notice is not null) { <p role="status">@Notice</p> }
+@if (Can(PlatformPermissions.InstitutionsRead))
+{
+    <form class="list-toolbar" @onsubmit="SearchAsync" @onsubmit:preventDefault>
+        <div><label for="institution-search">@T("SearchInstitutions")</label><input id="institution-search" type="search" @bind="search" @bind:event="oninput" /></div>
+        <div><label for="institution-status">@T("FilterStatus")</label><select id="institution-status" @bind="state"><option value="">@T("AllStates")</option><option value="false">@T("Active")</option><option value="true">@T("Suspended")</option></select></div>
+        <button type="submit" disabled="@Busy">@T("ApplyFilters")</button>
+    </form>
+    <div class="table-options"><label class="check"><input type="checkbox" @bind="showState" />@T("StateColumn")</label><label class="check"><input type="checkbox" @bind="showAccounts" />@T("AccountsColumn")</label><label class="check"><input type="checkbox" @bind="showCreated" />@T("CreatedColumn")</label><label class="check"><input type="checkbox" @bind="compact" />@T("CompactRows")</label></div>
+    @if (Error is not null) { <p role="alert" class="feedback error-message">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+    else if (data is null) { <p role="status">@T("Loading")</p> }
+    else if (data.Items.Count == 0) { <p class="empty-state">@T("InstitutionsEmpty")</p> }
+    else
+    {
+        <div class="data-panel table-scroll"><table class="@(compact ? "compact" : "")"><thead><tr><th>@T("Institution")</th>@if (showState) { <th>@T("State")</th> }@if (showAccounts) { <th>@T("Accounts")</th> }@if (showCreated) { <th>@T("CreatedUtc")</th> }</tr></thead><tbody>
+        @foreach (var item in data.Items)
+        { <tr><td><button class="record-link" type="button" @onclick="() => selected = item.Id">@item.Name</button><small>#@item.Id</small></td>@if (showState) { <td><span class="state-pill @(item.IsSuspended ? "suspended" : "")">@T(item.IsSuspended ? "Suspended" : "Active")</span></td> }@if (showAccounts) { <td>@item.AccountsCount</td> }@if (showCreated) { <td>@item.CreatedAt.ToUniversalTime().ToString("dd/MM/yyyy")</td> }</tr> }
+        </tbody></table></div>
+    }
+    @if (data is not null) { <PlatformPagination Page="page" Total="data.Total" PageSize="20" Busy="Busy" Changed="PageAsync" /> }
+}
+@if (creating)
+{ <PlatformDialog Title="@T("NewInstitution")" Cancel="() => creating = false"><PlatformMutationForm Context="Context" PermissionsChanged="PermissionsChanged" Kind="institution-create" Saved="SavedAsync" Cancel="() => creating = false" /></PlatformDialog> }
+@if (selected is { } id)
+{ <PlatformInstitutionDetail @key="id" Context="Context" PermissionsChanged="PermissionsChanged" Id="id" Cancel="() => selected = null" Saved="SavedAsync" /> }
+@code {
+    [Parameter] public bool? InitialSuspended { get; set; }
+    private PagedResponse<PlatformInstitutionResponse>? data;
+    private string search = "", state = "";
+    private int page = 1;
+    private bool showState = true, showAccounts = true, showCreated, compact, creating;
+    private int? selected;
+    protected override Task OnInitializedAsync() { state = InitialSuspended?.ToString().ToLowerInvariant() ?? ""; return Can(PlatformPermissions.InstitutionsRead) ? LoadAsync() : Task.CompletedTask; }
+    private Task LoadAsync() => RunAsync(token => Api.ListInstitutionsAsync(page, 20, search, state == "" ? null : state == "true", token), value => data = value);
+    private async Task SearchAsync() { page = 1; await LoadAsync(); }
+    private async Task PageAsync(int value) { page = value; await LoadAsync(); }
+    private async Task SavedAsync() { creating = false; selected = null; await LoadAsync(); Notice = T("RecordSaved"); }
+}

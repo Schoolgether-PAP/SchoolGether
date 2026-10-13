@@ -273,3 +273,27 @@ dotnet list tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.Integration
 O último comando não identificou pacotes vulneráveis no projeto consultado,
 incluindo dependências transitivas, nas fontes NuGet atuais. Não foram testados
 ecrãs reais de login, execução da app em dispositivo/emulador ou alojamento público.
+
+## Verificação adicional — administração global A, 2026-10-13
+
+A entrega A aprovada foi implementada localmente no ramo
+`feature/platform-admin-design`: master/capacidades, instituições/responsáveis,
+suspensão/reativação, histórico, dashboard real e preferências individuais.
+O painel web conserva logo/paleta e o perfil/saída; os papéis escolares e a app
+mantêm o fluxo anterior. A documentação operacional está em `platform-admin.md`.
+
+`dotnet test --artifacts-path .superpowers/test-artifacts --verbosity quiet`
+aprovou 18 testes Domain, 45 ApiClient e 98 API, com um cenário MySQL explicitamente
+ignorado e nenhuma falha. Web Release e MAUI Debug Windows/Android compilaram
+sem avisos/erros. O cenário MySQL temporário aprovado na tarefa de instituições
+não foi repetido pela tarefa web; nenhuma base/conta pessoal foi alterada.
+
+Chromium com fixtures completas verificou master/global limitado/escolar,
+operações institucionais e de administradores, versões/conflitos, rascunhos
+403/409, histórico por ID exato, layouts por conta, permissões sobre preferências,
+retry, 401, resposta após logout, teclado/foco/Escape e 390 px. As regressões
+anteriores de login/perfil e saída lenta também passaram. Capturas inspecionadas;
+sem page errors/overflow global nos cenários verificados. Isto não demonstra
+execução nativa, SecureStorage real, API alojada ou acessibilidade exaustiva.
+Migração e promoção do master continuam ações explícitas do operador;
+revisão independente do conjunto e envio/integração remotos permanecem separados.
