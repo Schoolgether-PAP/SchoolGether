@@ -58,6 +58,7 @@
     private PlatformInstitutionResponse? currentInstitution;
     private PlatformAdminResponse? currentAdmin;
     private readonly HashSet<string> permissions = [];
+    protected override string ConflictMessageKey => Kind is "responsible" or "admin-create" ? "AccountEmailExists" : base.ConflictMessageKey;
     private bool Authorized => Kind.StartsWith("admin-") ? Context.IsMaster : Can(Kind == "suspension" ? PlatformPermissions.InstitutionsSuspend : PlatformPermissions.InstitutionsWrite);
     private bool RequiresConfirmation => Kind == "suspension" || Kind == "admin-edit" && originalActive && !active;
     protected override void OnInitialized()

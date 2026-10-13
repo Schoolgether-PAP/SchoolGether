@@ -19,6 +19,7 @@ public abstract class PlatformView : ComponentBase, IDisposable
     protected bool Disposed { get; private set; }
     private int request;
     protected static string T(string key) => UiMessages.Get(key);
+    protected virtual string ConflictMessageKey => "PlatformConflict";
     protected bool Can(string permission) => Context.IsMaster || Context.Permissions.Contains(permission);
     protected async Task RunAsync<TValue>(Func<CancellationToken, Task<TValue>> operation, Action<TValue> apply)
     {
@@ -43,7 +44,7 @@ public abstract class PlatformView : ComponentBase, IDisposable
             Error = T(exception switch
             {
                 IdentityApiException { StatusCode: HttpStatusCode.Forbidden } => "PlatformForbidden",
-                IdentityApiException { StatusCode: HttpStatusCode.Conflict } => "PlatformConflict",
+                IdentityApiException { StatusCode: HttpStatusCode.Conflict } => ConflictMessageKey,
                 IdentityApiException { StatusCode: HttpStatusCode.BadRequest } => "PlatformInvalid",
                 HttpRequestException or OperationCanceledException => "NetworkError",
                 _ => "ServiceError"

@@ -119,6 +119,9 @@
   <data name="PlatformConflict" xml:space="preserve">
     <value>Conflito de edição: o registo foi alterado entretanto. O teu rascunho foi mantido. Recarrega os dados antes de voltar a guardar.</value>
   </data>
+  <data name="AccountEmailExists" xml:space="preserve">
+    <value>Este e-mail já está associado a uma conta. Corrige o e-mail e volta a guardar; os restantes campos foram mantidos.</value>
+  </data>
   <data name="PlatformInvalid" xml:space="preserve">
     <value>Os dados não foram aceites. Verifica os campos e volta a guardar.</value>
   </data>

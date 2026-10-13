@@ -161,8 +161,9 @@ Personalizar cria um rascunho com os blocos autorizados: Instituições criadas,
 Estado das instituições e Ações recentes. Pode alterar ordem, largura e
 visibilidade, usar Gestão/Atendimento/Análise como ponto de partida ou restaurar
 o padrão. Estes modelos só usam os três blocos de A. Guardar envia a versão
-atual; Cancelar, Fechar ou Escape descarta o rascunho. Um 409 mantém as alterações
-e oferece Recarregar preferências explicitamente; esta ação substitui o rascunho
+atual; Cancelar, Fechar ou Escape descarta o rascunho antes da gravação. Durante
+o pedido de gravação, os três caminhos de fecho ficam bloqueados até ao resultado.
+Um 409 mantém as alterações e oferece Recarregar preferências; esta ação substitui o rascunho
 pelo estado atual do servidor. O master não edita layouts de outros administradores.
 Permissões atuais prevalecem sobre preferências guardadas.
 
@@ -177,6 +178,9 @@ imutável nesta edição. A criação de administrador global não pede motivo: 
 não o aceita e o servidor define o motivo dessa operação.
 
 403 e 409 explicam a recusa/conflito sem terminar a sessão ou apagar campos.
+Um 409 na edição permite consultar o registo atual e reconciliar explicitamente
+a versão mantendo o rascunho; na criação de conta com e-mail duplicado, pede a
+correção do e-mail.
 Falhas de rede permitem repetir; não são apresentadas como listas vazias ou zero.
 401 após tentativa de renovação regressa à entrada. Pedidos usam cancelamento e
 um ciclo de vida por vista para impedir que resultados de vistas antigas alterem

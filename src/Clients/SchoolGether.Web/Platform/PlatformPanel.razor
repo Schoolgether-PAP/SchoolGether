@@ -8,7 +8,7 @@
         <img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" />
         <strong>@T("Brand")</strong><span>@T("PlatformAdministration")</span>
         <nav aria-label="@T("PlatformAreas")">
-            @foreach (var item in Areas.Where(x => string.IsNullOrWhiteSpace(search) || T(x).Contains(search, StringComparison.CurrentCultureIgnoreCase)))
+            @foreach (var item in FilteredAreas)
             {
                 <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button>
             }
@@ -49,7 +49,7 @@
 @if (menu)
 {
     <PlatformDialog Title="@T("Menu")" Drawer Cancel="() => menu = false">
-        <nav aria-label="@T("MobileAreas")">@foreach (var item in Areas) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }</nav>
+        <nav aria-label="@T("MobileAreas")">@foreach (var item in FilteredAreas) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }</nav>
     </PlatformDialog>
 }
 @code {
@@ -63,6 +63,7 @@
     private readonly HashSet<string> favorites = [];
     private readonly List<string> recent = [];
     private List<string> Areas => ["Overview", ..(context is not null && (Can(PlatformPermissions.InstitutionsRead) || Can(PlatformPermissions.InstitutionsWrite)) ? new[] { "Institutions" } : []), ..(context?.IsMaster == true ? new[] { "Administrators" } : []), ..(context is not null && Can(PlatformPermissions.AuditRead) ? new[] { "Audit" } : []), "PlatformProfile"];
+    private IEnumerable<string> FilteredAreas => Areas.Where(x => string.IsNullOrWhiteSpace(search) || T(x).Contains(search, StringComparison.CurrentCultureIgnoreCase));
     protected override Task OnInitializedAsync() => LoadContextAsync();
     private Task LoadContextAsync() => RunAsync(Api.GetContextAsync, value => { context = value; Context = value; });
     private async Task NavigateAsync(string target, bool preserveInstitutionFilter = false)
