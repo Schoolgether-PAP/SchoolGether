@@ -6,7 +6,7 @@ using SchoolGether.Contracts.Identity;
 
 namespace SchoolGether.ApiClient.Tests;
 
-internal sealed record SessionRequest(string Path, string? Scheme, string? Bearer, string? Body);
+internal sealed record SessionRequest(string Method, string Path, string? Scheme, string? Bearer, string? Body);
 
 internal sealed class SessionTestFixture : IDisposable
 {
@@ -17,6 +17,7 @@ internal sealed class SessionTestFixture : IDisposable
     public ManualTimeProvider Clock { get; } = new();
     public IRefreshTokenStore Store { get; }
     public IdentitySession Session { get; }
+    public HttpClient Http => http;
     public ConcurrentQueue<SessionRequest> Requests { get; } = new();
     public Func<SessionRequest, CancellationToken, Task<HttpResponseMessage>> Respond { get; set; }
     private readonly HttpClient http;
@@ -34,7 +35,7 @@ internal sealed class SessionTestFixture : IDisposable
         });
         http = new HttpClient(new ControlledHandler(async (request, cancellationToken) =>
         {
-            var captured = new SessionRequest(request.RequestUri!.AbsolutePath,
+            var captured = new SessionRequest(request.Method.Method, request.RequestUri!.PathAndQuery,
                 request.Headers.Authorization?.Scheme, request.Headers.Authorization?.Parameter,
                 request.Content is null ? null : await request.Content.ReadAsStringAsync(cancellationToken));
             Requests.Enqueue(captured);

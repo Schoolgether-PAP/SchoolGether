@@ -56,6 +56,43 @@ public sealed class IdentitySession(IdentityApiClient api, IRefreshTokenStore st
         return await LoadProfileAsync(state.Generation, cancellationToken);
     }
 
+    public async Task<T> ExecuteAuthorizedAsync<T>(Func<string, CancellationToken, Task<T>> operation,
+        CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(operation);
+        var state = await ReadStateAsync(cancellationToken);
+        var currentTokens = await EnsureTokensAsync(state.Generation, null, cancellationToken);
+        T result;
+        try
+        {
+            result = await operation(currentTokens.AccessToken, cancellationToken);
+        }
+        catch (IdentityApiException exception) when (exception.StatusCode == HttpStatusCode.Unauthorized)
+        {
+            currentTokens = await EnsureTokensAsync(state.Generation, currentTokens, cancellationToken);
+            try
+            {
+                result = await operation(currentTokens.AccessToken, cancellationToken);
+            }
+            catch (IdentityApiException retryException) when (retryException.StatusCode == HttpStatusCode.Unauthorized)
+            {
+                await ClearAsync(state.Generation, CancellationToken.None);
+                throw new SessionExpiredException();
+            }
+        }
+
+        await stateGate.WaitAsync(cancellationToken);
+        try
+        {
+            EnsureGeneration(state.Generation);
+            return result;
+        }
+        finally
+        {
+            stateGate.Release();
+        }
+    }
+
     public async Task<bool> SignOutAsync(CancellationToken cancellationToken = default)
     {
         // Sair limpa a sessão local mesmo quando o pedido remoto é cancelado.

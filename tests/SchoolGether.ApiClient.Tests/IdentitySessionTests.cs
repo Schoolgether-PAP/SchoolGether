@@ -207,4 +207,80 @@ public sealed class IdentitySessionTests
         Assert.Null(fixture.Session.Account);
         Assert.Null(await fixture.Store.ReadAsync(default));
     }
+
+    // Catches retrying with a rejected access token or rotating a refresh token more than once.
+    [Fact]
+    public async Task AuthorizedOperationRefreshesAndRetriesOnceAfterUnauthorized()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        var attempts = new List<string>();
+
+        var result = await fixture.Session.ExecuteAuthorizedAsync((token, _) =>
+        {
+            attempts.Add(token);
+            if (attempts.Count == 1)
+                throw new IdentityApiException(HttpStatusCode.Unauthorized, null, null);
+            return Task.FromResult(42);
+        });
+
+        Assert.Equal(42, result);
+        Assert.Equal(new[] { "access-1", "access-2" }, attempts);
+        Assert.Single(fixture.Requests, request => request.Path.EndsWith("/refresh"));
+        Assert.Equal(SessionTestFixture.SecondRefresh, await fixture.Store.ReadAsync(default));
+    }
+
+    [Theory]
+    [InlineData(HttpStatusCode.Forbidden)]
+    [InlineData(HttpStatusCode.Conflict)]
+    public async Task AuthorizedOperationPreservesSessionOnPermissionOrVersionFailure(HttpStatusCode status)
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+
+        var error = await Assert.ThrowsAsync<IdentityApiException>(() => fixture.Session.ExecuteAuthorizedAsync<int>(
+            (_, _) => throw new IdentityApiException(status, "Denied", "trace-7")));
+
+        Assert.Equal(status, error.StatusCode);
+        Assert.Equal("trace-7", error.TraceId);
+        Assert.Equal(SessionTestFixture.Profile, fixture.Session.Account);
+        Assert.Equal(SessionTestFixture.FirstRefresh, await fixture.Store.ReadAsync(default));
+        Assert.DoesNotContain(fixture.Requests, request => request.Path.EndsWith("/refresh"));
+    }
+
+    // Catches completing a late administrative response after local logout.
+    [Fact]
+    public async Task AuthorizedOperationRejectsLateResponseAfterSignOut()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        var started = SessionTestFixture.NewSignal();
+        var release = SessionTestFixture.NewSignal();
+        var operation = fixture.Session.ExecuteAuthorizedAsync(async (_, _) =>
+        {
+            started.SetResult();
+            await release.Task;
+            return 42;
+        });
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        await fixture.Session.SignOutAsync();
+        release.SetResult();
+
+        await Assert.ThrowsAsync<SessionExpiredException>(() => operation);
+        Assert.Null(fixture.Session.Account);
+        Assert.Null(await fixture.Store.ReadAsync(default));
+    }
+
+    [Fact]
+    public async Task AuthorizedOperationPropagatesCancellation()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        using var cancellation = new CancellationTokenSource();
+        cancellation.Cancel();
+
+        await Assert.ThrowsAnyAsync<OperationCanceledException>(() => fixture.Session.ExecuteAuthorizedAsync(
+            (_, _) => Task.FromResult(42), cancellation.Token));
+    }
 }
