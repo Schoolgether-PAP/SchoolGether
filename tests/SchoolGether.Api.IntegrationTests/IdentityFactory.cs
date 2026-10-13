@@ -32,7 +32,12 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     {
         this.institutionDirectory = institutionDirectory;
         this.mySqlConnectionString = mySqlConnectionString;
-        if (mySqlConnectionString is null) connection.Open();
+        if (mySqlConnectionString is null)
+        {
+            connection.Open();
+            // SQLite só normaliza ASCII por omissão; alinhar o lower SQL com Unicode do MySQL.
+            connection.CreateFunction<string?, string?>("lower", value => value?.ToLowerInvariant(), isDeterministic: true);
+        }
         else
         {
             var settings = new MySqlConnectionStringBuilder(mySqlConnectionString);
@@ -75,6 +80,7 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var platform = new ApplicationUser { UserName = "platform@example.test", Email = "platform@example.test",
             Name = "Plataforma", IsPlatformAdmin = true, LockoutEnabled = true };
+        platform.PromoteMaster();
         Assert.True((await users.CreateAsync(platform, Password)).Succeeded);
         var a = new Institution("Instituição A", platform.Id);
         var b = new Institution("Instituição B", platform.Id);

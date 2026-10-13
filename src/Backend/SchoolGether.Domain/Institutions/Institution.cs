@@ -24,6 +24,8 @@ public sealed class Institution
     public DateTime? UpdatedAt { get; private set; }
     public int? CreatedBy { get; private set; }
     public DateTime? DeletedAt { get; private set; }
+    public bool IsSuspended { get; private set; }
+    public string? SuspensionReason { get; private set; }
     public long RowVersion { get; private set; } = 1;
 
     public void Rename(string name)
@@ -40,6 +42,17 @@ public sealed class Institution
         }
 
         Name = validatedName;
+        UpdatedAt = DateTime.UtcNow;
+        RowVersion++;
+    }
+
+    public void SetSuspension(bool isSuspended, string reason)
+    {
+        if (DeletedAt.HasValue) throw new InvalidOperationException("Não é possível alterar uma instituição eliminada.");
+        ArgumentException.ThrowIfNullOrWhiteSpace(reason);
+        if (reason.Length > 500) throw new ArgumentException("O motivo não pode exceder 500 caracteres.", nameof(reason));
+        IsSuspended = isSuspended;
+        SuspensionReason = isSuspended ? reason.Trim() : null;
         UpdatedAt = DateTime.UtcNow;
         RowVersion++;
     }

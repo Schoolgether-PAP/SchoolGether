@@ -2,11 +2,14 @@ using System.Security.Cryptography;
 using System.Text;
 using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
+using SchoolGether.Application.Audit;
+using SchoolGether.Application.Platform;
 
 namespace SchoolGether.Application.Identity;
 
 public sealed class IdentityService(IIdentityStore accounts, ISessionStore sessions, IAccessTokenIssuer issuer,
-    ICurrentAccount current, IInstitutionDirectory institutions, TimeProvider clock)
+    ICurrentAccount current, IInstitutionDirectory institutions, TimeProvider clock,
+    PlatformAuthorization platform, IAdministrativeUnitOfWork unitOfWork, IAuditWriter audit)
 {
     public async Task<Tokens> LoginAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -62,7 +65,7 @@ public sealed class IdentityService(IIdentityStore accounts, ISessionStore sessi
 
     public async Task<Account> CreateAccountAsync(CreateAccount request, CancellationToken cancellationToken)
     {
-        await GetMeAsync(cancellationToken);
+        var actor = await GetMeAsync(cancellationToken);
         if (request.Role == AccountRole.PlatformAdmin || !Enum.IsDefined(request.Role))
             throw new IdentityException("Forbidden");
         var institutionId = request.InstitutionId;
@@ -75,9 +78,19 @@ public sealed class IdentityService(IIdentityStore accounts, ISessionStore sessi
         }
         else if (current.Role != nameof(AccountRole.PlatformAdmin))
             throw new IdentityException("Forbidden");
+        else await platform.RequireAsync(PlatformCapabilities.InstitutionsWrite, cancellationToken);
         if (institutionId is not > 0 || !await institutions.ExistsAsync(institutionId.Value, cancellationToken))
             throw new IdentityException("InvalidInstitution");
-        return await accounts.CreateAsync(request with { InstitutionId = institutionId }, current.UserId!.Value, cancellationToken);
+        if (actor.Role != AccountRole.PlatformAdmin)
+            return await accounts.CreateAsync(request with { InstitutionId = institutionId }, actor.Id, cancellationToken);
+        return await unitOfWork.ExecuteAsync(async token =>
+        {
+            var created = await accounts.CreateAsync(request with { InstitutionId = institutionId }, actor.Id, token);
+            audit.Append(new AuditEvent(new AuditActor(actor.Id, actor.Name), "institution.account.create", created.Id.ToString(),
+                "success", "Criação pela API de contas", institutionId, After: new Dictionary<string, object?> {
+                    ["id"] = created.Id, ["name"] = created.Name, ["role"] = created.Role.ToString(), ["institutionId"] = institutionId }));
+            return created;
+        }, cancellationToken);
     }
 
     public async Task<MemberPage> ListMembersAsync(int page, int pageSize, CancellationToken cancellationToken)

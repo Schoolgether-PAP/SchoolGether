@@ -34,12 +34,18 @@ essa ligação pode ser confirmada localmente seguindo [o guia da API](api.md).
 Adicionar os testes de Application com os respetivos módulos e estender os testes
 de isolamento às novas tabelas institucionais, conforme definido no `AGENTS.md`.
 
+O job `Testes do cliente API` executa a suite .NET da sessão partilhada e do
+ViewModel MAUI, com HTTP e armazenamento controlados. Os testes ligam apenas o
+ViewModel puro e recursos; não referenciam os targets MAUI nem precisam de
+emulador. Cobrem entrada, renovação concorrente, saída durante pedidos pendentes,
+falhas de rede e de armazenamento. Não substituem a execução nativa da app.
+
 ## Fluxo da equipa
 
 1. Trabalhar num ramo `feature/<modulo>-<descricao>` a partir de `develop`.
 2. Executar os comandos de compilação do README antes de enviar alterações.
 3. Enviar o ramo e abrir um pull request para `develop`.
-4. Confirmar que os quatro jobs do CI estão verdes no separador **Checks** do pull request.
+4. Confirmar que os cinco jobs do CI estão verdes no separador **Checks** do pull request.
 5. Pedir revisão a outro elemento e integrar depois da aprovação.
 
 Na configuração inicial, criar `develop` a partir de `main` se ainda não existir.
@@ -47,9 +53,12 @@ O primeiro pull request acrescenta o workflow; os eventos de push nos ramos
 `feature/**` permitem validar esse workflow antes da integração.
 
 Depois da primeira execução, configurar a proteção de `main` e `develop` para
-exigir os checks `Compilar API`, `Compilar Site`, `Testes do domínio` e `Testes da API`,
+exigir os checks `Compilar API`, `Compilar Site`, `Testes do domínio`, `Testes da API`
+e `Testes do cliente API`,
 além da revisão de outro elemento.
 A criação do workflow não ativa automaticamente a proteção dos ramos.
+O quinto job desta entrega só será executado no GitHub depois de enviar o ramo;
+as verificações locais não demonstram uma execução remota do novo workflow.
 
 ## Quando uma execução falha
 

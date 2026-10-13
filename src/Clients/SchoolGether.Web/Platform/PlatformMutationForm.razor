@@ -1,0 +1,129 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+<form @onsubmit="SaveAsync" @onsubmit:preventDefault aria-busy="@Busy">
+    <fieldset disabled="@Busy">
+        @if (Kind is not "suspension")
+        { <div class="field"><label for="record-name">@T("Name")</label><input id="record-name" required maxlength="@(Kind.Contains("institution") ? 200 : 150)" @bind="name" @bind:event="oninput" /></div> }
+        @if (Kind is "responsible" or "admin-create" or "admin-edit")
+        { <div class="field"><label for="record-email">@T("Email")</label><input id="record-email" type="email" required maxlength="256" readonly="@(Kind == "admin-edit")" autocomplete="off" @bind="email" @bind:event="oninput" /></div> }
+        @if (Kind is "responsible" or "admin-create")
+        { <div class="field"><label for="record-password">@T("InitialPassword")</label><input id="record-password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" @bind="password" @bind:event="oninput" /></div> }
+        @if (Kind is "admin-create" or "admin-edit")
+        {
+            <fieldset class="permissions-field"><legend>@T("Permissions")</legend>
+            @foreach (var permission in PlatformPermissions.All)
+            { <label class="check"><input type="checkbox" checked="@permissions.Contains(permission)" @onchange="e => Permission(permission, (bool)e.Value!)" />@PermissionLabel(permission)</label> }
+            </fieldset>
+            @if (Kind == "admin-edit") { <label class="check"><input type="checkbox" @bind="active" />@T("AdminActive")</label> }
+        }
+        @if (Kind != "admin-create")
+        { <div class="field"><label for="record-reason">@T("Reason")</label><textarea id="record-reason" required maxlength="500" rows="3" @bind="reason" @bind:event="oninput"></textarea></div> }
+        @if (RequiresConfirmation)
+        { <p>@T("AccessChangeHelp")</p><label class="check"><input type="checkbox" required @bind="confirmed" />@T("ConfirmAccessChange")</label> }
+    </fieldset>
+    @if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p> }
+    @if (conflict)
+    {
+        <p>@T("ReconcileHelp")</p>
+        <button type="button" disabled="@Busy" @onclick="FetchCurrentAsync">@T("FetchCurrentRecord")</button>
+        @if (currentInstitution is not null || currentAdmin is not null)
+        {
+            <div class="current-record">
+                <h3>@T("CurrentRecord")</h3>
+                <dl class="record-fields">
+                    <div><dt>@T("Name")</dt><dd>@(currentInstitution?.Name ?? currentAdmin!.Name)</dd></div>
+                    <div><dt>@T("State")</dt><dd>@(currentInstitution is { } value ? T(value.IsSuspended ? "Suspended" : "Active") : T(currentAdmin!.IsActive ? "Active" : "Inactive"))</dd></div>
+                    @if (currentInstitution?.SuspensionReason is { } suspensionReason)
+                    { <div><dt>@T("Reason")</dt><dd>@suspensionReason</dd></div> }
+                    @if (currentAdmin is not null)
+                    { <div><dt>@T("Permissions")</dt><dd>@if (currentAdmin.Permissions.Length == 0) { @T("NoPermissions") } else { @foreach (var permission in currentAdmin.Permissions) { <small>@PermissionLabel(permission)</small> } }</dd></div> }
+                </dl>
+                <p>@T("KeepDraftHelp")</p>
+                <button type="button" disabled="@Busy" @onclick="KeepDraft">@T("KeepDraftVersion")</button>
+            </div>
+        }
+    }
+    <div class="dialog-actions"><button type="button" disabled="@Busy" @onclick="CancelAsync">@T("Cancel")</button><button class="platform-primary" type="submit" disabled="@(Busy || conflict || !Authorized)">@T(Busy ? "Saving" : "Save")</button></div>
+</form>
+@code {
+    [Parameter, EditorRequired] public string Kind { get; set; } = "";
+    [Parameter] public PlatformInstitutionResponse? Institution { get; set; }
+    [Parameter] public PlatformAdminResponse? Admin { get; set; }
+    [Parameter] public EventCallback Saved { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    private string name = "", email = "", password = "", reason = "";
+    private bool active = true, confirmed;
+    private bool conflict, originalActive, desiredSuspended;
+    private long version;
+    private PlatformInstitutionResponse? currentInstitution;
+    private PlatformAdminResponse? currentAdmin;
+    private readonly HashSet<string> permissions = [];
+    protected override string ConflictMessageKey => Kind is "responsible" or "admin-create" ? "AccountEmailExists" : base.ConflictMessageKey;
+    private bool Authorized => Kind.StartsWith("admin-") ? Context.IsMaster : Can(Kind == "suspension" ? PlatformPermissions.InstitutionsSuspend : PlatformPermissions.InstitutionsWrite);
+    private bool RequiresConfirmation => Kind == "suspension" || Kind == "admin-edit" && originalActive && !active;
+    protected override void OnInitialized()
+    {
+        name = Institution?.Name ?? Admin?.Name ?? "";
+        email = Admin?.Email ?? "";
+        active = Admin?.IsActive ?? true;
+        originalActive = active;
+        desiredSuspended = !(Institution?.IsSuspended ?? false);
+        version = Institution?.RowVersion ?? Admin?.RowVersion ?? 0;
+        foreach (var permission in Admin?.Permissions ?? []) permissions.Add(permission);
+    }
+    private void Permission(string permission, bool selected) { if (selected) permissions.Add(permission); else permissions.Remove(permission); }
+    public static string PermissionLabel(string permission) => T(permission switch { PlatformPermissions.InstitutionsRead => "PermissionInstitutionsRead", PlatformPermissions.InstitutionsWrite => "PermissionInstitutionsWrite", PlatformPermissions.InstitutionsSuspend => "PermissionInstitutionsSuspend", _ => "PermissionAuditRead" });
+    private async Task SaveAsync()
+    {
+        if (Busy || conflict || !Authorized || string.IsNullOrWhiteSpace(name) && Kind != "suspension" || Kind != "admin-create" && string.IsNullOrWhiteSpace(reason) || RequiresConfirmation && !confirmed) return;
+        var saved = false;
+        await RunAsync(async token =>
+        {
+            switch (Kind)
+            {
+                case "institution-create": await Api.CreateInstitutionAsync(new() { Name = name.Trim(), Reason = reason.Trim() }, token); break;
+                case "institution-edit": await Api.UpdateInstitutionAsync(Institution!.Id, new() { Name = name.Trim(), Reason = reason.Trim(), RowVersion = version }, token); break;
+                case "suspension": await Api.SetInstitutionSuspensionAsync(Institution!.Id, new() { IsSuspended = desiredSuspended, Reason = reason.Trim(), RowVersion = version }, token); break;
+                case "responsible": await Api.CreateInstitutionAdminAsync(Institution!.Id, new() { Name = name.Trim(), Email = email.Trim(), Password = password, Reason = reason.Trim() }, token); break;
+                case "admin-create": await Api.CreateAdminAsync(new() { Name = name.Trim(), Email = email.Trim(), Password = password, Permissions = permissions.ToArray() }, token); break;
+                case "admin-edit": await Api.UpdateAdminAsync(Admin!.Id, new() { Name = name.Trim(), IsActive = active, Permissions = permissions.ToArray(), RowVersion = version, Reason = reason.Trim() }, token); break;
+                default: throw new InvalidOperationException("Unknown administrative operation.");
+            }
+            return true;
+        }, value => saved = value);
+        conflict = FailureStatus == System.Net.HttpStatusCode.Conflict && Kind is "institution-edit" or "suspension" or "admin-edit";
+        if (saved && !Disposed) { password = ""; await Saved.InvokeAsync(); }
+    }
+    private Task CancelAsync() => Busy ? Task.CompletedTask : Cancel.InvokeAsync();
+    private async Task FetchCurrentAsync()
+    {
+        currentInstitution = null;
+        currentAdmin = null;
+        if (Kind == "admin-edit")
+            await RunAsync(async token =>
+            {
+                // Reuse the existing paginated endpoint; the selected admin may have moved page.
+                for (var page = 1; ; page++)
+                {
+                    var result = await Api.ListAdminsAsync(page, 20, token);
+                    var found = result.Items.FirstOrDefault(value => value.Id == Admin!.Id);
+                    if (found is not null) return found;
+                    if (result.Items.Count == 0 || page * 20 >= result.Total)
+                        throw new InvalidOperationException("Administrative record no longer available.");
+                }
+            }, value => currentAdmin = value);
+        else
+            await RunAsync(token => Api.GetInstitutionAsync(Institution!.Id, token), value => currentInstitution = value.Institution);
+    }
+    private void KeepDraft()
+    {
+        if (Busy || currentInstitution is null && currentAdmin is null) return;
+        version = currentInstitution?.RowVersion ?? currentAdmin!.RowVersion;
+        originalActive = currentAdmin?.IsActive ?? originalActive;
+        confirmed = false;
+        conflict = false;
+        currentInstitution = null;
+        currentAdmin = null;
+    }
+    public override void Dispose() { password = ""; base.Dispose(); }
+}

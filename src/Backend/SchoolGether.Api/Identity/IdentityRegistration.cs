@@ -6,6 +6,10 @@ using Microsoft.OpenApi;
 using SchoolGether.Application.Identity;
 using SchoolGether.Infrastructure.Identity;
 using SchoolGether.Infrastructure.Institutions;
+using SchoolGether.Infrastructure.Audit;
+using SchoolGether.Infrastructure.Platform;
+using SchoolGether.Api.Platform;
+using Microsoft.AspNetCore.Authorization;
 
 namespace SchoolGether.Api.Identity;
 
@@ -15,13 +19,30 @@ internal static class IdentityRegistration
     {
         services.AddIdentityModule();
         services.AddInstitutionsModule();
+        services.AddAuditModule();
+        services.AddPlatformModule();
         services.AddHttpContextAccessor();
         services.AddScoped<ICurrentAccount, CurrentAccount>();
         services.AddExceptionHandler<IdentityExceptionHandler>();
+        services.AddExceptionHandler<PlatformExceptionHandler>();
+        services.AddScoped<AdministrativeRefusalAudit>();
+        services.AddScoped<AdministrativeValidationAuditFilter>();
+        services.AddSingleton<IAuthorizationMiddlewareResultHandler, AuditedAuthorizationResultHandler>();
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer();
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<TokenSigningKey>((options, key) =>
             {
+                options.Events = new JwtBearerEvents { OnTokenValidated = async context =>
+                {
+                    // Cada pedido escolar consulta a elegibilidade atual, incluindo suspensão e lockout.
+                    if (context.Principal?.FindFirst("role")?.Value == "PlatformAdmin") return;
+                    var id = int.TryParse(context.Principal?.FindFirst("sub")?.Value, out var parsedId) ? parsedId : 0;
+                    var institutionId = int.TryParse(context.Principal?.FindFirst("institution_id")?.Value, out var parsedInstitution) ? parsedInstitution : 0;
+                    var account = await context.HttpContext.RequestServices.GetRequiredService<IIdentityStore>()
+                        .FindForAuthenticationAsync(id, context.HttpContext.RequestAborted);
+                    if (account is null || account.InstitutionId != institutionId || account.Role.ToString() != context.Principal?.FindFirst("role")?.Value)
+                        context.Fail("InvalidSession");
+                } };
                 options.MapInboundClaims = false;
                 options.IncludeErrorDetails = false;
                 options.TokenValidationParameters = new TokenValidationParameters {
@@ -56,7 +77,8 @@ internal static class IdentityRegistration
                 Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT" };
             foreach (var path in document.Paths)
                 foreach (var operation in path.Value.Operations ?? [])
-                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions")
+                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions" ||
+                        path.Key.StartsWith("/api/v1/platform/", StringComparison.Ordinal))
                         operation.Value.Security = [new OpenApiSecurityRequirement {
                             [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];
             return Task.CompletedTask;

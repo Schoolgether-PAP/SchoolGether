@@ -1,0 +1,74 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+<div class="page-heading"><div><PlatformHeading>@T("Overview")</PlatformHeading><p class="platform-intro">@T("DashboardScope")</p></div><div class="actions"><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("RefreshData")</button><button type="button" disabled="@(preferences is null)" @onclick="() => editing = true">@T("Customize")</button></div></div>
+@if (Error is not null) { <p class="feedback error-message" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+else if (data is null || preferences is null) { <p role="status">@T("Loading")</p> }
+else
+{
+    <div class="metric-row">
+        @if (Can(PlatformPermissions.InstitutionsRead) && data.InstitutionsTotal is { } total) { <button class="metric-link" type="button" @onclick="() => InstitutionsRequested.InvokeAsync(null)"><span>@T("InstitutionsTotal")</span><strong>@total</strong></button> }
+        @if (Can(PlatformPermissions.InstitutionsRead) && data.AccountsTotal is { } accounts) { <div><span>@T("AccountsTotal")</span><strong>@accounts</strong><small>@T("AccountsScope")</small></div> }
+    </div>
+    <div class="dashboard-grid">
+    @foreach (var widget in preferences.Widgets.Where(w => w.Visible && Authorized(w.Id)))
+    {
+        <article class="dashboard-widget size-@widget.Size" data-widget="@widget.Id">
+        @if (widget.Id == "institutions-trend")
+        {
+            <h2>@T("TrendTitle")</h2><p class="platform-intro">@T("TrendScope")</p>
+            @if (data.InstitutionsTrend.Count == 0) { <p>@T("TrendEmpty")</p> }
+            else
+            {
+                <div class="chart-scroll"><div class="line-chart">
+                    <svg viewBox="0 0 600 230" aria-hidden="true" focusable="false">
+                        <line x1="35" y1="180" x2="565" y2="180" stroke="#8f8176" />
+                        <line x1="35" y1="20" x2="35" y2="180" stroke="#8f8176" />
+                        <text x="4" y="184">0</text><text x="4" y="28">@Maximum</text>
+                        <polyline points="@Points" fill="none" stroke="#c87532" stroke-width="3" />
+                    </svg>
+                    @for (var i = 0; i < data.InstitutionsTrend.Count; i++)
+                    {
+                        var index = i; var point = data.InstitutionsTrend[index];
+                        <button class="chart-point" type="button" style="left:@Percent(X(index) / 600 * 100);top:@Percent(Y(point.Count) / 230 * 100)" aria-label="@UiMessages.Format("TrendPoint", point.Label, point.Count)" title="@UiMessages.Format("TrendPoint", point.Label, point.Count)"><span>@point.Count</span></button>
+                        <span class="chart-label" style="left:@Percent(X(index) / 600 * 100)">@point.Label</span>
+                    }
+                </div></div>
+                <p class="chart-legend"><span aria-hidden="true"></span>@T("TrendLegend")</p>
+                <details><summary>@T("ShowDataTable")</summary><table><caption>@T("TrendTitle")</caption><thead><tr><th>@T("MonthUtc")</th><th>@T("Institutions")</th></tr></thead><tbody>@foreach (var point in data.InstitutionsTrend) { <tr><td>@point.Label</td><td>@point.Count</td></tr> }</tbody></table></details>
+            }
+        }
+        else if (widget.Id == "institutions-status")
+        {
+            <h2>@T("InstitutionStatus")</h2><p class="platform-intro">@T("CurrentGlobalSnapshot")</p>
+            @if (data.ActiveInstitutions is { } active && data.SuspendedInstitutions is { } suspended)
+            {
+                <div class="distribution"><button class="distribution-link" type="button" aria-label="@UiMessages.Format("ActiveInstitutionsCount", active)" @onclick="() => InstitutionsRequested.InvokeAsync(false)"><span>@T("ActiveInstitutions")</span><strong>@active</strong></button><div class="distribution-track"><span style="width:@Percent((double)active / Math.Max(1, active + suspended) * 100)"></span></div></div>
+                <div class="distribution suspended"><button class="distribution-link" type="button" aria-label="@UiMessages.Format("SuspendedInstitutionsCount", suspended)" @onclick="() => InstitutionsRequested.InvokeAsync(true)"><span>@T("SuspendedInstitutions")</span><strong>@suspended</strong></button><div class="distribution-track"><span style="width:@Percent((double)suspended / Math.Max(1, active + suspended) * 100)"></span></div></div>
+                <p class="platform-intro">@T("DistributionZero")</p>
+            }
+        }
+        else if (widget.Id == "recent-actions")
+        { <h2>@T("RecentActions")</h2><PlatformAuditTable Items="data.RecentActions" /> }
+        </article>
+    }
+    </div>
+    @if (!preferences.Widgets.Any(w => w.Visible && Authorized(w.Id))) { <div class="empty-state"><p>@T("DashboardEmpty")</p><button type="button" @onclick="() => editing = true">@T("Customize")</button></div> }
+}
+@if (editing && preferences is not null)
+{ <PlatformPreferences Context="Context" PermissionsChanged="PermissionsChanged" Preference="preferences" Saved="PreferenceSaved" Cancel="() => editing = false" /> }
+@code {
+    [Parameter] public EventCallback<bool?> InstitutionsRequested { get; set; }
+    [Parameter] public EventCallback<PlatformContextResponse> ContextUpdated { get; set; }
+    private PlatformDashboardResponse? data;
+    private DashboardPreferenceResponse? preferences;
+    private bool editing;
+    protected override Task OnInitializedAsync() => LoadAsync();
+    private Task LoadAsync() => RunAsync(async token => { var current = await Api.GetContextAsync(token); var dashboard = await Api.GetDashboardAsync(token); var preference = await Api.GetDashboardPreferencesAsync(token); return (current, dashboard, preference); }, value => { Context = value.current; data = value.dashboard; preferences = value.preference; _ = ContextUpdated.InvokeAsync(value.current); });
+    private bool Authorized(string id) => id == "recent-actions" ? Can(PlatformPermissions.AuditRead) : id is "institutions-trend" or "institutions-status" && Can(PlatformPermissions.InstitutionsRead);
+    private void PreferenceSaved(DashboardPreferenceResponse value) { preferences = value; editing = false; }
+    private int Maximum => Math.Max(1, data!.InstitutionsTrend.Max(x => x.Count));
+    private double X(int i) => 55 + i * (490d / Math.Max(1, data!.InstitutionsTrend.Count - 1));
+    private double Y(int count) => 180 - 150d * count / Maximum;
+    private string Points => string.Join(" ", data!.InstitutionsTrend.Select((p, i) => FormattableString.Invariant($"{X(i)},{Y(p.Count)}")));
+    private static string Percent(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "%";
+}

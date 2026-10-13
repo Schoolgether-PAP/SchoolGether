@@ -1,0 +1,45 @@
+using System.Resources;
+namespace SchoolGether.Mobile;
+public static class UiMessages
+{
+    private static readonly ResourceManager Resources = new("SchoolGether.Mobile.Resources.Strings.UiMessages", typeof(UiMessages).Assembly);
+    public static string Brand => Resources.GetString("Brand")!;
+    public static string Welcome => Resources.GetString("Welcome")!;
+    public static string Intro => Resources.GetString("Intro")!;
+    public static string LoginTitle => Resources.GetString("LoginTitle")!;
+    public static string LoginSubtitle => Resources.GetString("LoginSubtitle")!;
+    public static string Email => Resources.GetString("Email")!;
+    public static string Password => Resources.GetString("Password")!;
+    public static string ShowPassword => Resources.GetString("ShowPassword")!;
+    public static string HidePassword => Resources.GetString("HidePassword")!;
+    public static string SignIn => Resources.GetString("SignIn")!;
+    public static string AccountHelp => Resources.GetString("AccountHelp")!;
+    public static string ProfileTitle => Resources.GetString("ProfileTitle")!;
+    public static string ProfileSubtitle => Resources.GetString("ProfileSubtitle")!;
+    public static string Name => Resources.GetString("Name")!;
+    public static string Role => Resources.GetString("Role")!;
+    public static string Institution => Resources.GetString("Institution")!;
+    public static string RefreshProfile => Resources.GetString("RefreshProfile")!;
+    public static string SignOut => Resources.GetString("SignOut")!;
+    public static string RetryRestore => Resources.GetString("RetryRestore")!;
+    public static string Busy => Resources.GetString("Busy")!;
+    public static string LogoDescription => Resources.GetString("LogoDescription")!;
+    public static string PlatformAdmin => Resources.GetString("PlatformAdmin")!;
+    public static string InstitutionAdmin => Resources.GetString("InstitutionAdmin")!;
+    public static string Teacher => Resources.GetString("Teacher")!;
+    public static string Student => Resources.GetString("Student")!;
+    public static string UnknownRole => Resources.GetString("UnknownRole")!;
+    public static string InstitutionFormat => Resources.GetString("InstitutionFormat")!;
+    public static string PlatformAdministration => Resources.GetString("PlatformAdministration")!;
+    public static string RequiredFields => Resources.GetString("RequiredFields")!;
+    public static string InvalidLogin => Resources.GetString("InvalidLogin")!;
+    public static string SessionExpired => Resources.GetString("SessionExpired")!;
+    public static string RateLimited => Resources.GetString("RateLimited")!;
+    public static string NetworkError => Resources.GetString("NetworkError")!;
+    public static string StorageError => Resources.GetString("StorageError")!;
+    public static string LogoutStorageError => Resources.GetString("LogoutStorageError")!;
+    public static string LogoutConfirmed => Resources.GetString("LogoutConfirmed")!;
+    public static string LogoutLocal => Resources.GetString("LogoutLocal")!;
+    public static string RequestError => Resources.GetString("RequestError")!;
+    public static string ConfigurationError => Resources.GetString("ConfigurationError")!;
+}

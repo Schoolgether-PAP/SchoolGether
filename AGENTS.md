@@ -58,7 +58,7 @@ SchoolGether/
 │   └── Clients/
 │       ├── SchoolGether.Mobile/          # .NET MAUI
 │       └── SchoolGether.Web/             # Blazor WebAssembly
-├── tests/                                # Domain e Api.IntegrationTests criados; Application por criar
+├── tests/                                # Domain, Api.IntegrationTests e ApiClient.Tests; Application por criar
 ├── docs/                                 # documentação e decisões (ADR)
 └── SchoolGether.slnx
 ```
@@ -120,12 +120,36 @@ dotnet run --project src/Backend/SchoolGether.Api
 - Concluído localmente: Etapa 5 — contexto EF Core, entidade Institution, ligação privada em user-secrets e primeira migração aplicados ao MySQL local. Testes de domínio de instituições criados. A configuração Aiven permanece pendente.
 - PR #2 da base de dados integrado em `develop`, confirmado no GitHub em 2026-10-12.
 - Concluído localmente: Etapa 6 — Swagger/OpenAPI em desenvolvimento, rotas `/api/v1`, `ProblemDetails`, CORS e diagnósticos de funcionamento/prontidão. Testes HTTP criados e incluídos no CI. Ligação real ao MySQL e migrações confirmadas por `/api/v1/health/ready`. Ver `docs/api.md`.
-- Preparado no ramo `feature/identity`: login JWT, refresh com rotação/revogação, papéis, criação de instituições/contas por administradores, filtro e guardas de escrita em `institution_member`. Credenciais e sessões são metadados globais de autenticação; dados institucionais ficam no perfil filtrado. O primeiro administrador é criado por assistente local, sem credenciais no repositório. Ver `docs/identity.md`.
+- Integrado pelo PR #4: login JWT, refresh com rotação/revogação, papéis, criação de instituições/contas por administradores, filtro e guardas de escrita em `institution_member`. Credenciais e sessões são metadados globais de autenticação; dados institucionais ficam no perfil filtrado. O primeiro administrador é criado por assistente local, sem credenciais no repositório. Ver `docs/identity.md`.
 - Identity tem testes HTTP com SQLite relacional isolado e um cenário automático com o provider Oracle numa instância MySQL 8 temporária. O utilizador confirmou na base local administrador global, instituição (ID 2), administrador institucional, docente/aluno, perfil, listagens/permissões e refresh/logout. O isolamento entre instituições de IDs distintos foi depois confirmado automaticamente em MySQL, sem usar nem alterar as contas existentes. Ver `scripts/Test-MySqlIdentity.ps1` e `docs/identity.md`.
 - Auditoria de 2026-10-11: 18 testes de domínio e 46 da API passaram; o site compilou em Release e a base MAUI para Windows e Android em Debug. Modelo EF sem alterações pendentes; diagnósticos de funcionamento/prontidão devolveram 200 numa execução temporária da API. Estes resultados não demonstram um login funcional nos clientes. Ver `docs/revisao-etapas.md`.
-- Na consulta de 2026-10-12, PRs #2 e #3 confirmados como integrados. `origin/develop` atualizado para `ce69c62` e integrado em `feature/identity` pelo merge local `e256670`, sem conflitos. Identity permanece local, sem ramo remoto; próximo passo é enviar o ramo e abrir o PR para `develop`, com CI e revisão da equipa.
+- PRs #2, #3 e #4 integrados em `develop`. PR #4 (Identity) aprovado por outro elemento da equipa e integrado em 2026-10-12, commit `93462d6`. `develop` local atualizado por fast-forward; preparação da próxima entrega no ramo `feature/client-login`.
 - Ajuste concluído localmente em 2026-10-12: `IdentityStore.ToAccountAsync` usa `IInstitutionDirectory`. Verificação após integrar develop: 18 testes de domínio + 48 testes da API aprovados. O cenário adicional MySQL foi executado separadamente e aprovado, com migrações reais, permissões, isolamento e sessões; a instância temporária foi removida. Na suite normal/CI esse cenário fica explicitamente ignorado, pois requer o ambiente preparado pelo script local. Não confundir esse skip com a execução MySQL aprovada. API local em 5265 respondeu 200 nos diagnósticos e 401 em perfil/listagem sem autenticação na verificação anterior.
-- Por limpar: ficheiros `Class1.cs` e páginas `Counter` e `Weather` do site. O exemplo `WeatherForecast` da API foi removido.
+- Por limpar quando relevante: ficheiros `Class1.cs`. As páginas Counter/Weather, navegação e dados de exemplo do site foram removidos; o exemplo WeatherForecast da API já tinha sido removido.
+- Implementado localmente no ramo `feature/client-login`: entrada, próprio perfil e saída no site e na app, com gestão partilhada de sessão. Visual B, nome SchoolGether e logo/paleta escolhidos pelo utilizador; primeira versão após entrada delegada para corrigir ao seu gosto. Site sem persistência de tokens; app com refresh no SecureStorage. Sem alterações ao esquema/backend. Ver `docs/client-login.md` e especificação/plano em `docs/superpowers/`.
+- Verificação de 2026-10-12: 18 testes de domínio, 48 da API e 25 dos clientes aprovados; 1 cenário MySQL explicitamente ignorado na suite normal. Site Release e app Debug Windows/Android compilados sem avisos/erros. Cenários Chromium com HTTP controlado verificaram entrada, perfil, renovação, saída lenta, erros, teclado e 390 px. Interface nativa/SecureStorage real, ligação do emulador e manifesto Release gerado não foram verificados. Não confundir compilações/fixtures com execução real nas plataformas ou alojamento.
+- Revisão independente do ramo sem problemas críticos/importantes; duas observações menores corrigidas: legenda durante saída web e mensagem ao rejeitar sessão guardada no arranque da app. Próximo: revisão visual do utilizador, envio do ramo/PR para develop quando autorizado e revisão do colega. Verificar também execução nativa antes de distribuir. Aiven, API HTTPS e GitHub Pages continuam pendentes; ainda não há publicação desta entrega nem CI remoto confirmado para o quinto job.
+- Entrega A do painel global aprovada e implementada localmente no ramo `feature/platform-admin-design`, verificada em 2026-10-13: master/capacidades, instituições/responsáveis, suspensão/reativação, histórico, dashboard real e preferências individuais no servidor. O site abre Visão geral para PlatformAdmin e conserva perfil/saída; papéis escolares e app mantêm o fluxo anterior. Navegação de áreas, favoritos/recentes em memória e UI desktop/390 px com logo/paleta originais. Ver `docs/platform-admin.md` e especificação aprovada em `docs/superpowers/specs/2026-10-12-platform-admin-design.md`. Suporte/finanças/conteúdos/operação avançada continuam fora de A; painéis escolares/docentes/alunos serão definidos posteriormente.
+- Verificação de A em 2026-10-13: 18 Domain, 45 ApiClient e 98 API aprovados, 1 cenário MySQL explicitamente ignorado na suite normal, 0 falhas. Web Release e MAUI Debug Windows/Android sem avisos/erros. Chromium com HTTP controlado verificou operações/403/409/401/retry/layouts por conta/teclado/390 px/saída tardia, e regressões de login/perfil/saída lenta; capturas inspecionadas. Sem uso da API/base/contas pessoais, sem aplicar migrações/promover contas existentes, sem teste nativo ou publicação. Migração e promoção do master continuam ações explícitas do operador; revisão independente e envio remoto ficam separados.
+
+Referência visual adicional de 2026-10-12: PHC GO observado em sessão autorizada
+para adaptar pesquisa, favoritos/recentes, listas configuráveis e detalhe lateral.
+Suporte em lista/quadro complementado pela documentação oficial. Prévia v2 local
+verificada em Chromium desktop/390 px, sem API real; revisão da proposta sem
+questões importantes em falta. Ver `docs/superpowers/specs/2026-10-12-phc-go-reference.md`.
+Descrição detalhada e prévia v3 aprovadas para A; nenhum dado/credencial
+da conta de referência integra o repositório. Primeira entrega mantém foco em
+instituições, master/permissões e auditoria; suporte/avisos e finanças vêm depois.
+
+Revisão v3 do dashboard em 2026-10-12: utilizador pediu gráficos mais cuidados e
+personalização individual por administrador. Proposta acrescenta catálogo de
+blocos, ordem/largura/visibilidade, modelos Gestão/Atendimento/Análise e preferências
+guardadas na própria conta no produto. Prévia local é descartável e mantém escolhas
+apenas em memória. Persistência de layout passa a integrar a entrega A; dados de
+suporte, utilização e finanças só entram quando os módulos os fornecerem. Ver a
+secção «Dashboard individual e gráficos — revisão v3» na especificação do painel.
+Sugestões de tarefas internas, filtros guardados, entrada assistida e importação
+CSV são propostas para evolução, sem aprovação nem inclusão automática na entrega A.
 
 ### Próximas etapas da Fase 0
 
@@ -143,8 +167,11 @@ dotnet run --project src/Backend/SchoolGether.Api
 
 ## 9. Como trabalhar neste projeto
 
+Publicação de demonstração em 2026-10-13: site em https://schoolgether-pap.github.io/SchoolGether/ e API Production em https://schoolgether-api.runasp.net/. Base Aiven gratuita separada, quatro migrações EF aplicadas e nova conta master autorizada; segredos apenas no servidor/ficheiros privados ignorados. Login, painel, 390 px, CORS, logout e revogação verificados com a versão pública; health/ready HTTPS 200. Aplicação publicada do commit 5658013 (cinco jobs CI aprovados), artefactos no ramo gh-pages. PR #5 aberto para revisão do colega; não confundir publicação com merge. Ver docs/deployment.md. Módulo de suporte permanece na etapa seguinte.
+
 - A equipa está a aprender: explicar as decisões, fazer alterações pequenas e fáceis de rever.
 - Sempre que uma tarefa for concluída e verificada, comunicar o resultado e indicar imediatamente o próximo passo concreto para dar continuidade ao projeto. Distinguir o trabalho que o agente executa das ações necessárias do utilizador; assumir os testes automatizados e evitar repetições manuais desnecessárias no Swagger.
 - Não mudar as decisões da secção 3 sem as discutir primeiro.
 - Quando algo for ambíguo, perguntar antes de assumir.
+- No desenvolvimento do site, envolver o utilizador nas escolhas de funcionamento, navegação e aparência; fazer perguntas concretas, uma de cada vez, antes de consolidar os ecrãs. Não considerar o tempo de desenvolvimento como variável de planeamento.
 - Ao criar uma funcionalidade nova: módulo nas quatro camadas do backend, contratos em `Contracts`, cliente em `ApiClient`, ecrãs na app e no site, e testes.

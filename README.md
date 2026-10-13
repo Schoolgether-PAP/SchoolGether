@@ -5,6 +5,10 @@ Plataforma educativa para instituições de ensino (PAP).
 O SchoolGether partilha uma API entre o site Blazor WebAssembly e a app .NET MAUI.
 As decisões de arquitetura, o âmbito e as regras de trabalho estão em [AGENTS.md](AGENTS.md).
 
+Versão de demonstração: [abrir SchoolGether](https://schoolgether-pap.github.io/SchoolGether/).
+A API e a base online são independentes do desenvolvimento local. Ver
+[publicação e verificação](docs/deployment.md) para os endereços e o processo de atualização.
+
 ## Preparar o ambiente
 
 - Instalar o SDK .NET 10 estável. O `global.json` mantém a solução na versão 10,
@@ -34,8 +38,12 @@ administrador, seguir [o guia de Identity](docs/identity.md) antes de iniciar a 
 Em desenvolvimento, abrir o Swagger em `http://localhost:5265/swagger`.
 A API base inclui diagnósticos, erros em `ProblemDetails` e CORS para o site local.
 Consultar [o guia da API](docs/api.md) para testar e configurar estes recursos.
-O login e a gestão inicial de contas já estão na API. O site ainda contém exemplos
-dos modelos; os ecrãs de login da app e do site serão implementados na próxima etapa.
+O site e a app já têm entrada, consulta do próprio perfil e saída. As contas são
+criadas pelos administradores. Consultar [o guia dos clientes](docs/client-login.md)
+para configuração, sessão em memória no site e armazenamento protegido na app.
+O site e a API já estão publicados para demonstração. A interface nativa e o
+SecureStorage real precisam de execução em
+Windows/Android, além dos testes de lógica e das compilações já verificados.
 
 ## Integração contínua
 
@@ -53,6 +61,8 @@ login, JWT, refresh e isolamento entre instituições com SQLite relacional de t
 O job de compilação da API
 também verifica se o modelo EF corresponde às migrações guardadas, sem aceder ao
 MySQL. Os testes de aplicação serão acrescentados com os respetivos módulos.
+O job **Testes do cliente API** verifica a gestão de sessão e o ViewModel da app
+com HTTP controlado, sem precisar dos componentes MAUI ou de credenciais.
 O workflow não publica a API nem o site.
 
 Consultar [o guia de CI](docs/ci.md) para o fluxo de pull requests e diagnóstico de falhas.
@@ -67,4 +77,5 @@ Para executar os testes existentes:
 ```powershell
 dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj --configuration Release
 dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj --configuration Release
+dotnet test tests/SchoolGether.ApiClient.Tests/SchoolGether.ApiClient.Tests.csproj --configuration Release
 ```

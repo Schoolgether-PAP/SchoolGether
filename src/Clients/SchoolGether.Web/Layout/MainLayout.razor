@@ -1,16 +1,11 @@
-﻿@inherits LayoutComponentBase
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+@inherits LayoutComponentBase
 
-    <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
+<div class="site-shell">
+    <a class="skip-link" href="#main-content">@UiMessages.Get("SkipToContent")</a>
+    <header class="site-header">
+        <span class="wordmark"><span class="brand-dot" aria-hidden="true"></span>@UiMessages.Get("Brand")</span>
+        <span class="site-tag">@UiMessages.Get("PlatformTagline")</span>
+    </header>
+    <main id="main-content" tabindex="-1">@Body</main>
+    <footer>@UiMessages.Get("Footer")</footer>
 </div>

@@ -1,0 +1,9 @@
+<h1 tabindex="-1" @ref="element">@ChildContent</h1>
+@code {
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private ElementReference element;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender) await element.FocusAsync();
+    }
+}

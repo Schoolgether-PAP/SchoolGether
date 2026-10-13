@@ -1,0 +1,38 @@
+@if (Items.Count == 0)
+{
+    <p class="empty-state">@UiMessages.Get("AuditEmpty")</p>
+}
+else
+{
+    <div class="table-scroll">
+        <table>
+            <thead><tr><th>@UiMessages.Get("WhenUtc")</th><th>@UiMessages.Get("Actor")</th><th>@UiMessages.Get("ActionTarget")</th><th>@UiMessages.Get("ResultReason")</th></tr></thead>
+            <tbody>
+                @foreach (var item in Items)
+                {
+                    <tr>
+                        <td>@item.CreatedAt.ToUniversalTime().ToString("dd/MM/yyyy HH:mm", System.Globalization.CultureInfo.GetCultureInfo("pt-PT"))</td>
+                        <td>@item.ActorName<small>#@item.ActorId</small></td>
+                        <td>
+                            <span>@PlatformLabels.Action(item.Action)</span>
+                            <small>@item.Target @if (item.InstitutionId is { } id) { <span>(@UiMessages.Get("Institution") #@id)</span> }</small>
+                        </td>
+                        <td>
+                            <span>@PlatformLabels.Result(item.Result)</span><small>@PlatformLabels.Reason(item.Reason)</small>
+                            <details>
+                                <summary>@UiMessages.Get("AuditDetails")</summary>
+                                <p>@UiMessages.Get("AuditActionCode"): @item.Action</p>
+                                <p>@UiMessages.Get("AuditResultCode"): @item.Result</p>
+                                @if (item.Before is not null) { <p>@UiMessages.Get("Before"): @item.Before</p> }
+                                @if (item.After is not null) { <p>@UiMessages.Get("After"): @item.After</p> }
+                            </details>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+}
+@code {
+    [Parameter] public IReadOnlyList<AuditResponse> Items { get; set; } = [];
+}

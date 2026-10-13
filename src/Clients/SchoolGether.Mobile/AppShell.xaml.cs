@@ -1,9 +1,10 @@
-﻿namespace SchoolGether.Mobile;
+namespace SchoolGether.Mobile;
 
 public partial class AppShell : Shell
 {
-	public AppShell()
-	{
-		InitializeComponent();
-	}
+    public AppShell(MainPage page)
+    {
+        InitializeComponent();
+        IdentityContent.Content = page;
+    }
 }

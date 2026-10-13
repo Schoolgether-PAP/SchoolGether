@@ -1,0 +1,18 @@
+@inherits PlatformView
+@inject PlatformApiClient Api
+@if (InstitutionId is null) { <PlatformHeading>@T("Audit")</PlatformHeading><p class="platform-intro">@T("AuditHelp")</p> }
+<form class="list-toolbar" @onsubmit="SearchAsync" @onsubmit:preventDefault><div><label for="audit-search">@T("SearchAudit")</label><input id="audit-search" type="search" @bind="search" /></div><button type="submit" disabled="@Busy">@T("ApplyFilters")</button></form>
+@if (Error is not null) { <p role="alert" class="feedback error-message">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+else if (data is null) { <p role="status">@T("Loading")</p> }
+else
+{ <PlatformAuditTable Items="data.Items" /><PlatformPagination Page="page" Total="data.Total" PageSize="20" Busy="Busy" Changed="PageAsync" /> }
+@code {
+    [Parameter] public int? InstitutionId { get; set; }
+    private string search = "";
+    private int page = 1;
+    private PagedResponse<AuditResponse>? data;
+    protected override Task OnInitializedAsync() => LoadAsync();
+    private Task LoadAsync() => RunAsync(token => Api.ListAuditAsync(page, 20, search, InstitutionId, token), value => data = value);
+    private async Task SearchAsync() { page = 1; await LoadAsync(); }
+    private async Task PageAsync(int value) { page = value; await LoadAsync(); }
+}

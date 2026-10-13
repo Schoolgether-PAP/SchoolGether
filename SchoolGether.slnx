@@ -16,6 +16,7 @@
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj" />
+    <Project Path="tests/SchoolGether.ApiClient.Tests/SchoolGether.ApiClient.Tests.csproj" />
     <Project Path="tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj" />
   </Folder>
 </Solution>

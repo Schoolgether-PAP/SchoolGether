@@ -7,6 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using SchoolGether.Contracts.Identity;
 using SchoolGether.Contracts.Institutions;
 using SchoolGether.Infrastructure.Persistence;
+using SchoolGether.Contracts.Platform;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore.Diagnostics;
+using SchoolGether.Infrastructure.Identity;
+using SchoolGether.Domain.Audit;
 
 namespace SchoolGether.Api.IntegrationTests;
 
@@ -78,6 +83,114 @@ public sealed class MySqlIdentityTests
         Assert.Equal(HttpStatusCode.NoContent, logout.StatusCode);
         using var revoked = await client.PostAsJsonAsync("/api/v1/identity/refresh", new RefreshRequest(next.RefreshToken));
         Assert.Equal(HttpStatusCode.Unauthorized, revoked.StatusCode);
+
+        // Mesmo datadir e migrações; novo host reinicia apenas o limitador HTTP de teste.
+        // Não prepara outra fixture nem volta a semear a base.
+        var auditFailure = new FailPlatformAudit();
+        await using var platformHost = factory.WithWebHostBuilder(builder => builder.ConfigureServices(services =>
+            services.AddDbContext<SchoolGetherDbContext>(options => options.AddInterceptors(auditFailure))));
+        using var global = platformHost.CreateClient();
+        var master = await Login(global, "platform@example.test"); Authenticate(global, master);
+        var listing = (await global.GetFromJsonAsync<PagedResponse<PlatformInstitutionResponse>>(PlatformInstitutionTests.Root))!;
+        Assert.Equal(3, listing.Total);
+        Assert.Equal(3, listing.Items.Single(x => x.Id == factory.InstitutionA).AccountsCount);
+        var detail = (await global.GetFromJsonAsync<PlatformInstitutionDetailResponse>($"{PlatformInstitutionTests.Root}/{factory.InstitutionB}"))!;
+        Assert.Single(detail.Administrators); Assert.Equal(factory.InstitutionB, detail.Administrators[0].InstitutionId);
+        using var createGlobal = await global.PostAsJsonAsync(PlatformInstitutionTests.Root, new CreatePlatformInstitutionRequest { Name = "Politécnico Ção", Reason = "Adesão" });
+        Assert.Equal(HttpStatusCode.Created, createGlobal.StatusCode);
+        var newInstitution = (await createGlobal.Content.ReadFromJsonAsync<PlatformInstitutionResponse>())!;
+        using var rename = await global.PutAsJsonAsync($"{PlatformInstitutionTests.Root}/{newInstitution.Id}", new UpdatePlatformInstitutionRequest {
+            Name = "Politécnico Ção atualizado", RowVersion = 1, Reason = "Correção" });
+        Assert.Equal(HttpStatusCode.OK, rename.StatusCode);
+        using var staleInstitution = await global.PutAsJsonAsync($"{PlatformInstitutionTests.Root}/{newInstitution.Id}", new UpdatePlatformInstitutionRequest {
+            Name = "Versão antiga", RowVersion = 1, Reason = "Correção" });
+        Assert.Equal(HttpStatusCode.Conflict, staleInstitution.StatusCode);
+        using var responsible = await global.PostAsJsonAsync($"{PlatformInstitutionTests.Root}/{newInstitution.Id}/administrators", new CreateInstitutionAdminRequest {
+            Email = "platform-responsible@example.test", Password = IdentityFactory.Password, Name = "Responsável", Reason = "Designação" });
+        Assert.Equal(HttpStatusCode.Created, responsible.StatusCode);
+        Assert.Equal(newInstitution.Id, (await responsible.Content.ReadFromJsonAsync<AccountResponse>())!.InstitutionId);
+        var unicode = (await global.GetFromJsonAsync<PagedResponse<PlatformInstitutionResponse>>(PlatformInstitutionTests.Root + "?search=" + Uri.EscapeDataString("POLITÉCNICO ÇÃO")))!;
+        Assert.Equal(1, unicode.Total);
+
+        var firstWrites = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => global.PutAsJsonAsync(DashboardPreferenceTests.Root, DashboardPreferenceTests.Layout(0))));
+        Assert.Equal(1, firstWrites.Count(x => x.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(1, firstWrites.Count(x => x.StatusCode == HttpStatusCode.Conflict));
+        foreach (var response in firstWrites) response.Dispose();
+        var competingUpdates = await Task.WhenAll(Enumerable.Range(0, 2).Select(_ => global.PutAsJsonAsync(DashboardPreferenceTests.Root, DashboardPreferenceTests.Layout(1, "institutions-trend"))));
+        Assert.Equal(1, competingUpdates.Count(x => x.StatusCode == HttpStatusCode.OK));
+        Assert.Equal(1, competingUpdates.Count(x => x.StatusCode == HttpStatusCode.Conflict));
+        foreach (var response in competingUpdates) response.Dispose();
+        var persisted = (await global.GetFromJsonAsync<DashboardPreferenceResponse>(DashboardPreferenceTests.Root))!;
+        Assert.Equal(2, persisted.RowVersion); Assert.Equal("institutions-trend", Assert.Single(persisted.Widgets).Id);
+        var colleague = await PlatformAdminTests.Created(global, "mysql-colleague@example.test", "institutions.read");
+        using var colleagueClient = platformHost.CreateClient();
+        var colleagueToken = await Login(colleagueClient, "mysql-colleague@example.test"); Authenticate(colleagueClient, colleagueToken);
+        using var colleagueSave = await colleagueClient.PutAsJsonAsync(DashboardPreferenceTests.Root, DashboardPreferenceTests.Layout(0));
+        Assert.Equal(HttpStatusCode.OK, colleagueSave.StatusCode);
+        Assert.Equal("institutions-status", Assert.Single((await colleagueClient.GetFromJsonAsync<DashboardPreferenceResponse>(DashboardPreferenceTests.Root))!.Widgets).Id);
+        Assert.Equal("institutions-trend", Assert.Single((await global.GetFromJsonAsync<DashboardPreferenceResponse>(DashboardPreferenceTests.Root))!.Widgets).Id);
+        using var revokeRead = await global.PutAsJsonAsync("/api/v1/platform/admins/" + colleague.GetProperty("id").GetInt32(), new {
+            Name = "Revogado", IsActive = true, Permissions = Array.Empty<string>(), RowVersion = 1, Reason = "Revogação" });
+        Assert.Equal(HttpStatusCode.OK, revokeRead.StatusCode);
+        var noData = (await colleagueClient.GetFromJsonAsync<PlatformDashboardResponse>("/api/v1/platform/dashboard"))!;
+        Assert.Null(noData.InstitutionsTotal); Assert.Null(noData.AccountsTotal); Assert.Empty(noData.InstitutionsTrend); Assert.Empty(noData.RecentActions);
+        Assert.Empty((await colleagueClient.GetFromJsonAsync<DashboardPreferenceResponse>(DashboardPreferenceTests.Root))!.Widgets);
+
+        auditFailure.Enabled = true;
+        using var rollbackSuspension = await global.PutAsJsonAsync($"{PlatformInstitutionTests.Root}/{factory.InstitutionA}/suspension", new SetInstitutionSuspensionRequest {
+            IsSuspended = true, RowVersion = 1, Reason = "Não persistir" });
+        Assert.Equal(HttpStatusCode.InternalServerError, rollbackSuspension.StatusCode);
+        using var rollbackAdministrator = await global.PostAsJsonAsync($"{PlatformInstitutionTests.Root}/{factory.InstitutionA}/administrators", new CreateInstitutionAdminRequest {
+            Email = "mysql-rollback@example.test", Password = IdentityFactory.Password, Name = "Não persistir", Reason = "Rollback" });
+        Assert.Equal(HttpStatusCode.InternalServerError, rollbackAdministrator.StatusCode);
+        auditFailure.Enabled = false;
+        using (var scope = platformHost.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
+            Assert.False((await db.Institutions.SingleAsync(x => x.Id == factory.InstitutionA)).IsSuspended);
+            Assert.False(await db.Users.AnyAsync(x => x.Email == "mysql-rollback@example.test"));
+            Assert.False(await db.AuditEntries.AnyAsync(x => x.Reason == "Não persistir"));
+            Assert.Single(await db.Users.Where(x => x.MasterSlot == 1).ToListAsync());
+        }
+
+        using var school = platformHost.CreateClient();
+        var oldSchool = await Login(school, "admin-a@example.test"); Authenticate(school, oldSchool);
+        using var suspended = await global.PutAsJsonAsync($"{PlatformInstitutionTests.Root}/{factory.InstitutionA}/suspension", new SetInstitutionSuspensionRequest {
+            IsSuspended = true, RowVersion = 1, Reason = "Investigação" });
+        Assert.Equal(HttpStatusCode.OK, suspended.StatusCode);
+        using var oldJwt = await school.GetAsync("/api/v1/identity/users"); Assert.Equal(HttpStatusCode.Unauthorized, oldJwt.StatusCode);
+        using var blockedLogin = await school.PostAsJsonAsync("/api/v1/identity/login", new LoginRequest("admin-a@example.test", IdentityFactory.Password));
+        Assert.Equal(HttpStatusCode.Unauthorized, blockedLogin.StatusCode);
+        using var blockedRefresh = await school.PostAsJsonAsync("/api/v1/identity/refresh", new RefreshRequest(oldSchool.RefreshToken));
+        Assert.Equal(HttpStatusCode.Unauthorized, blockedRefresh.StatusCode);
+        using (var scope = platformHost.Services.CreateScope())
+        {
+            var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+            var lockedAccount = (await users.FindByEmailAsync("admin-a@example.test"))!;
+            Assert.True((await users.SetLockoutEndDateAsync(lockedAccount, DateTimeOffset.UtcNow.AddDays(1))).Succeeded);
+        }
+        using var reactivated = await global.PutAsJsonAsync($"{PlatformInstitutionTests.Root}/{factory.InstitutionA}/suspension", new SetInstitutionSuspensionRequest {
+            IsSuspended = false, RowVersion = 2, Reason = "Reabertura" });
+        Assert.Equal(HttpStatusCode.OK, reactivated.StatusCode);
+        using var stillLocked = await school.GetAsync("/api/v1/identity/me"); Assert.Equal(HttpStatusCode.Unauthorized, stillLocked.StatusCode);
+        var eligible = await Login(school, "student-a@example.test"); Authenticate(school, eligible);
+        using var studentMe = await school.GetAsync("/api/v1/identity/me"); Assert.Equal(HttpStatusCode.OK, studentMe.StatusCode);
+        var dashboard = (await global.GetFromJsonAsync<PlatformDashboardResponse>("/api/v1/platform/dashboard"))!;
+        Assert.Equal(4, dashboard.InstitutionsTotal); Assert.Equal(6, dashboard.InstitutionsTrend.Count);
+        Assert.Contains("parcial", dashboard.InstitutionsTrend[^1].Label);
+        var institutionHistory = (await global.GetFromJsonAsync<PagedResponse<AuditResponse>>($"/api/v1/platform/audit?institutionId={factory.InstitutionA}&search=institution.suspension&pageSize=1"))!;
+        Assert.Equal(2, institutionHistory.Total); Assert.All(institutionHistory.Items, x => Assert.Equal(factory.InstitutionA, x.InstitutionId));
+    }
+
+    private sealed class FailPlatformAudit : SaveChangesInterceptor
+    {
+        public bool Enabled { get; set; }
+        public override ValueTask<InterceptionResult<int>> SavingChangesAsync(DbContextEventData data, InterceptionResult<int> result, CancellationToken cancellationToken = default)
+        {
+            if (Enabled && data.Context!.ChangeTracker.Entries<AuditEntry>().Any(x => x.State == EntityState.Added))
+                throw new InvalidOperationException("Falha de auditoria injetada.");
+            return base.SavingChangesAsync(data, result, cancellationToken);
+        }
     }
 
     private static async Task<TokenResponse> Login(HttpClient client, string email)

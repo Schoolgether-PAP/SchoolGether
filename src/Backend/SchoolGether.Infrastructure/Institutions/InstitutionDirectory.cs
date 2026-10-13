@@ -8,7 +8,7 @@ namespace SchoolGether.Infrastructure.Institutions;
 internal sealed class InstitutionDirectory(SchoolGetherDbContext db) : IInstitutionDirectory
 {
     public Task<bool> ExistsAsync(int institutionId, CancellationToken cancellationToken) =>
-        db.Institutions.AnyAsync(x => x.Id == institutionId, cancellationToken);
+        db.Institutions.AnyAsync(x => x.Id == institutionId && !x.IsSuspended, cancellationToken);
 
     public async Task<int> CreateAsync(string name, int createdBy, CancellationToken cancellationToken)
     {

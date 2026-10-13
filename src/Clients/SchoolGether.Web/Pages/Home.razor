@@ -1,7 +1,279 @@
-﻿@page "/"
+@page "/"
+@using System.ComponentModel.DataAnnotations
+@using System.Net
+@implements IDisposable
+@inject IdentitySession Session
+@inject ApiConfiguration Configuration
 
-<PageTitle>Home</PageTitle>
+<PageTitle>@T("Brand")</PageTitle>
 
-<h1>Hello, world!</h1>
+@if (Session.Account?.Role == "PlatformAdmin")
+{
+    <SchoolGether.Web.Platform.PlatformPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
+}
+else
+{
+<div class="identity-layout">
+    <section class="brand-panel" aria-label="@T("Brand")">
+        <div>
+            <img class="brand-logo" src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" />
+            <h2>@T("Brand")</h2>
+            <p>@T("BrandTagline")</p>
+        </div>
+    </section>
+    <section class="account-panel">
+        <div class="account-content">
+            @if (Session.Account is { } profile)
+            {
+                <h1 tabindex="-1" @ref="heading">@T("ProfileTitle")</h1>
+                <p class="introduction">@T("ProfileIntroduction")</p>
+                <dl class="profile-details">
+                    <div><dt>@T("Name")</dt><dd>@profile.Name</dd></div>
+                    <div><dt>@T("Email")</dt><dd>@profile.Email</dd></div>
+                    <div><dt>@T("Role")</dt><dd>@RoleLabel(profile.Role)</dd></div>
+                    <div><dt>@T("Institution")</dt><dd>@InstitutionLabel(profile)</dd></div>
+                </dl>
+                <div class="profile-actions" aria-busy="@(busy ? "true" : "false")">
+                    <button class="primary-action" type="button" disabled="@busy" @onclick="RefreshProfileAsync">
+                        @T(busyAction == "refresh" ? "RefreshingProfile" : "RefreshProfile")
+                    </button>
+                    <button class="secondary-action" type="button" disabled="@busy" @onclick="SignOutAsync">
+                        @T(busyAction == "logout" ? "SigningOut" : "SignOut")
+                    </button>
+                </div>
+            }
+            else
+            {
+                <h1 tabindex="-1" @ref="heading">@T("LoginTitle")</h1>
+                <p class="introduction">@T("LoginIntroduction")</p>
+                <form @onsubmit="SignInAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
+                    <fieldset disabled="@(busy || !Configuration.IsConfigured)">
+                        <div class="field">
+                            <label for="email">@T("Email")</label>
+                            <input id="email" name="email" type="email" autocomplete="username" inputmode="email"
+                                   maxlength="256" required placeholder="@T("EmailPlaceholder")"
+                                   @bind="email" @bind:event="oninput" aria-invalid="@(emailError is not null ? "true" : "false")"
+                                   aria-describedby="email-error" @ref="emailInput" />
+                            @if (emailError is not null)
+                            {
+                                <p class="field-error" id="email-error">@emailError</p>
+                            }
+                        </div>
+                        <div class="field">
+                            <label for="password">@T("Password")</label>
+                            <div class="password-field">
+                                <input id="password" name="password" type="@(showPassword ? "text" : "password")"
+                                       autocomplete="current-password" maxlength="128" required
+                                       placeholder="@T("PasswordPlaceholder")" @bind="password" @bind:event="oninput"
+                                       aria-invalid="@(passwordError is not null ? "true" : "false")" aria-describedby="password-error" />
+                                <button class="password-toggle" type="button" aria-controls="password"
+                                        aria-pressed="@(showPassword ? "true" : "false")" @onclick="TogglePassword">
+                                    @T(showPassword ? "HidePassword" : "ShowPassword")
+                                </button>
+                            </div>
+                            @if (passwordError is not null)
+                            {
+                                <p class="field-error" id="password-error">@passwordError</p>
+                            }
+                        </div>
+                        <button class="primary-action" type="submit">@T(busyAction == "logout" ? "SigningOut" : busyAction == "login" ? "SigningIn" : "SignIn")</button>
+                    </fieldset>
+                </form>
+                <p class="account-help">@T("AccountHelp")<br /><strong>@T("AccessHelp")</strong></p>
+            }
+            @if (!Configuration.IsConfigured)
+            {
+                <p class="feedback error-message" role="alert">@T("ConfigurationError")</p>
+            }
+            else if (message is not null)
+            {
+                <p class="feedback @(isError ? "error-message" : "status-message")" role="@(isError ? "alert" : "status")">@message</p>
+            }
+        </div>
+    </section>
+</div>
 
-Welcome to your new app.
+}
+@code {
+    private readonly CancellationTokenSource lifetime = new();
+    private string email = "";
+    private string password = "";
+    private string? emailError;
+    private string? passwordError;
+    private string? message;
+    private string? busyAction;
+    private bool busy;
+    private bool showPassword;
+    private bool isError;
+    private bool focusHeading;
+    private bool focusEmail;
+    private ElementReference heading;
+    private ElementReference emailInput;
+
+    private static string T(string key) => UiMessages.Get(key);
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusHeading && Session.Account?.Role != "PlatformAdmin")
+        {
+            focusHeading = false;
+            await heading.FocusAsync();
+        }
+        if (focusEmail)
+        {
+            focusEmail = false;
+            await emailInput.FocusAsync();
+        }
+    }
+
+    protected override void OnInitialized() => Session.Changed += SessionChanged;
+    private void SessionChanged() => _ = InvokeAsync(() =>
+    {
+        if (Session.Account is null && busyAction is not ("login" or "logout"))
+        {
+            SetMessage("SessionExpired", true);
+            focusEmail = true;
+        }
+        StateHasChanged();
+    });
+
+    private void TogglePassword() => showPassword = !showPassword;
+
+    private async Task SignInAsync()
+    {
+        if (busy || !Configuration.IsConfigured) return;
+        email = email.Trim();
+        emailError = string.IsNullOrEmpty(email) ? T("EmailRequired")
+            : email.Length > 256 || !new EmailAddressAttribute().IsValid(email) ? T("EmailInvalid") : null;
+        passwordError = string.IsNullOrEmpty(password) ? T("PasswordRequired")
+            : password.Length > 128 ? T("PasswordTooLong") : null;
+        if (emailError is not null || passwordError is not null)
+        {
+            SetMessage("ValidationError", true);
+            return;
+        }
+
+        BeginAction("login");
+        try
+        {
+            await Session.SignInAsync(new LoginRequest(email, password), lifetime.Token);
+            focusHeading = true;
+        }
+        catch (SessionExpiredException)
+        {
+            SetMessage("InvalidCredentials", true);
+        }
+        catch (Exception exception)
+        {
+            SetRequestError(exception);
+        }
+        finally
+        {
+            password = "";
+            showPassword = false;
+            EndAction();
+        }
+    }
+
+    private async Task RefreshProfileAsync()
+    {
+        if (busy) return;
+        BeginAction("refresh");
+        try
+        {
+            await Session.GetProfileAsync(lifetime.Token);
+            SetMessage("ProfileUpdated", false);
+        }
+        catch (SessionExpiredException)
+        {
+            SetMessage("SessionExpired", true);
+            focusEmail = true;
+        }
+        catch (Exception exception)
+        {
+            SetRequestError(exception);
+        }
+        finally
+        {
+            EndAction();
+        }
+    }
+
+    private async Task SignOutAsync()
+    {
+        if (busy) return;
+        BeginAction("logout");
+        try
+        {
+            var revoked = await Session.SignOutAsync(lifetime.Token);
+            SetMessage(revoked ? "SignedOut" : "LocalSignOut", !revoked);
+        }
+        catch (Exception)
+        {
+            // A sessão partilhada limpa Account antes de tentar o armazenamento ou a rede.
+            SetMessage("LocalSignOut", true);
+        }
+        finally
+        {
+            email = "";
+            password = "";
+            emailError = null;
+            passwordError = null;
+            showPassword = false;
+            focusEmail = true;
+            EndAction();
+        }
+    }
+
+    private void BeginAction(string action)
+    {
+        busy = true;
+        busyAction = action;
+        message = null;
+    }
+
+    private void EndAction()
+    {
+        busy = false;
+        busyAction = null;
+    }
+
+    private void SetMessage(string key, bool error)
+    {
+        message = T(key);
+        isError = error;
+    }
+
+    private void SetRequestError(Exception exception)
+    {
+        var key = exception switch
+        {
+            IdentityApiException { StatusCode: HttpStatusCode.TooManyRequests } => "RateLimit",
+            IdentityApiException => "ServiceError",
+            HttpRequestException or OperationCanceledException => "NetworkError",
+            _ => "ServiceError"
+        };
+        SetMessage(key, true);
+    }
+
+    private static string RoleLabel(string role) => T(role switch
+    {
+        "Student" => "RoleStudent",
+        "Teacher" => "RoleTeacher",
+        "InstitutionAdmin" => "RoleInstitutionAdmin",
+        "PlatformAdmin" => "RolePlatformAdmin",
+        _ => "RoleUnknown"
+    });
+
+    private static string InstitutionLabel(AccountResponse profile)
+        => profile.Role == "PlatformAdmin" ? T("PlatformAdministration")
+            : profile.InstitutionId is { } id ? UiMessages.Format("InstitutionNumber", id)
+            : T("InstitutionUnavailable");
+
+    public void Dispose()
+    {
+        Session.Changed -= SessionChanged;
+        lifetime.Cancel();
+        lifetime.Dispose();
+    }
+}

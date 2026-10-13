@@ -4,6 +4,8 @@ using SchoolGether.Application.Identity;
 using SchoolGether.Domain.Identity;
 using SchoolGether.Domain.Institutions;
 using SchoolGether.Infrastructure.Identity;
+using SchoolGether.Domain.Audit;
+using SchoolGether.Infrastructure.Audit;
 
 namespace SchoolGether.Infrastructure.Persistence;
 
@@ -14,6 +16,10 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     public DbSet<Institution> Institutions => Set<Institution>();
     public DbSet<InstitutionMember> Members => Set<InstitutionMember>();
     public DbSet<RefreshSession> Sessions => Set<RefreshSession>();
+    public DbSet<AuditEntry> AuditEntries => Set<AuditEntry>();
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder) =>
+        optionsBuilder.AddInterceptors(AuditAppendOnlyInterceptor.Instance);
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -26,6 +32,8 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
 
     private void ValidateTenantWrites()
     {
+        if (ChangeTracker.Entries<AuditEntry>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("AuditAppendOnly");
         foreach (var entry in ChangeTracker.Entries<InstitutionMember>().Where(x =>
                      x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
         {

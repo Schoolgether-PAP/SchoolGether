@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
+    <PackageReference Include="xunit" Version="2.9.3" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="3.1.4" />
+    <Using Include="Xunit" />
+    <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Shared\SchoolGether.ApiClient\SchoolGether.ApiClient.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="../../src/Clients/SchoolGether.Mobile/Identity/IdentityViewModel.cs" Link="Mobile/IdentityViewModel.cs" />
+    <Compile Include="../../src/Clients/SchoolGether.Mobile/UiMessages.cs" Link="Mobile/UiMessages.cs" />
+    <EmbeddedResource Include="../../src/Clients/SchoolGether.Mobile/Resources/Strings/UiMessages.resx" LogicalName="SchoolGether.Mobile.Resources.Strings.UiMessages.resources" />
+  </ItemGroup>
+</Project>

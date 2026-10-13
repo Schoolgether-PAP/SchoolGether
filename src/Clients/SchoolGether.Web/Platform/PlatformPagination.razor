@@ -1,0 +1,8 @@
+<div class="pagination"><span>@UiMessages.Format("PageSummary", Page, Math.Max(1, (int)Math.Ceiling(Total / (double)PageSize)), Total)</span><button type="button" disabled="@(Busy || Page <= 1)" @onclick="() => Changed.InvokeAsync(Page - 1)">@UiMessages.Get("PreviousPage")</button><button type="button" disabled="@(Busy || Page * PageSize >= Total)" @onclick="() => Changed.InvokeAsync(Page + 1)">@UiMessages.Get("NextPage")</button></div>
+@code {
+    [Parameter] public int Page { get; set; }
+    [Parameter] public int Total { get; set; }
+    [Parameter] public int PageSize { get; set; }
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public EventCallback<int> Changed { get; set; }
+}
