@@ -61,24 +61,33 @@ public sealed class IdentitySession(IdentityApiClient api, IRefreshTokenStore st
     {
         ArgumentNullException.ThrowIfNull(operation);
         var state = await ReadStateAsync(cancellationToken);
-        var currentTokens = await EnsureTokensAsync(state.Generation, null, cancellationToken);
         T result;
         try
         {
-            result = await operation(currentTokens.AccessToken, cancellationToken);
-        }
-        catch (IdentityApiException exception) when (exception.StatusCode == HttpStatusCode.Unauthorized)
-        {
-            currentTokens = await EnsureTokensAsync(state.Generation, currentTokens, cancellationToken);
+            var currentTokens = await EnsureTokensAsync(state.Generation, null, cancellationToken);
             try
             {
                 result = await operation(currentTokens.AccessToken, cancellationToken);
             }
-            catch (IdentityApiException retryException) when (retryException.StatusCode == HttpStatusCode.Unauthorized)
+            catch (IdentityApiException exception) when (exception.StatusCode == HttpStatusCode.Unauthorized)
             {
-                await ClearAsync(state.Generation, CancellationToken.None);
-                throw new SessionExpiredException();
+                currentTokens = await EnsureTokensAsync(state.Generation, currentTokens, cancellationToken);
+                try
+                {
+                    result = await operation(currentTokens.AccessToken, cancellationToken);
+                }
+                catch (IdentityApiException retryException) when (retryException.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    await ClearAsync(state.Generation, CancellationToken.None);
+                    throw new SessionExpiredException();
+                }
             }
+        }
+        catch
+        {
+            if ((await ReadStateAsync(CancellationToken.None)).Generation != state.Generation)
+                throw new SessionExpiredException();
+            throw;
         }
 
         await stateGate.WaitAsync(cancellationToken);

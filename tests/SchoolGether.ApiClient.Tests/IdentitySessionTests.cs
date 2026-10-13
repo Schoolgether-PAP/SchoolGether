@@ -272,6 +272,66 @@ public sealed class IdentitySessionTests
         Assert.Null(await fixture.Store.ReadAsync(default));
     }
 
+    // Catches returning an old network failure to the view after the session changed.
+    [Fact]
+    public async Task AuthorizedOperationRejectsLateTransportFailureAfterSignOut()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        var started = SessionTestFixture.NewSignal();
+        var release = SessionTestFixture.NewSignal();
+        var operation = fixture.Session.ExecuteAuthorizedAsync<int>(async (_, _) =>
+        {
+            started.SetResult();
+            await release.Task;
+            throw new HttpRequestException("Network unavailable");
+        });
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        await fixture.Session.SignOutAsync();
+        release.SetResult();
+
+        await Assert.ThrowsAsync<SessionExpiredException>(() => operation);
+    }
+
+    [Fact]
+    public async Task AuthorizedOperationPreservesTransportFailureForCurrentSession()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+
+        var error = await Assert.ThrowsAsync<HttpRequestException>(() => fixture.Session.ExecuteAuthorizedAsync<int>(
+            (_, _) => throw new HttpRequestException("Network unavailable")));
+
+        Assert.Equal("Network unavailable", error.Message);
+        Assert.Equal(SessionTestFixture.Profile, fixture.Session.Account);
+        Assert.Equal(SessionTestFixture.FirstRefresh, await fixture.Store.ReadAsync(default));
+    }
+
+    // Catches the same stale-error leak on the retry after a 401 refresh.
+    [Fact]
+    public async Task AuthorizedRetryRejectsLateFailureAfterSignOut()
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        var retryStarted = SessionTestFixture.NewSignal();
+        var release = SessionTestFixture.NewSignal();
+        var operation = fixture.Session.ExecuteAuthorizedAsync<int>(async (token, _) =>
+        {
+            if (token == "access-1") throw new IdentityApiException(HttpStatusCode.Unauthorized, null, null);
+            retryStarted.SetResult();
+            await release.Task;
+            throw new IdentityApiException(HttpStatusCode.Forbidden, "Denied", "trace-8");
+        });
+        await retryStarted.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        await fixture.Session.SignOutAsync();
+        release.SetResult();
+
+        await Assert.ThrowsAsync<SessionExpiredException>(() => operation);
+        Assert.Single(fixture.Requests, request => request.Path.EndsWith("/refresh"));
+    }
+
     [Fact]
     public async Task AuthorizedOperationPropagatesCancellation()
     {

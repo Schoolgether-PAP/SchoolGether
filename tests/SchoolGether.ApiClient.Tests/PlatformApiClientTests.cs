@@ -186,6 +186,32 @@ public sealed class PlatformApiClientTests
         await Assert.ThrowsAsync<SessionExpiredException>(() => pending);
     }
 
+    [Theory]
+    [InlineData(HttpStatusCode.Forbidden)]
+    [InlineData(HttpStatusCode.Conflict)]
+    public async Task LatePlatformErrorCannotReachCallerAfterLogout(HttpStatusCode status)
+    {
+        using var fixture = new SessionTestFixture();
+        await fixture.Session.SignInAsync(SessionTestFixture.Credentials);
+        var started = SessionTestFixture.NewSignal();
+        var release = SessionTestFixture.NewSignal();
+        fixture.Respond = async (request, _) =>
+        {
+            if (request.Path == "/api/v1/identity/logout") return new HttpResponseMessage(HttpStatusCode.NoContent);
+            started.SetResult();
+            await release.Task;
+            return new HttpResponseMessage(status);
+        };
+        var client = new PlatformApiClient(fixture.Http, fixture.Session);
+        var pending = client.GetContextAsync();
+        await started.Task.WaitAsync(TimeSpan.FromSeconds(10));
+
+        await fixture.Session.SignOutAsync();
+        release.SetResult();
+
+        await Assert.ThrowsAsync<SessionExpiredException>(() => pending);
+    }
+
     [Fact]
     public async Task CancellationStopsPlatformRequest()
     {
