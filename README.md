@@ -5,6 +5,10 @@ Plataforma educativa para instituições de ensino (PAP).
 O SchoolGether partilha uma API entre o site Blazor WebAssembly e a app .NET MAUI.
 As decisões de arquitetura, o âmbito e as regras de trabalho estão em [AGENTS.md](AGENTS.md).
 
+Versão de demonstração: [abrir SchoolGether](https://schoolgether-pap.github.io/SchoolGether/).
+A API e a base online são independentes do desenvolvimento local. Ver
+[publicação e verificação](docs/deployment.md) para os endereços e o processo de atualização.
+
 ## Preparar o ambiente
 
 - Instalar o SDK .NET 10 estável. O `global.json` mantém a solução na versão 10,
@@ -37,8 +41,8 @@ Consultar [o guia da API](docs/api.md) para testar e configurar estes recursos.
 O site e a app já têm entrada, consulta do próprio perfil e saída. As contas são
 criadas pelos administradores. Consultar [o guia dos clientes](docs/client-login.md)
 para configuração, sessão em memória no site e armazenamento protegido na app.
-Esta entrega está no ramo local `feature/client-login`; o alojamento ainda está
-pendente. A interface nativa e o SecureStorage real precisam de execução em
+O site e a API já estão publicados para demonstração. A interface nativa e o
+SecureStorage real precisam de execução em
 Windows/Android, além dos testes de lógica e das compilações já verificados.
 
 ## Integração contínua

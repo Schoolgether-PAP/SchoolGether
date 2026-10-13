@@ -126,3 +126,9 @@ recuperável, saída lenta/remota e foco/390 px, com HTTP controlado. O painel g
 foi verificado separadamente com master e permissões limitadas. Web Release e
 MAUI Debug Windows/Android passaram; a UI nativa e SecureStorage real continuam
 sem execução nesta verificação. Não houve chamadas às contas/API pessoais.
+
+Publicação posterior em 2026-10-13: o site estático e a API Production foram
+verificados por HTTPS com uma base Aiven nova e conta master autorizada.
+Login, painel, CORS, 390 px, logout e rejeição do refresh revogado passaram
+na versão pública. Os limites de teste nativo indicados acima mantêm-se.
+Consultar [o guia de publicação](deployment.md).

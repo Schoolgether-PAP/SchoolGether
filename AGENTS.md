@@ -167,6 +167,8 @@ CSV são propostas para evolução, sem aprovação nem inclusão automática na
 
 ## 9. Como trabalhar neste projeto
 
+Publicação de demonstração em 2026-10-13: site em https://schoolgether-pap.github.io/SchoolGether/ e API Production em https://schoolgether-api.runasp.net/. Base Aiven gratuita separada, quatro migrações EF aplicadas e nova conta master autorizada; segredos apenas no servidor/ficheiros privados ignorados. Login, painel, 390 px, CORS, logout e revogação verificados com a versão pública; health/ready HTTPS 200. Aplicação publicada do commit 5658013 (cinco jobs CI aprovados), artefactos no ramo gh-pages. PR #5 aberto para revisão do colega; não confundir publicação com merge. Ver docs/deployment.md. Módulo de suporte permanece na etapa seguinte.
+
 - A equipa está a aprender: explicar as decisões, fazer alterações pequenas e fáceis de rever.
 - Sempre que uma tarefa for concluída e verificada, comunicar o resultado e indicar imediatamente o próximo passo concreto para dar continuidade ao projeto. Distinguir o trabalho que o agente executa das ações necessárias do utilizador; assumir os testes automatizados e evitar repetições manuais desnecessárias no Swagger.
 - Não mudar as decisões da secção 3 sem as discutir primeiro.
