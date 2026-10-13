@@ -49,4 +49,10 @@
   <data name="MasterAccountId" xml:space="preserve"><value>ID da conta global a promover: </value></data>
   <data name="MasterConfirmId" xml:space="preserve"><value>Confirme escrevendo novamente o mesmo ID: </value></data>
   <data name="MasterPromoted" xml:space="preserve"><value>A conta escolhida foi promovida a master e a operação foi registada no histórico.</value></data>
+  <data name="InstitutionNotFound" xml:space="preserve"><value>A instituição não foi encontrada.</value></data>
+  <data name="InvalidInstitutionName" xml:space="preserve"><value>Indique um nome de instituição com 1 a 200 caracteres.</value></data>
+  <data name="InvalidReason" xml:space="preserve"><value>Indique um motivo com 1 a 500 caracteres.</value></data>
+  <data name="InvalidVersion" xml:space="preserve"><value>A versão dos dados é inválida. Atualize antes de guardar.</value></data>
+  <data name="InvalidDashboardPreference" xml:space="preserve"><value>O layout é inválido. Use o esquema 1, até três blocos distintos do catálogo e as larguras pequena, larga ou completa.</value></data>
+  <data name="DashboardPartialMonth" xml:space="preserve"><value>parcial</value></data>
 </root>

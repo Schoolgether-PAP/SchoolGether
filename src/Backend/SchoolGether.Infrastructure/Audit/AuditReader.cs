@@ -6,9 +6,10 @@ namespace SchoolGether.Infrastructure.Audit;
 
 internal sealed class AuditReader(SchoolGetherDbContext db) : IAuditReader
 {
-    public async Task<AuditPage> ListAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    public async Task<AuditPage> ListAsync(int page, int pageSize, string? search, CancellationToken cancellationToken, int? institutionId = null)
     {
         var query = db.AuditEntries.AsNoTracking();
+        if (institutionId.HasValue) query = query.Where(x => x.InstitutionId == institutionId.Value);
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim().ToLowerInvariant();

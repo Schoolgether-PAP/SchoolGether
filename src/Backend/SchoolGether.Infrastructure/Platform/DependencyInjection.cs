@@ -11,6 +11,8 @@ public static class DependencyInjection
         services.AddScoped<PlatformAuthorization>();
         services.AddScoped<PlatformAdminService>();
         services.AddScoped<MasterPromotionService>();
+        services.AddScoped<IDashboardPreferenceStore, DashboardPreferenceStore>();
+        services.AddScoped<DashboardService>();
         return services;
     }
 }

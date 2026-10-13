@@ -23,6 +23,9 @@ internal sealed class InstitutionConfiguration : IEntityTypeConfiguration<Instit
         builder.Property(institution => institution.RowVersion)
             .HasColumnName("row_version").IsConcurrencyToken();
 
+        builder.Property(institution => institution.IsSuspended).HasColumnName("is_suspended").HasDefaultValue(false);
+        builder.Property(institution => institution.SuspensionReason).HasColumnName("suspension_reason").HasMaxLength(500);
+
         builder.HasQueryFilter(institution => institution.DeletedAt == null);
     }
 }

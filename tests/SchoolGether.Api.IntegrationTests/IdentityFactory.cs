@@ -32,7 +32,12 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     {
         this.institutionDirectory = institutionDirectory;
         this.mySqlConnectionString = mySqlConnectionString;
-        if (mySqlConnectionString is null) connection.Open();
+        if (mySqlConnectionString is null)
+        {
+            connection.Open();
+            // SQLite só normaliza ASCII por omissão; alinhar o lower SQL com Unicode do MySQL.
+            connection.CreateFunction<string?, string?>("lower", value => value?.ToLowerInvariant(), isDeterministic: true);
+        }
         else
         {
             var settings = new MySqlConnectionStringBuilder(mySqlConnectionString);

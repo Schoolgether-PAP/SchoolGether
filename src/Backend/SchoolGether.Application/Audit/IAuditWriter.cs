@@ -18,7 +18,7 @@ public interface IAuditWriter
 
 public interface IAuditReader
 {
-    Task<AuditPage> ListAsync(int page, int pageSize, string? search, CancellationToken cancellationToken);
+    Task<AuditPage> ListAsync(int page, int pageSize, string? search, CancellationToken cancellationToken, int? institutionId = null);
 }
 
 public interface IAdministrativeUnitOfWork

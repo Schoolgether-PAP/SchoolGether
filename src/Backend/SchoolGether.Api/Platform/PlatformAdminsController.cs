@@ -42,11 +42,11 @@ public sealed class PlatformAdminsController(PlatformAdminService admins) : Cont
 
     [HttpGet("audit")]
     [ProducesResponseType<PagedResponse<AuditResponse>>(StatusCodes.Status200OK)]
-    public async Task<PagedResponse<AuditResponse>> Audit(CancellationToken cancellationToken, int page = 1, int pageSize = 20, string? search = null)
+    public async Task<PagedResponse<AuditResponse>> Audit(CancellationToken cancellationToken, int page = 1, int pageSize = 20, string? search = null, int? institutionId = null)
     {
-        var result = await admins.AuditAsync(page, pageSize, search, cancellationToken);
+        var result = await admins.AuditAsync(page, pageSize, search, cancellationToken, institutionId);
         return new PagedResponse<AuditResponse>(result.Items.Select(x => new AuditResponse(x.Id,
-            x.CreatedAt, x.ActorId, x.ActorName, x.InstitutionId, x.Action, x.Target, x.Result, x.Reason,
+            DateTime.SpecifyKind(x.CreatedAt, DateTimeKind.Utc), x.ActorId, x.ActorName, x.InstitutionId, x.Action, x.Target, x.Result, x.Reason,
             Parse(x.Before), Parse(x.After))).ToArray(), result.Total, result.Page, result.PageSize);
     }
 

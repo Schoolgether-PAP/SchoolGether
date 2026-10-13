@@ -13,7 +13,7 @@ public sealed class PlatformExceptionHandler(IProblemDetailsService problems, IS
         var status = failure.Code switch {
             "InvalidSession" => StatusCodes.Status401Unauthorized,
             "Forbidden" or "MasterProtected" => StatusCodes.Status403Forbidden,
-            "PlatformAdminNotFound" => StatusCodes.Status404NotFound,
+            "PlatformAdminNotFound" or "InstitutionNotFound" => StatusCodes.Status404NotFound,
             "AccountExists" or "VersionConflict" or "MasterExists" => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status400BadRequest };
         context.Response.StatusCode = status;

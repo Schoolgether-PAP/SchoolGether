@@ -44,11 +44,16 @@ public sealed class PlatformAdminService(PlatformAuthorization authorization, IP
         }, cancellationToken);
     }
 
-    public async Task<AuditPage> AuditAsync(int page, int pageSize, string? search, CancellationToken cancellationToken)
+    public async Task<AuditPage> AuditAsync(int page, int pageSize, string? search, CancellationToken cancellationToken, int? institutionId = null)
     {
         var actor = await authorization.RequireAsync(PlatformCapabilities.AuditRead, cancellationToken);
         await ValidateReadAsync(actor, "platform.audit.list", "audit", page, pageSize, search, cancellationToken);
-        var result = await history.ListAsync(page, pageSize, search, cancellationToken);
+        if (institutionId is <= 0)
+        {
+            await audit.AppendIndependentAsync(Event(actor, "platform.audit.list", "audit", "InvalidInstitution", "refused"), cancellationToken);
+            throw new PlatformException("InvalidInstitution");
+        }
+        var result = await history.ListAsync(page, pageSize, search, cancellationToken, institutionId);
         // Uma consulta produz um só evento, escrito depois da leitura; não consulta o próprio evento.
         await audit.AppendIndependentAsync(Event(actor, "platform.audit.list", "audit", "Consulta do histórico"), cancellationToken);
         return result;

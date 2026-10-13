@@ -1,7 +1,8 @@
 ﻿#Requires -Version 5.1
 [CmdletBinding()]
 param(
-    [string]$MySqlBinPath = 'C:\Program Files\MySQL\MySQL Server 8.0\bin'
+    [string]$MySqlBinPath = 'C:\Program Files\MySQL\MySQL Server 8.0\bin',
+    [string]$ArtifactsPath = ''
 )
 
 $ErrorActionPreference = 'Stop'
@@ -84,7 +85,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON 
     [Environment]::SetEnvironmentVariable('MYSQL_PWD', $previousMySqlPassword, 'Process')
     $env:SCHOOLGETHER_TEST_MYSQL = "Server=127.0.0.1;Port=$testPort;Database=schoolgether_test_identity;User=schoolgether_test;Password=$testPassword;SslMode=Required;"
     Write-Host 'A testar migrações, contas, permissões, isolamento entre instituições e sessões...'
-    & dotnet test $testProject --configuration Release --filter 'FullyQualifiedName~MySqlIdentityTests' --logger 'trx;LogFileName=mysql-identity.trx' --results-directory $runPath
+    $artifactArguments = @()
+    if ($ArtifactsPath) { $artifactArguments = @('--artifacts-path', $ArtifactsPath) }
+    & dotnet test $testProject @artifactArguments --configuration Release --filter 'FullyQualifiedName~MySqlIdentityTests' --logger 'trx;LogFileName=mysql-identity.trx' --results-directory $runPath
     $testExitCode = $LASTEXITCODE
     if ($testExitCode -eq 0) {
         [xml]$testReport = Get-Content -LiteralPath (Join-Path $runPath 'mysql-identity.trx') -Raw

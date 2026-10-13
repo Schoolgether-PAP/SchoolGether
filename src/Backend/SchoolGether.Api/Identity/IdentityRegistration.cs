@@ -32,6 +32,17 @@ internal static class IdentityRegistration
         services.AddOptions<JwtBearerOptions>(JwtBearerDefaults.AuthenticationScheme)
             .Configure<TokenSigningKey>((options, key) =>
             {
+                options.Events = new JwtBearerEvents { OnTokenValidated = async context =>
+                {
+                    // Cada pedido escolar consulta a elegibilidade atual, incluindo suspensão e lockout.
+                    if (context.Principal?.FindFirst("role")?.Value == "PlatformAdmin") return;
+                    var id = int.TryParse(context.Principal?.FindFirst("sub")?.Value, out var parsedId) ? parsedId : 0;
+                    var institutionId = int.TryParse(context.Principal?.FindFirst("institution_id")?.Value, out var parsedInstitution) ? parsedInstitution : 0;
+                    var account = await context.HttpContext.RequestServices.GetRequiredService<IIdentityStore>()
+                        .FindForAuthenticationAsync(id, context.HttpContext.RequestAborted);
+                    if (account is null || account.InstitutionId != institutionId || account.Role.ToString() != context.Principal?.FindFirst("role")?.Value)
+                        context.Fail("InvalidSession");
+                } };
                 options.MapInboundClaims = false;
                 options.IncludeErrorDetails = false;
                 options.TokenValidationParameters = new TokenValidationParameters {
