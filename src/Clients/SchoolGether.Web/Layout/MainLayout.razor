@@ -1,11 +1,20 @@
 @inherits LayoutComponentBase
-
+@implements IDisposable
+@inject NavigationManager Navigation
 <div class="site-shell">
     <a class="skip-link" href="#main-content">@UiMessages.Get("SkipToContent")</a>
-    <header class="site-header">
-        <span class="wordmark"><span class="brand-dot" aria-hidden="true"></span>@UiMessages.Get("Brand")</span>
-        <span class="site-tag">@UiMessages.Get("PlatformTagline")</span>
-    </header>
+    @if (SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area")
+    {
+        <header class="site-header">
+            <a class="wordmark" href="@Navigation.BaseUri"><span class="brand-dot" aria-hidden="true"></span>@UiMessages.Get("Brand")</a>
+            <a href="@Navigation.BaseUri">@UiMessages.Get("PublicBack")</a>
+        </header>
+    }
     <main id="main-content" tabindex="-1">@Body</main>
-    <footer>@UiMessages.Get("Footer")</footer>
+    @if (SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area") { <footer>@UiMessages.Get("Footer")</footer> }
 </div>
+@code {
+    protected override void OnInitialized() => Navigation.LocationChanged += LocationChanged;
+    private void LocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs args) => _ = InvokeAsync(StateHasChanged);
+    public void Dispose() => Navigation.LocationChanged -= LocationChanged;
+}

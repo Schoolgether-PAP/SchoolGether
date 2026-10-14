@@ -466,4 +466,115 @@
   <data name="AuditReasonInvalidInstitution" xml:space="preserve"><value>Instituição inválida</value></data>
   <data name="AuditReasonInvalidSearch" xml:space="preserve"><value>Pesquisa inválida</value></data>
   <data name="AuditReasonInvalidPagination" xml:space="preserve"><value>Paginação inválida</value></data>
+<data name="PublicBrandName" xml:space="preserve"><value>SchoolGether</value></data>
+<data name="PublicNavigationPlatform" xml:space="preserve"><value>Plataforma</value></data>
+<data name="PublicNavigationPlans" xml:space="preserve"><value>Planos</value></data>
+<data name="PublicNavigationAbout" xml:space="preserve"><value>Sobre nós</value></data>
+<data name="PublicHeroTitle" xml:space="preserve"><value>Uma escola ligada. Mais espaço para aprender.</value></data>
+<data name="PublicHeroIntroduction" xml:space="preserve"><value>O SchoolGether aproxima instituições, professores e alunos num só lugar. Organiza a tua comunidade e acompanha cada passo da aprendizagem.</value></data>
+<data name="PublicExplorePlans" xml:space="preserve"><value>Conhecer os planos</value></data>
+<data name="PublicExplorePlatform" xml:space="preserve"><value>Explorar a plataforma</value></data>
+<data name="PublicProductStage" xml:space="preserve"><value>Uma plataforma educativa em desenvolvimento, feita para aprender em conjunto.</value></data>
+<data name="PublicInstitutionPerspective" xml:space="preserve"><value>A tua instituição</value></data>
+<data name="PublicInstitutionPurpose" xml:space="preserve"><value>Organizar e acompanhar</value></data>
+<data name="PublicTeacherPerspective" xml:space="preserve"><value>Os teus professores</value></data>
+<data name="PublicTeacherPurpose" xml:space="preserve"><value>Ensinar e partilhar</value></data>
+<data name="PublicStudentPerspective" xml:space="preserve"><value>Os teus alunos</value></data>
+<data name="PublicStudentPurpose" xml:space="preserve"><value>Aprender e crescer</value></data>
+<data name="PublicCompanyMission" xml:space="preserve"><value>Na SaguiLearn, criamos tecnologia para simplificar a educação e tornar o conhecimento mais acessível e colaborativo.</value></data>
+<data name="PublicCompanyMotto" xml:space="preserve"><value>Aprende. Partilha. Cresce.</value></data>
+<data name="PublicCommunityTitleFirst" xml:space="preserve"><value>Uma comunidade.</value></data>
+<data name="PublicCommunityTitleSecond" xml:space="preserve"><value>Três formas de participar.</value></data>
+<data name="PublicCommunityIntroduction" xml:space="preserve"><value>Cada pessoa encontra o seu espaço, com ferramentas e permissões adequadas ao seu papel.</value></data>
+<data name="PublicInstitutionsTitle" xml:space="preserve"><value>Instituições</value></data>
+<data name="PublicInstitutionsDescription" xml:space="preserve"><value>Configurar a escola, organizar a equipa e acompanhar as contas da comunidade.</value></data>
+<data name="PublicInstitutionsStatus" xml:space="preserve"><value>Painel institucional em preparação</value></data>
+<data name="PublicTeachersTitle" xml:space="preserve"><value>Professores</value></data>
+<data name="PublicTeachersDescription" xml:space="preserve"><value>Partilhar materiais, preparar atividades e acompanhar a aprendizagem dos alunos.</value></data>
+<data name="PublicTeachersStatus" xml:space="preserve"><value>Funcionalidades educativas em desenvolvimento</value></data>
+<data name="PublicStudentsTitle" xml:space="preserve"><value>Alunos</value></data>
+<data name="PublicStudentsDescription" xml:space="preserve"><value>Encontrar materiais, realizar atividades e acompanhar o próprio progresso.</value></data>
+<data name="PublicStudentsStatus" xml:space="preserve"><value>Área do aluno em desenvolvimento</value></data>
+<data name="PublicPlansTitleFirst" xml:space="preserve"><value>Um plano para</value></data>
+<data name="PublicPlansTitleSecond" xml:space="preserve"><value>a tua comunidade.</value></data>
+<data name="PublicPlansIntroduction" xml:space="preserve"><value>Escolhe a dimensão que faz sentido para a instituição. Todos os valores desta proposta são fictícios, para demonstração.</value></data>
+<data name="PublicPlansNotice" xml:space="preserve"><value>Preços e limites escolhidos para a demonstração. Cada conta institucional ocupa uma vaga, incluindo o responsável. Não existe pagamento real.</value></data>
+<data name="PublicJourneyTitleFirst" xml:space="preserve"><value>Da escolha do plano</value></data>
+<data name="PublicJourneyTitleSecond" xml:space="preserve"><value>à tua instituição.</value></data>
+<data name="PublicJourneyPlanTitle" xml:space="preserve"><value>Escolhe o plano</value></data>
+<data name="PublicJourneyPlanDescription" xml:space="preserve"><value>Compara as opções e seleciona a dimensão da comunidade.</value></data>
+<data name="PublicJourneyOwnerTitle" xml:space="preserve"><value>Cria a tua conta</value></data>
+<data name="PublicJourneyOwnerDescription" xml:space="preserve"><value>Define as credenciais do primeiro responsável pela instituição.</value></data>
+<data name="PublicJourneyInstitutionTitle" xml:space="preserve"><value>Regista a instituição</value></data>
+<data name="PublicJourneyInstitutionDescription" xml:space="preserve"><value>Preenche os dados e confirma a adesão simulada.</value></data>
+<data name="PublicJourneySetupTitle" xml:space="preserve"><value>Prepara a escola</value></data>
+<data name="PublicJourneySetupDescription" xml:space="preserve"><value>Configura a instituição e começa a organizar a tua equipa.</value></data>
+<data name="PublicAboutTitleFirst" xml:space="preserve"><value>Tecnologia com</value></data>
+<data name="PublicAboutTitleSecond" xml:space="preserve"><value>um propósito educativo.</value></data>
+<data name="PublicAboutCompany" xml:space="preserve"><value>A SaguiLearn é a empresa responsável pelo SchoolGether, uma plataforma digital dedicada à comunidade educativa.</value></data>
+<data name="PublicAboutProject" xml:space="preserve"><value>O SchoolGether está a ser desenvolvido por uma equipa de três estudantes no âmbito da Prova de Aptidão Profissional. Concretiza a nossa proposta de unir gestão educativa, partilha de conhecimento e acompanhamento da aprendizagem.</value></data>
+<data name="PublicStartInstitution" xml:space="preserve"><value>Começar com a minha instituição</value></data>
+<data name="PublicFooterBrand" xml:space="preserve"><value>SchoolGether, uma solução SaguiLearn.</value></data>
+<data name="PublicFooterStage" xml:space="preserve"><value>Projeto de demonstração educativa.</value></data>
+<data name="PublicBack" xml:space="preserve"><value>Voltar à apresentação</value></data>
+<data name="PublicNavigation" xml:space="preserve"><value>Navegação principal</value></data>
+<data name="MyArea" xml:space="preserve"><value>A minha área</value></data>
+<data name="CatalogUnavailable" xml:space="preserve"><value>Não foi possível carregar os planos. A apresentação e a entrada continuam disponíveis.</value></data>
+<data name="CatalogLoading" xml:space="preserve"><value>A carregar planos…</value></data>
+<data name="TryAgain" xml:space="preserve"><value>Tentar novamente</value></data>
+<data name="PerMonth" xml:space="preserve"><value>/ mês</value></data>
+<data name="PlanAccounts" xml:space="preserve"><value>Até {0} contas</value></data>
+<data name="OneInstitution" xml:space="preserve"><value>Uma instituição</value></data>
+<data name="AccountManagement" xml:space="preserve"><value>Gestão de contas e perfis</value></data>
+<data name="PendingSupport" xml:space="preserve"><value>Suporte integrado em desenvolvimento</value></data>
+<data name="RegistrationDisabled" xml:space="preserve"><value>Adesão temporariamente indisponível.</value></data>
+<data name="ChoosePlan" xml:space="preserve"><value>Escolher {0}</value></data>
+<data name="PlanDescription_essential" xml:space="preserve"><value>Para começar com uma equipa pequena.</value></data>
+<data name="PlanDescription_evolution" xml:space="preserve"><value>Para uma comunidade em crescimento.</value></data>
+<data name="PlanDescription_campus" xml:space="preserve"><value>Para reunir uma comunidade maior.</value></data>
+  <data name="CancelRegistration" xml:space="preserve"><value>Cancelar adesão</value></data>
+  <data name="ActiveSessionTitle" xml:space="preserve"><value>Já tens uma sessão ativa</value></data>
+  <data name="ActiveSessionHelp" xml:space="preserve"><value>Entra na tua área ou sai para aderir com outra conta. A adesão cria uma nova instituição.</value></data>
+  <data name="RegistrationContinueTitle" xml:space="preserve"><value>Continuar com a tua conta</value></data>
+  <data name="RegistrationSteps" xml:space="preserve"><value>Etapas da adesão</value></data>
+  <data name="JoinStep0" xml:space="preserve"><value>Plano</value></data>
+  <data name="JoinStep1" xml:space="preserve"><value>Responsável</value></data>
+  <data name="JoinStep2" xml:space="preserve"><value>Instituição</value></data>
+  <data name="JoinStep3" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="JoinTitle0" xml:space="preserve"><value>Escolhe o teu plano</value></data>
+  <data name="JoinTitle1" xml:space="preserve"><value>Cria a tua conta de responsável</value></data>
+  <data name="JoinTitle2" xml:space="preserve"><value>Apresenta a tua instituição</value></data>
+  <data name="JoinTitle3" xml:space="preserve"><value>Está tudo preparado?</value></data>
+  <data name="ExampleDataNotice" xml:space="preserve"><value>Ambiente de demonstração. Usa dados de exemplo. O e-mail não é verificado nesta entrega.</value></data>
+  <data name="ChoosePlanPrompt" xml:space="preserve"><value>Seleciona um plano do catálogo.</value></data>
+  <data name="Month" xml:space="preserve"><value>mês</value></data>
+  <data name="OwnerName" xml:space="preserve"><value>Nome completo</value></data>
+  <data name="PasswordConfirmation" xml:space="preserve"><value>Confirmar palavra-passe</value></data>
+  <data name="PasswordPolicy" xml:space="preserve"><value>Usa 12 a 128 caracteres, com maiúscula, minúscula, número e símbolo.</value></data>
+  <data name="InstitutionName" xml:space="preserve"><value>Nome da instituição</value></data>
+  <data name="InstitutionType" xml:space="preserve"><value>Tipo de instituição</value></data>
+  <data name="ChooseTypePrompt" xml:space="preserve"><value>Seleciona o tipo de instituição.</value></data>
+  <data name="InstitutionType_School" xml:space="preserve"><value>Escola</value></data>
+  <data name="InstitutionType_Faculty" xml:space="preserve"><value>Faculdade</value></data>
+  <data name="InstitutionType_Polytechnic" xml:space="preserve"><value>Politécnico</value></data>
+  <data name="InstitutionType_TrainingCenter" xml:space="preserve"><value>Centro de formação</value></data>
+  <data name="InstitutionType_Other" xml:space="preserve"><value>Outro</value></data>
+  <data name="LocalityOptional" xml:space="preserve"><value>Localidade (opcional)</value></data>
+  <data name="CreationNotice" xml:space="preserve"><value>Serão criadas uma conta e uma instituição neste ambiente de demonstração. Não existe cobrança. Não é solicitado cartão e esta ação não constitui uma entidade jurídica.</value></data>
+  <data name="DemonstrationConsent" xml:space="preserve"><value>Compreendo e aceito que a adesão e o plano são de demonstração, sem pagamento real.</value></data>
+  <data name="Back" xml:space="preserve"><value>Voltar</value></data>
+  <data name="Continue" xml:space="preserve"><value>Continuar</value></data>
+  <data name="Registering" xml:space="preserve"><value>A criar e a entrar…</value></data>
+  <data name="ConfirmRegistration" xml:space="preserve"><value>Confirmar adesão simulada</value></data>
+  <data name="OwnerRequired" xml:space="preserve"><value>Preenche o nome do responsável, até 150 caracteres.</value></data>
+  <data name="PasswordMismatch" xml:space="preserve"><value>Confirma a mesma palavra-passe.</value></data>
+  <data name="InstitutionRequired" xml:space="preserve"><value>Preenche o nome da instituição, até 200 caracteres.</value></data>
+  <data name="LocalityTooLong" xml:space="preserve"><value>A localidade pode ter até 100 caracteres.</value></data>
+  <data name="ConsentRequired" xml:space="preserve"><value>Confirma que compreendes as condições da demonstração.</value></data>
+  <data name="CreatedLoginRequired" xml:space="preserve"><value>Conta criada; entra para continuar. Não voltes a enviar a adesão.</value></data>
+  <data name="CatalogChanged" xml:space="preserve"><value>Os planos foram atualizados. Revê o novo resumo e confirma novamente.</value></data>
+  <data name="RegistrationConflict" xml:space="preserve"><value>Não foi possível concluir a adesão com este e-mail. Experimenta Entrar.</value></data>
+  <data name="RegistrationInvalid" xml:space="preserve"><value>Verifica os dados introduzidos antes de confirmar novamente.</value></data>
+  <data name="RegistrationUnavailable" xml:space="preserve"><value>A adesão está temporariamente indisponível. Tenta mais tarde.</value></data>
+  <data name="RegistrationUnknown" xml:space="preserve"><value>Não foi possível confirmar o resultado. A conta pode ter sido criada. Entra com as credenciais escolhidas para continuar; a adesão não foi reenviada.</value></data>
 </root>

@@ -1,0 +1,36 @@
+.identity-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); width: 100%; min-height: 560px; }
+.brand-panel { display: flex; align-items: center; justify-content: center; text-align: center; padding: 38px 30px; border-right: 1px solid var(--line-soft); position: relative; }
+.brand-panel::after { content: ""; position: absolute; bottom: 0; left: 12%; right: 12%; height: 5px; background: var(--accent); border-radius: 3px 3px 0 0; }
+.brand-logo { display: block; width: 100%; max-width: 330px; aspect-ratio: 3/2; object-fit: contain; margin: auto; }
+.brand-panel h2 { font-size: 36px; line-height: 1.2; letter-spacing: -1px; font-weight: 650; margin: 22px 0 8px; }
+.brand-panel p { font-size: 15px; color: var(--muted); margin: 0; }
+.account-panel { display: flex; align-items: center; justify-content: center; padding: 45px 38px; background: #f8f9fa; }
+.account-content { width: 100%; max-width: 350px; min-width: 0; }
+h1 { font-size: 30px; letter-spacing: -.7px; margin: 0 0 5px; line-height: 1.3; font-weight: 650; }
+.introduction { color: var(--muted); font-size: 15px; margin: 0 0 30px; }
+fieldset { margin: 0; padding: 0; border: 0; min-width: 0; }
+.field { margin-bottom: 18px; }
+label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 7px; }
+input { width: 100%; border: 1px solid var(--line); min-height: 48px; border-radius: 5px; padding: 11px 13px; color: var(--ink); background: white; font-size: 15px; }
+input::placeholder { color: #776d65; opacity: 1; }
+input[aria-invalid="true"] { border-color: var(--error); }
+.password-field { position: relative; }
+.password-field input { padding-right: 88px; }
+.password-toggle { position: absolute; right: 3px; top: 3px; min-height: 44px; padding: 0 10px; border: 0; background: white; border-radius: 4px; color: var(--action); font-weight: 600; font-size: 13px; }
+.primary-action, .secondary-action { min-height: 48px; width: 100%; border-radius: 5px; font-weight: 650; padding: 10px 16px; }
+.primary-action { background: var(--action); color: white; border: 1px solid var(--action); margin-top: 8px; }
+.primary-action:hover:enabled { background: #4d2c18; }
+.secondary-action { background: white; color: var(--action); border: 1px solid var(--action); }
+.account-help { font-size: 13px; color: var(--muted); border-top: 1px solid var(--line-soft); padding-top: 21px; margin: 25px 0 0; line-height: 1.6; }
+.account-help strong { color: var(--ink); font-weight: 600; }
+.feedback { margin: 20px 0 0; font-size: 14px; padding: 12px 14px; border-left: 3px solid currentColor; background: white; overflow-wrap: anywhere; }
+.error-message, .field-error { color: var(--error); }
+.field-error { font-size: 13px; margin: 6px 0 0; }
+.status-message { color: var(--action); }
+.profile-details { margin: 0 0 24px; }
+.profile-details > div { padding: 13px 0; border-bottom: 1px solid var(--line-soft); }
+.profile-details dt { font-size: 13px; font-weight: 600; color: var(--muted); margin: 0 0 3px; }
+.profile-details dd { margin: 0; overflow-wrap: anywhere; }
+.profile-actions { display: flex; flex-direction: column; gap: 12px; }
+
+@media(max-width:760px){.identity-layout{grid-template-columns:minmax(0,1fr);min-height:auto}.brand-panel{padding:22px;border-right:0;border-bottom:1px solid var(--line-soft)}.brand-panel::after,.brand-panel p{display:none}.brand-logo{max-width:145px}.brand-panel h2{font-size:25px;margin:7px 0 0}.account-panel{padding:30px 24px}h1{font-size:25px}.introduction{margin-bottom:23px;font-size:14px}}
