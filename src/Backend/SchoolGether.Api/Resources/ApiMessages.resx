@@ -58,4 +58,11 @@
   <data name="PlanEssential" xml:space="preserve"><value>Essencial</value></data>
   <data name="PlanEvolution" xml:space="preserve"><value>Evolução</value></data>
   <data name="PlanCampus" xml:space="preserve"><value>Campus</value></data>
+  <data name="SignupAuthenticated" xml:space="preserve"><value>Termine a sessão antes de criar uma nova instituição.</value></data>
+  <data name="SignupDisabled" xml:space="preserve"><value>A adesão está temporariamente indisponível. Pode continuar a entrar na sua conta.</value></data>
+  <data name="SignupEmailUnavailable" xml:space="preserve"><value>Não foi possível concluir a adesão com este e-mail. Experimente Entrar.</value></data>
+  <data name="InvalidSignup" xml:space="preserve"><value>Verifique os dados da adesão e aceite as condições de demonstração. A palavra-passe deve ter 12 a 128 caracteres, maiúscula, minúscula, número e símbolo.</value></data>
+  <data name="OutdatedCatalog" xml:space="preserve"><value>Os planos foram atualizados. Consulte o catálogo e confirme novamente.</value></data>
+  <data name="UnknownPlan" xml:space="preserve"><value>Escolha um plano disponível no catálogo.</value></data>
+  <data name="SignupBodyTooLarge" xml:space="preserve"><value>O pedido excede o tamanho permitido.</value></data>
 </root>

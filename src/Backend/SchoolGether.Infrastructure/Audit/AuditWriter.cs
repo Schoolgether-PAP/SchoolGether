@@ -12,7 +12,7 @@ internal sealed class AuditWriter(SchoolGetherDbContext db, DbContextOptions<Sch
 {
     // Lista positiva: um objeto Identity ou um campo novo nunca entra no histórico por acidente.
     private static readonly HashSet<string> AllowedFields = new(StringComparer.Ordinal) {
-        "id", "name", "isMaster", "isActive", "permissions", "rowVersion", "isSuspended", "suspensionReason", "role", "institutionId" };
+        "id", "name", "isMaster", "isActive", "permissions", "rowVersion", "isSuspended", "suspensionReason", "role", "institutionId", "planId", "catalogVersion", "subscriptionStatus" };
 
     public void Append(AuditEvent auditEvent) => db.AuditEntries.Add(ToEntry(auditEvent));
 

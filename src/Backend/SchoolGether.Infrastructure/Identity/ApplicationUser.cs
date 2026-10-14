@@ -29,6 +29,11 @@ public sealed class ApplicationUser : IdentityUser<int>
         RowVersion++;
         UpdatedAt = DateTime.UtcNow;
     }
+    internal void AssociateOwnCreator()
+    {
+        if (Id <= 0 || CreatedBy.HasValue || IsPlatformAdmin) throw new InvalidOperationException("OnboardingWriteDenied");
+        CreatedBy = Id;
+    }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
     public int? CreatedBy { get; set; }
