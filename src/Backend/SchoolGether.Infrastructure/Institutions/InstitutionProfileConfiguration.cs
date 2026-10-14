@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SchoolGether.Infrastructure.Persistence;
 using SchoolGether.Domain.Institutions;
 
 namespace SchoolGether.Infrastructure.Institutions;
@@ -16,11 +17,6 @@ internal sealed class InstitutionProfileConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.AcademicYear).HasMaxLength(20);
         builder.Property(x => x.RowVersion).IsConcurrencyToken();
         builder.HasOne<Institution>().WithOne().HasForeignKey<InstitutionProfile>(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
-        foreach (var property in builder.Metadata.GetProperties())
-        {
-            property.SetColumnName(string.Concat(property.Name.Select((c, index) =>
-                char.IsUpper(c) && index > 0 ? "_" + char.ToLowerInvariant(c) : char.ToLowerInvariant(c).ToString())));
-            if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?)) property.SetColumnType("datetime(6)");
-        }
+        builder.ApplyPropertyConventions();
     }
 }

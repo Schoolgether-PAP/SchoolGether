@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using SchoolGether.Infrastructure.Persistence;
 using SchoolGether.Domain.Billing;
 using SchoolGether.Domain.Institutions;
 
@@ -20,11 +21,6 @@ internal sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Demon
         builder.Property(x => x.MonthlyPrice).HasPrecision(10, 2);
         builder.Property(x => x.RowVersion).IsConcurrencyToken();
         builder.HasOne<Institution>().WithOne().HasForeignKey<DemonstrationSubscription>(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
-        foreach (var property in builder.Metadata.GetProperties())
-        {
-            property.SetColumnName(string.Concat(property.Name.Select((c, index) =>
-                char.IsUpper(c) && index > 0 ? "_" + char.ToLowerInvariant(c) : char.ToLowerInvariant(c).ToString())));
-            if (property.ClrType == typeof(DateTime) || property.ClrType == typeof(DateTime?)) property.SetColumnType("datetime(6)");
-        }
+        builder.ApplyPropertyConventions();
     }
 }
