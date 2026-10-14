@@ -55,4 +55,7 @@
   <data name="InvalidVersion" xml:space="preserve"><value>A versão dos dados é inválida. Atualize antes de guardar.</value></data>
   <data name="InvalidDashboardPreference" xml:space="preserve"><value>O layout é inválido. Use o esquema 1, até três blocos distintos do catálogo e as larguras pequena, larga ou completa.</value></data>
   <data name="DashboardPartialMonth" xml:space="preserve"><value>parcial</value></data>
+  <data name="PlanEssential" xml:space="preserve"><value>Essencial</value></data>
+  <data name="PlanEvolution" xml:space="preserve"><value>Evolução</value></data>
+  <data name="PlanCampus" xml:space="preserve"><value>Campus</value></data>
 </root>

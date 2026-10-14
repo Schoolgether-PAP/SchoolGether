@@ -7,6 +7,7 @@ using SchoolGether.Api.Diagnostics;
 using SchoolGether.Api.Identity;
 using SchoolGether.Api.Platform;
 using SchoolGether.Infrastructure.Persistence;
+using SchoolGether.Infrastructure.Billing;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
@@ -41,6 +42,7 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>(
     "mysql", failureStatus: HealthStatus.Unhealthy, tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
 builder.Services.AddApiIdentity();
+builder.Services.AddBillingModule();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
