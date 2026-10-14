@@ -8,6 +8,7 @@ public static class DependencyInjection
     public static IServiceCollection AddBillingModule(this IServiceCollection services)
     {
         services.AddSingleton<PlanCatalog>();
+        services.AddScoped<IInstitutionAccountCapacity, InstitutionAccountCapacity>();
         return services;
     }
 }

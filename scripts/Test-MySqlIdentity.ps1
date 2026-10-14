@@ -3,7 +3,7 @@
 param(
     [string]$MySqlBinPath = 'C:\Program Files\MySQL\MySQL Server 8.0\bin',
     [string]$ArtifactsPath = '',
-    [ValidateSet('Identity', 'Onboarding')][string]$Scenario = 'Identity',
+    [ValidateSet('Identity', 'Onboarding', 'InstitutionCapacity')][string]$Scenario = 'Identity',
     [ValidateRange(1, 100)][int]$ExpectedTestCount = 1
 )
 
@@ -89,7 +89,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON 
     Write-Host 'A testar migrações, contas, permissões, isolamento entre instituições e sessões...'
     $artifactArguments = @()
     if ($ArtifactsPath) { $artifactArguments = @('--artifacts-path', $ArtifactsPath) }
-    $testFilter = if ($Scenario -eq 'Onboarding') { 'FullyQualifiedName~MySqlOnboardingTests' } else { 'FullyQualifiedName~MySqlIdentityTests' }
+    $testFilter = if ($Scenario -eq 'Onboarding') { 'FullyQualifiedName~MySqlOnboardingTests' } elseif ($Scenario -eq 'InstitutionCapacity') { 'FullyQualifiedName~InstitutionCapacityTests.One_remaining_seat_allows_only_one_concurrent_creation' } else { 'FullyQualifiedName~MySqlIdentityTests' }
     & dotnet test $testProject @artifactArguments --configuration Release --filter $testFilter --logger 'trx;LogFileName=mysql-identity.trx' --results-directory $runPath
     $testExitCode = $LASTEXITCODE
     if ($testExitCode -eq 0) {

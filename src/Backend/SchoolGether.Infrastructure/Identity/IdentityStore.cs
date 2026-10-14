@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MySql.Data.MySqlClient;
+using SchoolGether.Application.Billing;
 using SchoolGether.Application.Identity;
 using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
@@ -9,7 +10,7 @@ using SchoolGether.Infrastructure.Persistence;
 namespace SchoolGether.Infrastructure.Identity;
 
 internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGetherDbContext db,
-    TimeProvider clock, IInstitutionDirectory institutions) : IIdentityStore
+    TimeProvider clock, IInstitutionDirectory institutions, IInstitutionAccountCapacity capacity) : IIdentityStore
 {
     public async Task<Account?> VerifyCredentialsAsync(string email, string password, CancellationToken cancellationToken)
     {
@@ -49,6 +50,8 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
     {
         await using var transaction = db.Database.CurrentTransaction is null
             ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
+        try { await capacity.ReserveAsync(account.InstitutionId!.Value, cancellationToken); }
+        catch (BillingException exception) { throw new IdentityException(exception.Code); }
         var user = new ApplicationUser { UserName = account.Email.Trim(), Email = account.Email.Trim(),
             Name = account.Name.Trim(), CreatedBy = createdBy, LockoutEnabled = true };
         IdentityResult result;
