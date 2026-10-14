@@ -1,6 +1,6 @@
 # SchoolGether — página pública e adesão institucional
 
-Data inicial: 2026-10-13. Revisão: 2026-10-14. Estado: descrição da entrega preparada para revisão e confirmação. Adesão autónoma e preços confirmados pelo utilizador; os limites e as restantes escolhas explícitas do agente abaixo aguardam aprovação da descrição completa. Nenhum registo público implementado ou publicado nesta fase.
+Data inicial: 2026-10-13. Revisão: 2026-10-14. Estado: descrição da entrega preparada para revisão e confirmação. Adesão autónoma, preços e limites confirmados pelo utilizador; as restantes escolhas explícitas do agente abaixo aguardam aprovação da descrição completa. Nenhum registo público implementado ou publicado nesta fase.
 
 ## Decisões recebidas
 
@@ -27,7 +27,7 @@ Adesão em quatro passos: plano; responsável (nome/e-mail/senha/confirmação);
 
 Após a adesão, área privada institucional com assistente inicial: rever perfil da instituição, escolher ano letivo e preparar os primeiros utilizadores. Não criar dados fictícios de alunos/professores nem apresentar módulos incompletos como funcionais. A implementação de cursos, unidades curriculares, materiais e avaliações é uma fase própria, conforme AGENTS.md.
 
-Preços fictícios escolhidos pelo utilizador: Essencial (59 €/mês), Evolução (149 €/mês) e Campus (299 €/mês). Limites propostos pelo agente, ainda para confirmação: 50, 250 e 1000 contas por instituição, respetivamente. Todos têm as funcionalidades educativas disponíveis; os limites de contas são a diferença nesta entrega. Não prometer suporte já implementado, DRM, pagamentos reais ou capacidade comercial de produção.
+Preços fictícios escolhidos pelo utilizador: Essencial (59 €/mês), Evolução (149 €/mês) e Campus (299 €/mês). Limites escolhidos pelo utilizador em 2026-10-14: 100, 350 e 1150 contas por instituição, respetivamente. Todos têm as funcionalidades educativas disponíveis; os limites de contas são a diferença nesta entrega. Não prometer suporte já implementado, DRM, pagamentos reais ou capacidade comercial de produção.
 
 ## Entrega funcional proposta
 
@@ -35,7 +35,7 @@ Preços fictícios escolhidos pelo utilizador: Essencial (59 €/mês), Evoluç�
 
 Uma pessoa visita a página pública, escolhe um plano, cria a conta do primeiro responsável e a sua nova instituição, confirma a adesão simulada e entra na configuração inicial. Ao concluir, encontra uma área institucional mínima com dados da instituição, plano e gestão inicial de professores/alunos. Voltar a entrar não repete a criação da instituição. Os painéis educativos completos continuam em entregas seguintes.
 
-Escolhas do agente nesta descrição: limites de contas acima; formulário mínimo sem NIF, telefone ou cartão; entrada automática após o registo através do login existente; ano letivo configurável; primeira gestão de contas usando as operações já existentes; navegação por parâmetro na raiz para funcionar com o alojamento estático atual. Estas escolhas fazem parte da proposta a confirmar, não de decisões já recebidas.
+Escolhas do agente nesta descrição: formulário mínimo sem NIF, telefone ou cartão; entrada automática após o registo através do login existente; ano letivo configurável; primeira gestão de contas usando as operações já existentes; navegação por parâmetro na raiz para funcionar com o alojamento estático atual. Estas escolhas fazem parte da proposta a confirmar, não de decisões já recebidas.
 
 ### Página pública, entrada e navegação
 
@@ -130,8 +130,8 @@ Esta ordem é uma proposta do agente em resposta à nova entrada pública; não 
 
 ## Prévia descartável
 
-Ficheiro local ignorado pelo Git da revisão de 2026-10-14: .superpowers/brainstorm/380-1791967415/content/public-v2.html. Inclui apresentação, preços escolhidos (59/149/299 €), limites propostos, entrada separada e adesão guiada até à configuração inicial. Não chama a API nem cria contas, instituições ou pagamentos.
+Ficheiro local ignorado pelo Git da revisão de 2026-10-14: .superpowers/brainstorm/380-1791967415/content/public-v3.html. Inclui apresentação, preços escolhidos (59/149/299 €), limites escolhidos (100/350/1150), entrada separada e adesão guiada até à configuração inicial. Não chama a API nem cria contas, instituições ou pagamentos.
 
 Verificação Chromium: desktop e 390 px, logo, seleção de plano, requisitos de senha, resumo, confirmação simulada, configuração e diálogo de entrada/Escape. Zero erros JavaScript e pedidos externos; capturas inspecionadas em .superpowers/verification/public-preview. Isto não demonstra registo público real nem implementação dos painéis escolares.
 
-Revisão independente de 2026-10-14: a única decisão do utilizador ainda necessária para planear é a aprovação dos limites de 50/250/1000 contas, juntamente com a descrição completa. Não foram identificadas outras dúvidas importantes para o construtor. Pedido de confirmação enviado; não interpretar a passagem de tempo como aprovação.
+Revisão independente de 2026-10-14: não foram identificadas outras dúvidas importantes para o construtor além da decisão de capacidade e da aprovação da descrição completa. Depois da revisão, o utilizador substituiu os limites propostos de 50/250/1000 por 100/350/1150 contas. A descrição foi atualizada com essa escolha. Pedido de confirmação da entrega completa enviado; não interpretar a aprovação dos limites isoladamente nem a passagem de tempo como aprovação de todas as escolhas restantes.
