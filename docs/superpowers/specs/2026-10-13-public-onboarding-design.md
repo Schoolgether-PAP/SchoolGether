@@ -1,6 +1,6 @@
 # SchoolGether — página pública e adesão institucional
 
-Data inicial: 2026-10-13. Revisão: 2026-10-14. Estado: descrição da entrega preparada para revisão e confirmação. Adesão autónoma, preços e limites confirmados pelo utilizador; as restantes escolhas explícitas do agente abaixo aguardam aprovação da descrição completa. Nenhum registo público implementado ou publicado nesta fase.
+Data inicial: 2026-10-13. Revisão: 2026-10-14. Estado: proposta e plano aprovados pelo utilizador com «Está aprovado», após revisão independente e escolha de preços e limites. Implementação local autorizada. Nenhum registo público implementado ou publicado no momento da aprovação.
 
 ## Decisões recebidas
 
@@ -35,7 +35,7 @@ Preços fictícios escolhidos pelo utilizador: Essencial (59 €/mês), Evoluç�
 
 Uma pessoa visita a página pública, escolhe um plano, cria a conta do primeiro responsável e a sua nova instituição, confirma a adesão simulada e entra na configuração inicial. Ao concluir, encontra uma área institucional mínima com dados da instituição, plano e gestão inicial de professores/alunos. Voltar a entrar não repete a criação da instituição. Os painéis educativos completos continuam em entregas seguintes.
 
-Escolhas do agente nesta descrição: formulário mínimo sem NIF, telefone ou cartão; entrada automática após o registo através do login existente; ano letivo configurável; primeira gestão de contas usando as operações já existentes; navegação por parâmetro na raiz para funcionar com o alojamento estático atual. Estas escolhas fazem parte da proposta a confirmar, não de decisões já recebidas.
+Escolhas do agente incluídas na proposta aprovada: formulário mínimo sem NIF, telefone ou cartão; entrada automática após o registo através do login existente; ano letivo configurável; primeira gestão de contas usando as operações já existentes; navegação por parâmetro na raiz para funcionar com o alojamento estático atual.
 
 ### Página pública, entrada e navegação
 
@@ -126,7 +126,7 @@ Suporte/chat/anexos aprovado, painéis educativos completos, cursos/atividades, 
 4. Painéis e atividades de professores/alunos, com requisitos específicos a definir.
 5. Levar funcionalidades à app após a versão correspondente do site, conforme escolha explícita do utilizador.
 
-Esta ordem é uma proposta do agente em resposta à nova entrada pública; não elimina o suporte aprovado. Detalhes de planos, configuração e aceitação da descrição completa serão fechados antes do plano de implementação.
+Esta ordem integra a proposta aprovada em resposta à nova entrada pública; não elimina o suporte aprovado. Plano de implementação em `docs/superpowers/plans/2026-10-14-public-onboarding.md`.
 
 ## Prévia descartável
 
@@ -134,4 +134,4 @@ Ficheiro local ignorado pelo Git da revisão de 2026-10-14: .superpowers/brainst
 
 Verificação Chromium: desktop e 390 px, logo, seleção de plano, requisitos de senha, resumo, confirmação simulada, configuração e diálogo de entrada/Escape. Zero erros JavaScript e pedidos externos; capturas inspecionadas em .superpowers/verification/public-preview. Isto não demonstra registo público real nem implementação dos painéis escolares.
 
-Revisão independente de 2026-10-14: não foram identificadas outras dúvidas importantes para o construtor além da decisão de capacidade e da aprovação da descrição completa. Depois da revisão, o utilizador substituiu os limites propostos de 50/250/1000 por 100/350/1150 contas. A descrição foi atualizada com essa escolha. Pedido de confirmação da entrega completa enviado; não interpretar a aprovação dos limites isoladamente nem a passagem de tempo como aprovação de todas as escolhas restantes.
+Revisão independente de 2026-10-14: não foram identificadas outras dúvidas importantes para o construtor além da decisão de capacidade e da aprovação da descrição completa. Depois da revisão, o utilizador substituiu os limites propostos de 50/250/1000 por 100/350/1150 contas. Após atualizar a descrição e apresentar o plano, respondeu «Está aprovado». Esta aprovação não decorre da passagem do tempo nem apenas da escolha dos limites.
