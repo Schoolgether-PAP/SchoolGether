@@ -77,7 +77,7 @@ internal static class IdentityRegistration
                 Type = SecuritySchemeType.Http, Scheme = "bearer", BearerFormat = "JWT" };
             foreach (var path in document.Paths)
                 foreach (var operation in path.Value.Operations ?? [])
-                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions" ||
+                    if (path.Key is "/api/v1/identity/me" or "/api/v1/identity/users" or "/api/v1/institutions" or "/api/v1/institutions/current/setup" or "/api/v1/institutions/current/subscription" ||
                         path.Key.StartsWith("/api/v1/platform/", StringComparison.Ordinal))
                         operation.Value.Security = [new OpenApiSecurityRequirement {
                             [new OpenApiSecuritySchemeReference("Bearer", document)] = [] }];

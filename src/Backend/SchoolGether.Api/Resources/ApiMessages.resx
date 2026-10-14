@@ -66,4 +66,5 @@
   <data name="OutdatedCatalog" xml:space="preserve"><value>Os planos foram atualizados. Consulte o catálogo e confirme novamente.</value></data>
   <data name="UnknownPlan" xml:space="preserve"><value>Escolha um plano disponível no catálogo.</value></data>
   <data name="SignupBodyTooLarge" xml:space="preserve"><value>O pedido excede o tamanho permitido.</value></data>
+  <data name="InvalidInstitutionSetup" xml:space="preserve"><value>Verifique o nome, tipo e localidade da instituição. Indique um ano letivo no formato AAAA/AAAA, com anos consecutivos e início entre 1900 e 2199.</value></data>
 </root>

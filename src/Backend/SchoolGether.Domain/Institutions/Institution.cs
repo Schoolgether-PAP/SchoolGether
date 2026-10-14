@@ -46,6 +46,14 @@ public sealed class Institution
         RowVersion++;
     }
 
+    public void SaveSetupName(string name)
+    {
+        if (DeletedAt.HasValue) throw new InvalidOperationException("Não é possível alterar uma instituição eliminada.");
+        Name = ValidateName(name);
+        UpdatedAt = DateTime.UtcNow;
+        RowVersion++;
+    }
+
     public void SetSuspension(bool isSuspended, string reason)
     {
         if (DeletedAt.HasValue) throw new InvalidOperationException("Não é possível alterar uma instituição eliminada.");
