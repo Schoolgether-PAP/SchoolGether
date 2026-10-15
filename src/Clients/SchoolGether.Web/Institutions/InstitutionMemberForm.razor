@@ -28,7 +28,7 @@
         else if (password.Length is < 12 or > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || password.All(char.IsLetterOrDigit)) invalid = "member-password";
         if (invalid is not null) { Error = T(invalid == "member-name" ? "InstitutionMemberNameRequired" : invalid == "member-email" ? "EmailInvalid" : "PasswordPolicy"); focusInvalid = true; return; }
         Busy = true;
-        try { await Api.CreateUserAsync(new(email.Trim(), password, name.Trim(), role, null), Lifetime.Token); password = ""; if (Active) { created = true; await Created.InvokeAsync(); } }
+        try { await Api.CreateUserAsync(new(email.Trim(), password, name.Trim(), role, null), Lifetime.Token); password = ""; if (Active) { await Created.InvokeAsync(); if (Active) created = true; } }
         catch (Exception e) { RequestFailed(e, "InstitutionMemberConflict"); }
         finally { password = ""; Busy = false; }
     }

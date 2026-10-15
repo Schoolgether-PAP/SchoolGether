@@ -13,18 +13,29 @@ else {
     [Parameter] public EventCallback OccupancyChanged { get; set; }
     private MemberPageResponse? members;
     private int page = 1;
+    private Task memberRead = Task.CompletedTask;
     private ElementReference heading;
     protected override async Task OnInitializedAsync() => await LoadAsync();
     protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
     private Task LoadAsync() => LoadPageAsync(page);
-    private async Task LoadPageAsync(int requestedPage)
+    private Task LoadPageAsync(int requestedPage)
     {
-        if (Busy || !Active) return; Busy = true; Error = null;
+        if (!Active) return Task.CompletedTask;
+        var earlierRead = memberRead;
+        memberRead = ReadPageAsync(earlierRead, requestedPage);
+        return memberRead;
+    }
+    private async Task ReadPageAsync(Task earlierRead, int requestedPage)
+    {
+        // Creation must queue a fresh first page even while an older read is pending.
+        await earlierRead;
+        if (!Active) return;
+        Busy = true; Error = null;
         try { var result = await Api.GetMembersAsync(requestedPage, 10, Lifetime.Token); if (Active) { members = result; page = result.Page; } }
         catch (Exception e) { RequestFailed(e); }
         finally { Busy = false; }
     }
     private Task NextAsync() => LoadPageAsync(page + 1);
     private Task PreviousAsync() => LoadPageAsync(page - 1);
-    private async Task CreatedAsync() { if (!Active) return; page = 1; await LoadAsync(); if (Active) await OccupancyChanged.InvokeAsync(); }
+    private async Task CreatedAsync() { if (!Active) return; await LoadPageAsync(1); if (Active) await OccupancyChanged.InvokeAsync(); }
 }
