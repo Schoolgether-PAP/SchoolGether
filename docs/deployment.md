@@ -36,3 +36,13 @@ Perfis de publicação, segredos e relatórios operacionais locais ficam em `.su
 Na publicação inicial, os dois diagnósticos HTTPS devolveram 200. Chromium carregou a versão pública, entrou com o master, abriu o dashboard, verificou 390 px e saiu; logout devolveu 204 e a reutilização do refresh token devolveu 401. Sem erros JavaScript ou falhas de rede inesperadas. O isolamento entre instituições tem cobertura anterior automatizada em MySQL; não foi repetido criando instituições nesta base online.
 
 Os planos gratuitos destinam-se à demonstração: podem suspender processos por inatividade e a primeira resposta pode demorar. No MonsterASP.NET, HTTPS foi ativado pelo utilizador após o upload. Pagamentos continuam fictícios; o módulo de suporte ainda não está implementado nesta versão.
+
+## Próxima entrega: adesão pública (ainda não publicada)
+
+A implementação local de 2026-10-15 está descrita em [public-onboarding.md](public-onboarding.md). Não altera a versão publicada acima nem confirma registo online ativo. Manter `Onboarding__Enabled=false` até CI, revisão independente/por colega e escolha explícita do commit de publicação.
+
+Antes de ativar, aplicar por EF as migrações `20261014093325_PublicInstitutionOnboarding` e `20261014210542_InstitutionSetupCompletion` com a credencial operacional privada e cópia de segurança, preservando os dados existentes. Os testes locais comprovaram migrações/legado/concorrência em instâncias temporárias Oracle MySQL 8; não aplicaram estas migrações ao Aiven.
+
+Validar no alojamento o endereço efetivo usado por `RemoteIpAddress`: a adesão limita 3/minuto/IP e 20/minuto/processo, sem fila, corpo máximo de 16 KiB. A aplicação não lê X-Forwarded-For diretamente; configurar confiança no proxy só após confirmar a infraestrutura. Não ativar com todos os utilizadores indistintamente identificados pelo mesmo proxy nem confiar em cabeçalhos arbitrários. Os limites por processo não são distribuídos entre instâncias.
+
+Publicar API e ficheiros estáticos com base `/SchoolGether/`, configurar a origem CORS/API HTTPS e verificar catálogo/desativação, navegação por query/reload, entrada, configuração, capacidade, 390 px e saída. Só após estes gates e validação controlada do IP/proxy deve o operador decidir ativar `Onboarding__Enabled=true`. Pagamentos permanecem fictícios. Os 265 testes normais, quatro cenários MySQL reais e fixtures Chromium locais são evidência local; CI remoto, migração operacional e verificação do alojamento continuam pendentes.

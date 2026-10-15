@@ -1,0 +1,36 @@
+@using System.ComponentModel.DataAnnotations
+@using SchoolGether.ApiClient.Institutions
+@inherits InstitutionView
+@inject InstitutionApiClient Api
+<section class="member-form"><h2>@T("InstitutionCreateMember")</h2><p id="initial-credential-help">@T("InstitutionCredentialHelp")</p>
+<form @onsubmit="CreateAsync" @onsubmit:preventDefault novalidate aria-busy="@(Busy ? "true" : "false")"><fieldset disabled="@Busy">
+<label for="member-name">@T("OwnerName")</label><input id="member-name" maxlength="150" @bind="name" @bind:event="oninput" aria-invalid="@(invalid == "member-name" ? "true" : "false")" aria-describedby="member-error" @ref="nameInput" />
+<label for="member-email">@T("Email")</label><input id="member-email" type="email" maxlength="256" autocomplete="off" @bind="email" @bind:event="oninput" aria-invalid="@(invalid == "member-email" ? "true" : "false")" aria-describedby="member-error" @ref="emailInput" />
+<label for="member-password">@T("InstitutionInitialPassword")</label><input id="member-password" type="password" maxlength="128" autocomplete="new-password" @bind="password" @bind:event="oninput" aria-invalid="@(invalid == "member-password" ? "true" : "false")" aria-describedby="member-error initial-credential-help" @ref="passwordInput" />
+<label for="member-role">@T("Role")</label><select id="member-role" @bind="role"><option value="Teacher">@T("RoleTeacher")</option><option value="Student">@T("RoleStudent")</option></select>
+<button type="submit">@T(Busy ? "InstitutionCreating" : "InstitutionCreateMember")</button></fieldset></form>
+@if (Error is not null) { <p role="alert" id="member-error">@Error</p> }
+@if (created) { <p role="status">@T("InstitutionMemberCreated")</p> }
+</section>
+@code {
+    [Parameter] public EventCallback Created { get; set; }
+    private string name = "", email = "", password = "", role = "Teacher";
+    private string? invalid;
+    private bool created, focusInvalid;
+    private ElementReference nameInput, emailInput, passwordInput;
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focusInvalid && Active) { focusInvalid = false; await (invalid == "member-name" ? nameInput : invalid == "member-email" ? emailInput : passwordInput).FocusAsync(); } }
+    private async Task CreateAsync()
+    {
+        if (Busy || !Active) return;
+        Error = null; invalid = null; created = false;
+        if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 150) invalid = "member-name";
+        else if (!new EmailAddressAttribute().IsValid(email.Trim()) || email.Trim().Length > 256) invalid = "member-email";
+        else if (password.Length is < 12 or > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || password.All(char.IsLetterOrDigit)) invalid = "member-password";
+        if (invalid is not null) { Error = T(invalid == "member-name" ? "InstitutionMemberNameRequired" : invalid == "member-email" ? "EmailInvalid" : "PasswordPolicy"); focusInvalid = true; return; }
+        Busy = true;
+        try { await Api.CreateUserAsync(new(email.Trim(), password, name.Trim(), role, null), Lifetime.Token); password = ""; if (Active) { created = true; await Created.InvokeAsync(); } }
+        catch (Exception e) { RequestFailed(e, "InstitutionMemberConflict"); }
+        finally { password = ""; Busy = false; }
+    }
+    public override void Dispose() { password = ""; base.Dispose(); }
+}

@@ -11,6 +11,10 @@
 {
     <SchoolGether.Web.Platform.PlatformPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
 }
+else if (Session.Account?.Role == "InstitutionAdmin")
+{
+    <SchoolGether.Web.Institutions.InstitutionPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
+}
 else
 {
 <div class="identity-layout">
@@ -114,7 +118,7 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (focusHeading && Session.Account?.Role != "PlatformAdmin")
+        if (focusHeading && Session.Account?.Role is not ("PlatformAdmin" or "InstitutionAdmin"))
         {
             focusHeading = false;
             await heading.FocusAsync();

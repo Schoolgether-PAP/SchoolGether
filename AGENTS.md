@@ -40,7 +40,7 @@ Fora do âmbito por agora: iOS, tutor com IA, notificações push, LTI/Moodle, a
 | Ficheiros | Interface `IFileStorage`, implementação em disco local |
 | Autenticação | JWT de curta duração + refresh token; papéis `PlatformAdmin`, `InstitutionAdmin`, `Teacher`, `Student` |
 | Multi-instituição | `institution_id` em todas as tabelas de dados de cliente + filtro global no EF Core |
-| Contas | Uma instituição por conta. Professores/alunos e restantes responsáveis são criados pelos administradores. Decisão de 2026-10-13, por implementar: adesão pública cria apenas a nova instituição e o primeiro `InstitutionAdmin`. `PlatformAdmin` é global, sem instituição |
+| Contas | Uma instituição por conta. Professores/alunos e restantes responsáveis são criados pelos administradores. Implementado localmente em 2026-10-15: adesão pública cria apenas a nova instituição e o primeiro `InstitutionAdmin`, com registo desativado por omissão e publicação dependente de revisão/CI. `PlatformAdmin` é global, sem instituição |
 | Alojamento (demonstração) | API no MonsterASP.NET (gratuito), MySQL no Aiven (gratuito), site no GitHub Pages |
 | Pontos e regras | Tabelas `activity`, `grading_rule` (JSON versionado) e `reward`; `xp_event` guarda a versão da regra usada |
 
@@ -152,6 +152,8 @@ suporte, utilização e finanças só entram quando os módulos os fornecerem. V
 secção «Dashboard individual e gráficos — revisão v3» na especificação do painel.
 Sugestões de tarefas internas, filtros guardados, entrada assistida e importação
 CSV são propostas para evolução, sem aprovação nem inclusão automática na entrega A.
+
+Adesão pública e área institucional mínima implementadas localmente em 2026-10-15 no ramo `feature/public-onboarding-implementation`: catálogo do servidor, adesão transacional, configuração com versão/ano/instante de conclusão, subscrição/capacidade e gestão inicial Teacher/Student. InstitutionAdmin usa Resumo/Utilizadores/Configuração/O meu perfil/Sair; PlatformAdmin e papéis educativos conservam os percursos anteriores. App conserva login/perfil; módulos académicos completos continuam futuros. Ver `docs/public-onboarding.md`. Suite Debug: 265 aprovados, 0 falhas, 4 MySQL ignorados normalmente; os quatro cenários MySQL foram executados/aprovados separadamente (1 cada, 0 skips), incluindo upgrade/legado/configuração concorrente. API/Web Release e MAUI Windows/Android Debug sem avisos/erros, EF sem alterações pendentes; Chromium público/institucional/regressões aprovado com HTTP controlado e capturas desktop/390 px. Nenhum acesso a contas/base pessoais ou ativação online. Conservar `Onboarding:Enabled=false` até CI, revisão de colega, migrações operacionais e IP/proxy do alojamento verificados. A entrega segue para revisão independente do ramo antes do PR.
 
 ### Próximas etapas da Fase 0
 

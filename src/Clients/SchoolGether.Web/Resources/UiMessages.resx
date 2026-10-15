@@ -488,7 +488,7 @@
 <data name="PublicCommunityIntroduction" xml:space="preserve"><value>Cada pessoa encontra o seu espaço, com ferramentas e permissões adequadas ao seu papel.</value></data>
 <data name="PublicInstitutionsTitle" xml:space="preserve"><value>Instituições</value></data>
 <data name="PublicInstitutionsDescription" xml:space="preserve"><value>Configurar a escola, organizar a equipa e acompanhar as contas da comunidade.</value></data>
-<data name="PublicInstitutionsStatus" xml:space="preserve"><value>Painel institucional em preparação</value></data>
+<data name="PublicInstitutionsStatus" xml:space="preserve"><value>Configuração e gestão inicial de utilizadores disponíveis</value></data>
 <data name="PublicTeachersTitle" xml:space="preserve"><value>Professores</value></data>
 <data name="PublicTeachersDescription" xml:space="preserve"><value>Partilhar materiais, preparar atividades e acompanhar a aprendizagem dos alunos.</value></data>
 <data name="PublicTeachersStatus" xml:space="preserve"><value>Funcionalidades educativas em desenvolvimento</value></data>
@@ -577,4 +577,42 @@
   <data name="RegistrationInvalid" xml:space="preserve"><value>Verifica os dados introduzidos antes de confirmar novamente.</value></data>
   <data name="RegistrationUnavailable" xml:space="preserve"><value>A adesão está temporariamente indisponível. Tenta mais tarde.</value></data>
   <data name="RegistrationUnknown" xml:space="preserve"><value>Não foi possível confirmar o resultado. A conta pode ter sido criada. Entra com as credenciais escolhidas para continuar; a adesão não foi reenviada.</value></data>
+<data name="InstitutionArea" xml:space="preserve"><value>Área institucional</value></data>
+<data name="InstitutionAreas" xml:space="preserve"><value>Áreas da instituição</value></data>
+<data name="InstitutionSummary" xml:space="preserve"><value>Resumo</value></data>
+<data name="InstitutionMembers" xml:space="preserve"><value>Utilizadores</value></data>
+<data name="InstitutionSetup" xml:space="preserve"><value>Configuração</value></data>
+<data name="InstitutionProfile" xml:space="preserve"><value>O meu perfil</value></data>
+<data name="InstitutionSetupTitle" xml:space="preserve"><value>Configuração da instituição</value></data>
+<data name="InstitutionSetupHelp" xml:space="preserve"><value>Revê os dados da instituição e confirma o ano letivo. Podes ajustar estes dados mais tarde.</value></data>
+<data name="InstitutionSetupState" xml:space="preserve"><value>Configuração</value></data>
+<data name="InstitutionComplete" xml:space="preserve"><value>Concluída</value></data>
+<data name="InstitutionPending" xml:space="preserve"><value>Pendente</value></data>
+<data name="InstitutionYear" xml:space="preserve"><value>Ano letivo</value></data>
+<data name="InstitutionPlan" xml:space="preserve"><value>Plano</value></data>
+<data name="InstitutionCapacity" xml:space="preserve"><value>Ocupação</value></data>
+<data name="InstitutionNoSubscription" xml:space="preserve"><value>Sem subscrição</value></data>
+<data name="InstitutionOccupancy" xml:space="preserve"><value>{0} de {1} contas</value></data>
+<data name="InstitutionLegacyOccupancy" xml:space="preserve"><value>{0} contas existentes</value></data>
+<data name="InstitutionDemonstration" xml:space="preserve"><value>Plano de demonstração: sem cobrança, fatura ou contrato real.</value></data>
+<data name="InstitutionFuture" xml:space="preserve"><value>Cursos, turmas, disciplinas e outras funcionalidades académicas serão disponibilizados numa entrega futura.</value></data>
+<data name="InstitutionYearHelp" xml:space="preserve"><value>Formato AAAA/AAAA, por exemplo 2026/2027. É um rótulo de configuração; não cria cursos ou inscrições.</value></data>
+<data name="InstitutionSaveSetup" xml:space="preserve"><value>Guardar configuração</value></data>
+<data name="InstitutionSaving" xml:space="preserve"><value>A guardar…</value></data>
+<data name="InstitutionReloadSetup" xml:space="preserve"><value>Recarregar configuração</value></data>
+<data name="InstitutionReloadHelp" xml:space="preserve"><value>Recarregar substitui o rascunho pelos dados atuais do servidor.</value></data>
+<data name="InstitutionConflict" xml:space="preserve"><value>A configuração foi alterada por outro administrador. O rascunho foi conservado; recarrega os dados antes de voltar a guardar.</value></data>
+<data name="InstitutionInvalid" xml:space="preserve"><value>Não foi possível validar os dados. Revê os campos e tenta novamente.</value></data>
+<data name="InstitutionMembersHelp" xml:space="preserve"><value>Consulta as contas da tua instituição e cria docentes ou alunos.</value></data>
+<data name="InstitutionCreateMember" xml:space="preserve"><value>Criar utilizador</value></data>
+<data name="InstitutionCredentialHelp" xml:space="preserve"><value>Esta é uma credencial inicial a comunicar fora da plataforma. Não é enviado um convite por e-mail.</value></data>
+<data name="InstitutionInitialPassword" xml:space="preserve"><value>Senha inicial</value></data>
+<data name="InstitutionCreating" xml:space="preserve"><value>A criar…</value></data>
+<data name="InstitutionMemberCreated" xml:space="preserve"><value>Utilizador criado. Comunica a credencial inicial fora da plataforma.</value></data>
+<data name="InstitutionPrevious" xml:space="preserve"><value>Anterior</value></data>
+<data name="InstitutionNext" xml:space="preserve"><value>Seguinte</value></data>
+<data name="InstitutionPage" xml:space="preserve"><value>Página {0} — {1} utilizadores</value></data>
+<data name="InstitutionMemberConflict" xml:space="preserve"><value>Não foi possível criar a conta: o e-mail já existe ou a capacidade da instituição foi atingida. Os campos não sensíveis foram conservados.</value></data>
+<data name="InstitutionMemberNameRequired" xml:space="preserve"><value>Indica o nome completo, até 150 caracteres.</value></data>
+<data name="InstitutionYearInvalid" xml:space="preserve"><value>Indica dois anos consecutivos no formato AAAA/AAAA, com início entre 1900 e 2199.</value></data>
 </root>

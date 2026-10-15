@@ -3,6 +3,8 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.Extensions.DependencyInjection;
 using SchoolGether.Contracts.Identity;
 using SchoolGether.Contracts.Institutions;
@@ -180,6 +182,99 @@ public sealed class MySqlIdentityTests
         Assert.Contains("parcial", dashboard.InstitutionsTrend[^1].Label);
         var institutionHistory = (await global.GetFromJsonAsync<PagedResponse<AuditResponse>>($"/api/v1/platform/audit?institutionId={factory.InstitutionA}&search=institution.suspension&pageSize=1"))!;
         Assert.Equal(2, institutionHistory.Total); Assert.All(institutionHistory.Items, x => Assert.Equal(factory.InstitutionA, x.InstitutionId));
+    }
+
+    [MySqlFact]
+    public async Task Setup_upgrade_preserves_legacy_data_and_serializes_concurrent_edits()
+    {
+        // The runner supplies its own loopback instance; seed the schema deployed before onboarding.
+        await using var factory = new IdentityFactory(
+            mySqlConnectionString: Environment.GetEnvironmentVariable("SCHOOLGETHER_TEST_MYSQL"),
+            migrationTarget: "20261012213240_PlatformInstitutionsAndDashboard");
+        await factory.SeedAsync();
+        using var global = factory.CreateClient();
+        Authenticate(global, await Login(global, "platform@example.test"));
+        using var suspension = await global.PutAsJsonAsync($"/api/v1/platform/institutions/{factory.InstitutionB}/suspension",
+            new { isSuspended = true, rowVersion = 1, reason = "Suspensão anterior à migração" });
+        Assert.Equal(HttpStatusCode.OK, suspension.StatusCode);
+        using var layout = await global.PutAsJsonAsync(DashboardPreferenceTests.Root, DashboardPreferenceTests.Layout(0));
+        Assert.Equal(HttpStatusCode.OK, layout.StatusCode);
+        int[] legacyUsers;
+        int[] legacyMembers;
+        int[] legacyAudits;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
+            legacyUsers = await db.Users.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync();
+            legacyMembers = await db.Members.IgnoreQueryFilters().OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync();
+            legacyAudits = await db.AuditEntries.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync();
+            Assert.NotEmpty(legacyAudits);
+            Assert.Equal("20261012213240_PlatformInstitutionsAndDashboard", (await db.Database.GetAppliedMigrationsAsync()).Last());
+            await db.Database.MigrateAsync();
+            Assert.Equal("MySql.EntityFrameworkCore", db.Database.ProviderName);
+            Assert.Empty(await db.Database.GetPendingMigrationsAsync());
+            Assert.Equal("20261014210542_InstitutionSetupCompletion", (await db.Database.GetAppliedMigrationsAsync()).Last());
+            Assert.Equal(legacyUsers, await db.Users.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
+            Assert.Equal(legacyMembers, await db.Members.IgnoreQueryFilters().OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
+            Assert.Equal(legacyAudits, await db.AuditEntries.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
+            Assert.True((await db.Institutions.AsNoTracking().SingleAsync(x => x.Id == factory.InstitutionB)).IsSuspended);
+            Assert.Equal(2, await db.Institutions.CountAsync());
+            Assert.Empty(await db.InstitutionProfiles.IgnoreQueryFilters().ToListAsync());
+            Assert.Empty(await db.Subscriptions.IgnoreQueryFilters().ToListAsync());
+        }
+        var preservedLayout = (await global.GetFromJsonAsync<DashboardPreferenceResponse>(DashboardPreferenceTests.Root))!;
+        Assert.Equal(1, preservedLayout.RowVersion);
+        Assert.Equal("institutions-status", Assert.Single(preservedLayout.Widgets).Id);
+        using var first = factory.CreateClient();
+        using var second = factory.CreateClient();
+        Authenticate(first, await Login(first, "admin-a@example.test"));
+        Authenticate(second, await Login(second, "admin-a@example.test"));
+        const string setupRoute = "/api/v1/institutions/current/setup";
+        var initial = (await first.GetFromJsonAsync<InstitutionSetupResponse>(setupRoute))!;
+        Assert.False(initial.IsComplete);
+        Assert.Equal(1, initial.RowVersion);
+        var setupWrites = await Task.WhenAll(first.PutAsJsonAsync(setupRoute, Setup(1, "Primeiro rascunho")),
+            second.PutAsJsonAsync(setupRoute, Setup(1, "Segundo rascunho")));
+        AssertOneWinner(setupWrites);
+        var completed = (await first.GetFromJsonAsync<InstitutionSetupResponse>(setupRoute))!;
+        Assert.True(completed.IsComplete);
+        Assert.Equal(2, completed.RowVersion);
+        var winnerIndex = Array.FindIndex(setupWrites, x => x.StatusCode == HttpStatusCode.OK);
+        Assert.Equal(winnerIndex == 0 ? "Primeiro rascunho" : "Segundo rascunho", completed.Name);
+        foreach (var response in setupWrites) response.Dispose();
+        DateTime? completion;
+        using (var scope = factory.Services.CreateScope())
+        {
+            var profile = await scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>()
+                .InstitutionProfiles.IgnoreQueryFilters().SingleAsync();
+            completion = profile.CompletedAt;
+            Assert.NotNull(completion);
+        }
+        // Both modules edit the same institution version: one must lose without replacing the winner.
+        var competing = await Task.WhenAll(global.PutAsJsonAsync($"/api/v1/platform/institutions/{factory.InstitutionA}",
+            new { name = "Nome global concorrente", rowVersion = 2, reason = "Correção concorrente" }),
+            first.PutAsJsonAsync(setupRoute, Setup(2, "Configuração concorrente")));
+        AssertOneWinner(competing);
+        var afterRace = (await first.GetFromJsonAsync<InstitutionSetupResponse>(setupRoute))!;
+        Assert.Equal(competing[0].StatusCode == HttpStatusCode.OK ? "Nome global concorrente" : "Configuração concorrente", afterRace.Name);
+        Assert.Equal(3, afterRace.RowVersion);
+        foreach (var response in competing) response.Dispose();
+        using var edited = await first.PutAsJsonAsync(setupRoute, Setup(3, afterRace.Name));
+        Assert.Equal(HttpStatusCode.OK, edited.StatusCode);
+        using (var scope = factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
+            Assert.Equal(completion, (await db.InstitutionProfiles.IgnoreQueryFilters().SingleAsync()).CompletedAt);
+            Assert.Equal(legacyUsers, await db.Users.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
+            Assert.Equal(legacyMembers, await db.Members.IgnoreQueryFilters().OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
+            Assert.All(legacyAudits, id => Assert.True(db.AuditEntries.Any(x => x.Id == id)));
+        }
+        static SaveInstitutionSetupRequest Setup(long version, string name) => new(name, "Faculty", "Porto", "2026/2027", version);
+        static void AssertOneWinner(HttpResponseMessage[] responses)
+        {
+            Assert.Equal(1, responses.Count(x => x.StatusCode == HttpStatusCode.OK));
+            Assert.Equal(1, responses.Count(x => x.StatusCode == HttpStatusCode.Conflict));
+        }
     }
 
     private sealed class FailPlatformAudit : SaveChangesInterceptor

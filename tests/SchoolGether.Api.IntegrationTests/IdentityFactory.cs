@@ -26,14 +26,16 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     private readonly IInstitutionDirectory? institutionDirectory;
     private readonly string? mySqlConnectionString;
     private readonly bool onboardingEnabled;
+    private readonly string? migrationTarget;
     private readonly IAuditWriter? auditWriter;
     public string PrivateKey { get; }
     public int InstitutionA { get; private set; }
     public int InstitutionB { get; private set; }
 
-    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null, bool onboardingEnabled = false, IAuditWriter? auditWriter = null)
+    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null, bool onboardingEnabled = false, IAuditWriter? auditWriter = null, string? migrationTarget = null)
     {
         this.institutionDirectory = institutionDirectory;
+        this.migrationTarget = migrationTarget;
         this.onboardingEnabled = onboardingEnabled;
         this.auditWriter = auditWriter;
         this.mySqlConnectionString = mySqlConnectionString;
@@ -86,7 +88,7 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         if (mySqlConnectionString is null) await db.Database.EnsureCreatedAsync();
-        else await db.Database.MigrateAsync();
+        else await db.GetService<Microsoft.EntityFrameworkCore.Migrations.IMigrator>().MigrateAsync(migrationTarget);
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var platform = new ApplicationUser { UserName = "platform@example.test", Email = "platform@example.test",
             Name = "Plataforma", IsPlatformAdmin = true, LockoutEnabled = true };
