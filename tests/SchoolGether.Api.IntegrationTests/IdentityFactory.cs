@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySql.Data.MySqlClient;
 using SchoolGether.Application.Identity;
+using SchoolGether.Application.Audit;
 using SchoolGether.Application.Institutions;
 using SchoolGether.Domain.Identity;
 using SchoolGether.Domain.Institutions;
@@ -24,13 +25,19 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     private readonly SqliteConnection connection = new("Data Source=:memory:");
     private readonly IInstitutionDirectory? institutionDirectory;
     private readonly string? mySqlConnectionString;
+    private readonly bool onboardingEnabled;
+    private readonly string? migrationTarget;
+    private readonly IAuditWriter? auditWriter;
     public string PrivateKey { get; }
     public int InstitutionA { get; private set; }
     public int InstitutionB { get; private set; }
 
-    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null)
+    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null, bool onboardingEnabled = false, IAuditWriter? auditWriter = null, string? migrationTarget = null)
     {
         this.institutionDirectory = institutionDirectory;
+        this.migrationTarget = migrationTarget;
+        this.onboardingEnabled = onboardingEnabled;
+        this.auditWriter = auditWriter;
         this.mySqlConnectionString = mySqlConnectionString;
         if (mySqlConnectionString is null)
         {
@@ -53,7 +60,7 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
-            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = PrivateKey }));
+            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = PrivateKey, ["Onboarding:Enabled"] = onboardingEnabled.ToString() }));
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<SchoolGetherDbContext>>();
@@ -63,6 +70,11 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
                 if (mySqlConnectionString is null) options.UseSqlite(connection);
                 else options.UseMySQL(mySqlConnectionString);
             });
+            if (auditWriter is not null)
+            {
+                services.RemoveAll<IAuditWriter>();
+                services.AddSingleton<IAuditWriter>(auditWriter);
+            }
             if (institutionDirectory is not null)
             {
                 services.RemoveAll<IInstitutionDirectory>();
@@ -76,7 +88,7 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
         using var scope = Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         if (mySqlConnectionString is null) await db.Database.EnsureCreatedAsync();
-        else await db.Database.MigrateAsync();
+        else await db.GetService<Microsoft.EntityFrameworkCore.Migrations.IMigrator>().MigrateAsync(migrationTarget);
         var users = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
         var platform = new ApplicationUser { UserName = "platform@example.test", Email = "platform@example.test",
             Name = "Plataforma", IsPlatformAdmin = true, LockoutEnabled = true };

@@ -1,0 +1,41 @@
+@using SchoolGether.ApiClient.Institutions
+@inherits InstitutionView
+@inject InstitutionApiClient Api
+<h1 tabindex="-1" @ref="heading">@T("InstitutionMembers")</h1><p>@T("InstitutionMembersHelp")</p>
+@if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+@if (members is null) { <p role="status">@T("Loading")</p> }
+else {
+<div class="member-list" aria-busy="@(Busy ? "true" : "false")">@foreach (var member in members.Items) { <article><strong>@member.Name</strong><span>@member.Email</span><span>@T("Role" + member.Role)</span></article> }</div>
+<div class="pagination"><button type="button" disabled="@(Busy || page == 1)" @onclick="PreviousAsync">@T("InstitutionPrevious")</button><span>@UiMessages.Format("InstitutionPage", page, members.Total)</span><button type="button" disabled="@(Busy || page * members.PageSize >= members.Total)" @onclick="NextAsync">@T("InstitutionNext")</button></div>
+}
+<InstitutionMemberForm Created="CreatedAsync" />
+@code {
+    [Parameter] public EventCallback OccupancyChanged { get; set; }
+    private MemberPageResponse? members;
+    private int page = 1;
+    private Task memberRead = Task.CompletedTask;
+    private ElementReference heading;
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
+    private Task LoadAsync() => LoadPageAsync(page);
+    private Task LoadPageAsync(int requestedPage)
+    {
+        if (!Active) return Task.CompletedTask;
+        var earlierRead = memberRead;
+        memberRead = ReadPageAsync(earlierRead, requestedPage);
+        return memberRead;
+    }
+    private async Task ReadPageAsync(Task earlierRead, int requestedPage)
+    {
+        // Creation must queue a fresh first page even while an older read is pending.
+        await earlierRead;
+        if (!Active) return;
+        Busy = true; Error = null;
+        try { var result = await Api.GetMembersAsync(requestedPage, 10, Lifetime.Token); if (Active) { members = result; page = result.Page; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private Task NextAsync() => LoadPageAsync(page + 1);
+    private Task PreviousAsync() => LoadPageAsync(page - 1);
+    private async Task CreatedAsync() { if (!Active) return; await LoadPageAsync(1); if (Active) await OccupancyChanged.InvokeAsync(); }
+}

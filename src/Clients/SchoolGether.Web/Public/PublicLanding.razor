@@ -1,0 +1,186 @@
+@using SchoolGether.ApiClient.Billing
+@using SchoolGether.Contracts.Billing
+@implements IDisposable
+@inject PlanApiClient Plans
+@inject IdentitySession Session
+@inject NavigationManager Navigation
+<div class="public-surface">
+<header>
+<div class="wrap nav">
+<a class="brand" href="@(Navigation.BaseUri + "#inicio")">
+<img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")">@T("PublicBrandName")</a>
+<nav aria-label="@T("PublicNavigation")">
+<a href="@(Navigation.BaseUri + "#plataforma")">@T("PublicNavigationPlatform")</a>
+<a href="@(Navigation.BaseUri + "#planos")">@T("PublicNavigationPlans")</a>
+<a href="@(Navigation.BaseUri + "#sobre")">@T("PublicNavigationAbout")</a>
+<a class="button" href="@PublicNavigation.Url(Navigation, Session.Account is null ? "entrar" : "area")">@T(Session.Account is null ? "SignIn" : "MyArea")</a>
+</nav>
+</div>
+</header>
+@if (ShowRegistration) { <RegistrationWizard @key="PlanId" InitialPlanId="@PlanId" /> } else { <div id="inicio">
+<div class="wrap">
+<section class="hero">
+<div>
+<h1>@T("PublicHeroTitle")</h1>
+<p class="intro">@T("PublicHeroIntroduction")</p>
+<div class="hero-actions">
+<a class="button primary" href="@(Navigation.BaseUri + "#planos")">@T("PublicExplorePlans")</a>
+<a class="button" href="@(Navigation.BaseUri + "#plataforma")">@T("PublicExplorePlatform")</a>
+</div>
+<p class="small">@T("PublicProductStage")</p>
+</div>
+<div class="hero-illustration">
+<img src="images/schoolgether-logo.jpeg" alt="">
+<div class="learning-map">
+<div>
+<strong>@T("PublicInstitutionPerspective")</strong>
+<span>@T("PublicInstitutionPurpose")</span>
+</div>
+<div>
+<strong>@T("PublicTeacherPerspective")</strong>
+<span>@T("PublicTeacherPurpose")</span>
+</div>
+<div>
+<strong>@T("PublicStudentPerspective")</strong>
+<span>@T("PublicStudentPurpose")</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+<div class="mission">
+<div class="wrap">
+<p>@T("PublicCompanyMission")</p>
+<span>@T("PublicCompanyMotto")</span>
+</div>
+</div>
+<section class="section" id="plataforma">
+<div class="wrap">
+<div class="section-head">
+<h2>@T("PublicCommunityTitleFirst")<br>@T("PublicCommunityTitleSecond")</h2>
+<p>@T("PublicCommunityIntroduction")</p>
+</div>
+<div class="roles">
+<article class="role">
+<h3>@T("PublicInstitutionsTitle")</h3>
+<p>@T("PublicInstitutionsDescription")</p>
+<span class="status">@T("PublicInstitutionsStatus")</span>
+</article>
+<article class="role">
+<h3>@T("PublicTeachersTitle")</h3>
+<p>@T("PublicTeachersDescription")</p>
+<span class="status">@T("PublicTeachersStatus")</span>
+</article>
+<article class="role">
+<h3>@T("PublicStudentsTitle")</h3>
+<p>@T("PublicStudentsDescription")</p>
+<span class="status">@T("PublicStudentsStatus")</span>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="planos">
+<div class="wrap">
+<div class="section-head">
+<h2>@T("PublicPlansTitleFirst")<br>@T("PublicPlansTitleSecond")</h2>
+<p>@T("PublicPlansIntroduction")</p>
+</div>@if (catalog is null) { <div class="catalog-status" role="status">@T(catalogFailed ? "CatalogUnavailable" : "CatalogLoading") @if(catalogFailed) { <button @onclick="LoadCatalogAsync">@T("TryAgain")</button> }
+</div> }
+else { <div class="plans">@foreach(var plan in catalog.Plans) { <article class="plan @(plan.Id == "evolution" ? "featured" : "")">
+<h3>@plan.Name</h3>
+<p>@T("PlanDescription_" + plan.Id)</p>
+<div class="price">@Price(plan) <span>@T("PerMonth")</span>
+</div>
+<ul>
+<li>@UiMessages.Format("PlanAccounts", plan.AccountLimit)</li>
+<li>@T("OneInstitution")</li>
+<li>@T("AccountManagement")</li>
+<li>@T("PendingSupport")</li>
+</ul>@if(catalog.RegistrationEnabled) { <a class="button @(plan.Id == "evolution" ? "primary" : "")" href="@PublicNavigation.Url(Navigation, Session.Account is null ? "aderir" : "area", plan.Id)">@UiMessages.Format("ChoosePlan", plan.Name)</a> } else { <p>@T("RegistrationDisabled")</p> }
+</article> }
+</div> }
+<p class="plans-note">@T("PublicPlansNotice")</p>
+</div>
+</section>
+<section class="section">
+<div class="wrap">
+<h2>@T("PublicJourneyTitleFirst")<br>@T("PublicJourneyTitleSecond")</h2>
+<div class="steps">
+<article>
+<h3>@T("PublicJourneyPlanTitle")</h3>
+<p>@T("PublicJourneyPlanDescription")</p>
+</article>
+<article>
+<h3>@T("PublicJourneyOwnerTitle")</h3>
+<p>@T("PublicJourneyOwnerDescription")</p>
+</article>
+<article>
+<h3>@T("PublicJourneyInstitutionTitle")</h3>
+<p>@T("PublicJourneyInstitutionDescription")</p>
+</article>
+<article>
+<h3>@T("PublicJourneySetupTitle")</h3>
+<p>@T("PublicJourneySetupDescription")</p>
+</article>
+</div>
+</div>
+</section>
+<section class="section" id="sobre">
+<div class="wrap about">
+<h2>@T("PublicAboutTitleFirst")<br>@T("PublicAboutTitleSecond")</h2>
+<div>
+<p>@T("PublicAboutCompany")</p>
+<p>@T("PublicAboutProject")</p>
+<a class="button" href="@(Navigation.BaseUri + "#planos")">@T("PublicStartInstitution")</a>
+</div>
+</div>
+</section>
+</div> }
+<footer>
+<div class="wrap">
+<span>@T("PublicFooterBrand")</span>
+<span>@T("PublicFooterStage")</span>
+</div>
+</footer>
+</div>
+@code {
+    [Parameter] public bool ShowRegistration { get; set; }
+    [Parameter] public string? PlanId { get; set; }
+    private readonly CancellationTokenSource lifetime = new();
+    private PlanCatalogResponse? catalog;
+    private bool catalogFailed;
+    private static string T(string key) => UiMessages.Get(key);
+
+    public static string Price(PlanResponse plan) =>
+        plan.MonthlyPrice.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("pt-PT"))
+        + " " + (plan.Currency == "EUR" ? "€" : plan.Currency);
+
+    protected override async Task OnInitializedAsync()
+    {
+        Session.Changed += SessionChanged;
+        await LoadCatalogAsync();
+    }
+
+    private void SessionChanged() => _ = InvokeAsync(StateHasChanged);
+
+    private async Task LoadCatalogAsync()
+    {
+        catalogFailed = false;
+        try
+        {
+            var result = await Plans.GetCatalogAsync(lifetime.Token);
+            if (!lifetime.IsCancellationRequested) catalog = result;
+        }
+        catch
+        {
+            if (!lifetime.IsCancellationRequested) catalogFailed = true;
+        }
+    }
+
+    public void Dispose()
+    {
+        Session.Changed -= SessionChanged;
+        lifetime.Cancel();
+        lifetime.Dispose();
+    }
+}

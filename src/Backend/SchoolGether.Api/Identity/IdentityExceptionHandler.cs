@@ -16,7 +16,7 @@ public sealed class IdentityExceptionHandler(IProblemDetailsService problems, IS
         var status = failure.Code switch {
             "InvalidCredentials" or "InvalidSession" => StatusCodes.Status401Unauthorized,
             "Forbidden" => StatusCodes.Status403Forbidden,
-            "AccountExists" => StatusCodes.Status409Conflict,
+            "AccountExists" or "InstitutionAccountLimitReached" => StatusCodes.Status409Conflict,
             _ => StatusCodes.Status400BadRequest };
         context.Response.StatusCode = status;
         if (status == 401) context.Response.Headers.WWWAuthenticate = "Bearer";

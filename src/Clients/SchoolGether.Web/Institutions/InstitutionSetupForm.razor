@@ -1,0 +1,54 @@
+@using System.Net
+@using System.Text.RegularExpressions
+@using SchoolGether.ApiClient.Institutions
+@using SchoolGether.Contracts.Institutions
+@inherits InstitutionView
+@inject InstitutionApiClient Api
+<h1 tabindex="-1" @ref="heading">@T("InstitutionSetupTitle")</h1><p>@T("InstitutionSetupHelp")</p>
+<form @onsubmit="SaveAsync" @onsubmit:preventDefault novalidate aria-busy="@(Busy ? "true" : "false")">
+<fieldset disabled="@Busy">
+<label for="setup-name">@T("InstitutionName")</label><input id="setup-name" maxlength="200" @bind="name" @bind:event="oninput" aria-invalid="@(invalid == "setup-name" ? "true" : "false")" aria-describedby="setup-error" @ref="nameInput" />
+<label for="setup-type">@T("InstitutionType")</label><select id="setup-type" @bind="type">@foreach (var value in Types) { <option value="@value">@T("InstitutionType_" + value)</option> }</select>
+<label for="setup-locality">@T("LocalityOptional")</label><input id="setup-locality" maxlength="100" @bind="locality" @bind:event="oninput" />
+<label for="setup-year">@T("InstitutionYear")</label><input id="setup-year" maxlength="9" @bind="year" @bind:event="oninput" aria-invalid="@(invalid == "setup-year" ? "true" : "false")" aria-describedby="setup-error setup-year-help" @ref="yearInput" />
+<p id="setup-year-help">@T("InstitutionYearHelp")</p><button type="submit">@T(Busy ? "InstitutionSaving" : "InstitutionSaveSetup")</button>
+</fieldset></form>
+@if (Error is not null) { <p role="alert" id="setup-error">@Error</p> }
+@if (conflict) { <button type="button" disabled="@Busy" @onclick="ReloadAsync">@T("InstitutionReloadSetup")</button><p>@T("InstitutionReloadHelp")</p> }
+@code {
+    [Parameter, EditorRequired] public InstitutionSetupResponse Value { get; set; } = default!;
+    [Parameter] public EventCallback<InstitutionSetupResponse> Saved { get; set; }
+    private static readonly string[] Types = ["School", "Faculty", "Polytechnic", "TrainingCenter", "Other"];
+    private InstitutionSetupResponse? source;
+    private string name = "", type = "Other", locality = "", year = "";
+    private long version;
+    private string? invalid;
+    private bool conflict, focusInvalid;
+    private ElementReference heading, nameInput, yearInput;
+    protected override void OnParametersSet() { if (!ReferenceEquals(source, Value)) { source = Value; SetDraft(Value); } }
+    private void SetDraft(InstitutionSetupResponse value) { name = value.Name; type = value.InstitutionType; locality = value.Locality ?? ""; year = value.AcademicYear ?? value.SuggestedAcademicYear; version = value.RowVersion; }
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && Active) await heading.FocusAsync();
+        if (focusInvalid && Active) { focusInvalid = false; await (invalid == "setup-name" ? nameInput : yearInput).FocusAsync(); }
+    }
+    private async Task SaveAsync()
+    {
+        if (Busy || !Active) return;
+        Error = null; invalid = null;
+        if (string.IsNullOrWhiteSpace(name) || name.Trim().Length > 200) invalid = "setup-name";
+        else if (!Regex.IsMatch(year, @"^[0-9]{4}/[0-9]{4}$") || !int.TryParse(year[..4], out var start) || start is < 1900 or > 2199 || int.Parse(year[5..]) != start + 1) invalid = "setup-year";
+        if (invalid is not null) { Error = T(invalid == "setup-name" ? "InstitutionRequired" : "InstitutionYearInvalid"); focusInvalid = true; return; }
+        Busy = true;
+        try { var result = await Api.SaveSetupAsync(new(name.Trim(), type, string.IsNullOrWhiteSpace(locality) ? null : locality.Trim(), year, version), Lifetime.Token); if (Active) await Saved.InvokeAsync(result); }
+        catch (Exception e) { conflict = e is IdentityApiException { StatusCode: HttpStatusCode.Conflict }; RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private async Task ReloadAsync()
+    {
+        if (Busy || !Active) return; Busy = true;
+        try { var value = await Api.GetSetupAsync(Lifetime.Token); if (Active) { SetDraft(value); Error = null; conflict = false; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+}

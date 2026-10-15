@@ -15,6 +15,7 @@
   <data name="InvalidSession" xml:space="preserve"><value>A sessão é inválida ou expirou. Entre novamente.</value></data>
   <data name="Forbidden" xml:space="preserve"><value>Não tem permissão para realizar esta operação.</value></data>
   <data name="AccountExists" xml:space="preserve"><value>Já existe uma conta com este e-mail.</value></data>
+  <data name="InstitutionAccountLimitReached" xml:space="preserve"><value>A instituição atingiu o limite de contas do plano de demonstração.</value></data>
   <data name="InvalidAccount" xml:space="preserve"><value>Não foi possível criar a conta. Use um e-mail válido e uma palavra-passe com 12 a 128 caracteres, maiúscula, minúscula, número e símbolo.</value></data>
   <data name="InvalidInstitution" xml:space="preserve"><value>Indique uma instituição existente e ativa.</value></data>
   <data name="InvalidPagination" xml:space="preserve"><value>Indique uma página entre 1 e 100000 e um tamanho entre 1 e 100.</value></data>
@@ -55,4 +56,15 @@
   <data name="InvalidVersion" xml:space="preserve"><value>A versão dos dados é inválida. Atualize antes de guardar.</value></data>
   <data name="InvalidDashboardPreference" xml:space="preserve"><value>O layout é inválido. Use o esquema 1, até três blocos distintos do catálogo e as larguras pequena, larga ou completa.</value></data>
   <data name="DashboardPartialMonth" xml:space="preserve"><value>parcial</value></data>
+  <data name="PlanEssential" xml:space="preserve"><value>Essencial</value></data>
+  <data name="PlanEvolution" xml:space="preserve"><value>Evolução</value></data>
+  <data name="PlanCampus" xml:space="preserve"><value>Campus</value></data>
+  <data name="SignupAuthenticated" xml:space="preserve"><value>Termine a sessão antes de criar uma nova instituição.</value></data>
+  <data name="SignupDisabled" xml:space="preserve"><value>A adesão está temporariamente indisponível. Pode continuar a entrar na sua conta.</value></data>
+  <data name="SignupEmailUnavailable" xml:space="preserve"><value>Não foi possível concluir a adesão com este e-mail. Experimente Entrar.</value></data>
+  <data name="InvalidSignup" xml:space="preserve"><value>Verifique os dados da adesão e aceite as condições de demonstração. A palavra-passe deve ter 12 a 128 caracteres, maiúscula, minúscula, número e símbolo.</value></data>
+  <data name="OutdatedCatalog" xml:space="preserve"><value>Os planos foram atualizados. Consulte o catálogo e confirme novamente.</value></data>
+  <data name="UnknownPlan" xml:space="preserve"><value>Escolha um plano disponível no catálogo.</value></data>
+  <data name="SignupBodyTooLarge" xml:space="preserve"><value>O pedido excede o tamanho permitido.</value></data>
+  <data name="InvalidInstitutionSetup" xml:space="preserve"><value>Verifique o nome, tipo e localidade da instituição. Indique um ano letivo no formato AAAA/AAAA, com anos consecutivos e início entre 1900 e 2199.</value></data>
 </root>

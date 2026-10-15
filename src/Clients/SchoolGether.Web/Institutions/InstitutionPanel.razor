@@ -1,0 +1,88 @@
+@using SchoolGether.ApiClient.Institutions
+@using SchoolGether.Contracts.Institutions
+@using SchoolGether.Contracts.Billing
+@inherits InstitutionView
+@inject InstitutionApiClient Api
+<div class="institution-shell">
+    <header class="institution-header"><div><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><strong>@T("InstitutionArea")</strong></div><button type="button" @onclick="LeaveAsync">@T("SignOut")</button></header>
+    @if (Active)
+    {
+        <nav aria-label="@T("InstitutionAreas")">
+            @foreach (var item in Areas) { <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+        </nav>
+        <main class="institution-content" aria-busy="@(Busy ? "true" : "false")">
+            @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
+            @if (setup is null || subscription is null) { <p role="status">@T("Loading")</p> }
+            else if (area == "InstitutionSetup") { <InstitutionSetupForm @key="setup" Value="setup" Saved="SetupSavedAsync" /> }
+            else if (area == "InstitutionMembers") { <InstitutionMembers OccupancyChanged="RefreshSubscriptionAsync" /> }
+            else if (area == "InstitutionProfile")
+            {
+                <h1 tabindex="-1" @ref="heading">@T("InstitutionProfile")</h1>
+                @if (Session.Account is { } account) { <dl><div><dt>@T("Name")</dt><dd>@account.Name</dd></div><div><dt>@T("Email")</dt><dd>@account.Email</dd></div><div><dt>@T("Role")</dt><dd>@T("RoleInstitutionAdmin")</dd></div><div><dt>@T("Institution")</dt><dd>@setup.Name</dd></div></dl> }
+                <button type="button" disabled="@Busy" @onclick="RefreshProfileAsync">@T("RefreshProfile")</button>
+                @if (notice is not null) { <p role="status">@notice</p> }
+            }
+            else
+            {
+                <h1 tabindex="-1" @ref="heading">@T("InstitutionSummary")</h1><p class="institution-intro">@setup.Name</p>
+                <dl><div><dt>@T("InstitutionSetupState")</dt><dd>@T(setup.IsComplete ? "InstitutionComplete" : "InstitutionPending")</dd></div><div><dt>@T("InstitutionYear")</dt><dd>@setup.AcademicYear</dd></div><div><dt>@T("InstitutionPlan")</dt><dd>@(subscription.Plan?.Name ?? T("InstitutionNoSubscription"))</dd></div><div><dt>@T("InstitutionCapacity")</dt><dd>@(subscription.Plan is { } plan ? UiMessages.Format("InstitutionOccupancy", subscription.UsedAccounts, plan.AccountLimit) : UiMessages.Format("InstitutionLegacyOccupancy", subscription.UsedAccounts))</dd></div></dl>
+                @if (subscription.Status == "Demonstration") { <p class="institution-note">@T("InstitutionDemonstration")</p> }
+                <p class="institution-note">@T("InstitutionFuture")</p>
+            }
+        </main>
+    }
+</div>
+@code {
+    [Parameter] public EventCallback SignOut { get; set; }
+    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "InstitutionSetup", "InstitutionProfile"];
+    private InstitutionSetupResponse? setup;
+    private InstitutionSubscriptionResponse? subscription;
+    private string area = "InstitutionSummary";
+    private string? notice;
+    private ElementReference heading;
+    private bool focusHeading;
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusHeading && Active && setup is not null && subscription is not null && area is "InstitutionSummary" or "InstitutionProfile") { focusHeading = false; await heading.FocusAsync(); }
+    }
+    private async Task LoadAsync()
+    {
+        if (Busy || !Active) return;
+        Busy = true; Error = null;
+        try {
+            var nextSetup = await Api.GetSetupAsync(Lifetime.Token);
+            var nextSubscription = await Api.GetSubscriptionAsync(Lifetime.Token);
+            if (!Active) return;
+            setup = nextSetup; subscription = nextSubscription; area = setup.IsComplete ? "InstitutionSummary" : "InstitutionSetup"; focusHeading = true;
+        }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private async Task NavigateAsync(string next)
+    {
+        if (!Active || Busy) return;
+        area = next; Error = null; notice = null; focusHeading = true;
+        if (next == "InstitutionSetup") {
+            setup = null;
+            Busy = true;
+            try { var value = await Api.GetSetupAsync(Lifetime.Token); if (Active) setup = value; }
+            catch (Exception e) { RequestFailed(e); }
+            finally { Busy = false; }
+        }
+    }
+    private async Task SetupSavedAsync(InstitutionSetupResponse value) { if (!Active) return; setup = value; area = "InstitutionSummary"; focusHeading = true; await RefreshSubscriptionAsync(); }
+    private async Task RefreshSubscriptionAsync()
+    {
+        try { var value = await Api.GetSubscriptionAsync(Lifetime.Token); if (Active) subscription = value; }
+        catch (Exception e) { RequestFailed(e); }
+    }
+    private async Task RefreshProfileAsync()
+    {
+        if (Busy) return; Busy = true;
+        try { await Session.GetProfileAsync(Lifetime.Token); if (Active) notice = T("ProfileUpdated"); }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private async Task LeaveAsync() { Lifetime.Cancel(); setup = null; subscription = null; Error = null; await SignOut.InvokeAsync(); }
+}

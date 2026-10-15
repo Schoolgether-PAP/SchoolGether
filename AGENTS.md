@@ -6,6 +6,8 @@ Contexto do projeto para agentes de código (Codex e outros). Ler antes de alter
 
 **SchoolGether** (antes SchoolTogether) é uma plataforma educativa para instituições de ensino, com foco em faculdades e politécnicos: **app móvel + site + API partilhada**, todos sobre a mesma base de dados.
 
+Identidade confirmada pelo utilizador em 2026-10-13: **SaguiLearn é a empresa que desenvolve e disponibiliza o produto SchoolGether**. Apresentar a empresa nas áreas institucionais/Sobre nós e conservar SchoolGether como nome da aplicação. Isto não confirma constituição jurídica, firma registada, NIF ou CAE oficialmente atribuídos; os textos de objetivo/objeto social e enquadramentos CAE são propostas para o projeto.
+
 - Projeto da PAP (Técnico de Informática de Gestão), equipa de 3 estudantes, a aprender enquanto desenvolve.
 - Sem objetivo comercial por agora: o objetivo é um **produto funcional, demonstrável e bem estruturado**.
 - Prioridades: código claro, simples e bem explicado. Preferir soluções simples a soluções "espertas".
@@ -19,7 +21,7 @@ Contexto do projeto para agentes de código (Codex e outros). Ler antes de alter
 - Competências com níveis de domínio, gamificação (XP, níveis, medalhas, sequências), portefólio e credenciais.
 - Avaliação dos materiais pelos alunos.
 - Stand: partilha gratuita de materiais entre instituições.
-- Modo offline na app (primeiro só leitura de materiais descarregados) e acessibilidade (WCAG 2.2 AA).
+- Modo offline na app (primeiro só leitura de materiais descarregados) e acessibilidade (WCAG 2.2 AA). Requisito de 2026-10-14: materiais protegidos devem permitir leitura autorizada dentro da app, sem disponibilizar um ficheiro comum na pasta Downloads nem exportação/partilha livre. Todos os materiais disponibilizados pela SaguiLearn/SchoolGether são protegidos; nos materiais disponibilizados pelo professor, ele escolhe protegido ou não protegido, respeitando os direitos existentes. Não protegido não significa público nem comercialização autorizada. A referência Netflix exprime a experiência pretendida, não uma equivalência técnica de DRM. Ver `docs/offline-rights.md`; arquitetura, formatos e regras de licença ainda por definir.
 - Site com as mesmas funcionalidades da app.
 
 Fora do âmbito por agora: iOS, tutor com IA, notificações push, LTI/Moodle, acordos reais com editoras, faturação real.
@@ -38,7 +40,7 @@ Fora do âmbito por agora: iOS, tutor com IA, notificações push, LTI/Moodle, a
 | Ficheiros | Interface `IFileStorage`, implementação em disco local |
 | Autenticação | JWT de curta duração + refresh token; papéis `PlatformAdmin`, `InstitutionAdmin`, `Teacher`, `Student` |
 | Multi-instituição | `institution_id` em todas as tabelas de dados de cliente + filtro global no EF Core |
-| Contas | Uma instituição por conta; criadas pelos administradores. `PlatformAdmin` é global, sem instituição |
+| Contas | Uma instituição por conta. Professores/alunos e restantes responsáveis são criados pelos administradores. Implementado localmente em 2026-10-15: adesão pública cria apenas a nova instituição e o primeiro `InstitutionAdmin`, com registo desativado por omissão e publicação dependente de revisão/CI. `PlatformAdmin` é global, sem instituição |
 | Alojamento (demonstração) | API no MonsterASP.NET (gratuito), MySQL no Aiven (gratuito), site no GitHub Pages |
 | Pontos e regras | Tabelas `activity`, `grading_rule` (JSON versionado) e `reward`; `xp_event` guarda a versão da regra usada |
 
@@ -151,6 +153,8 @@ secção «Dashboard individual e gráficos — revisão v3» na especificação
 Sugestões de tarefas internas, filtros guardados, entrada assistida e importação
 CSV são propostas para evolução, sem aprovação nem inclusão automática na entrega A.
 
+Adesão pública e área institucional mínima implementadas localmente em 2026-10-15 no ramo `feature/public-onboarding-implementation`: catálogo do servidor, adesão transacional, configuração com versão/ano/instante de conclusão, subscrição/capacidade e gestão inicial Teacher/Student. InstitutionAdmin usa Resumo/Utilizadores/Configuração/O meu perfil/Sair; PlatformAdmin e papéis educativos conservam os percursos anteriores. App conserva login/perfil; módulos académicos completos continuam futuros. Ver `docs/public-onboarding.md`. Suite Debug: 265 aprovados, 0 falhas, 4 MySQL ignorados normalmente; os quatro cenários MySQL foram executados/aprovados separadamente (1 cada, 0 skips), incluindo upgrade/legado/configuração concorrente. API/Web Release e MAUI Windows/Android Debug sem avisos/erros, EF sem alterações pendentes; Chromium público/institucional/regressões aprovado com HTTP controlado e capturas desktop/390 px. Nenhum acesso a contas/base pessoais ou ativação online. Conservar `Onboarding:Enabled=false` até CI, revisão de colega, migrações operacionais e IP/proxy do alojamento verificados. A entrega segue para revisão independente do ramo antes do PR.
+
 ### Próximas etapas da Fase 0
 
 5. Base de dados: MySQL local, Aiven e primeira migração.
@@ -167,7 +171,11 @@ CSV são propostas para evolução, sem aprovação nem inclusão automática na
 
 ## 9. Como trabalhar neste projeto
 
-Publicação de demonstração em 2026-10-13: site em https://schoolgether-pap.github.io/SchoolGether/ e API Production em https://schoolgether-api.runasp.net/. Base Aiven gratuita separada, quatro migrações EF aplicadas e nova conta master autorizada; segredos apenas no servidor/ficheiros privados ignorados. Login, painel, 390 px, CORS, logout e revogação verificados com a versão pública; health/ready HTTPS 200. Aplicação publicada do commit 5658013 (cinco jobs CI aprovados), artefactos no ramo gh-pages. PR #5 aberto para revisão do colega; não confundir publicação com merge. Ver docs/deployment.md. Módulo de suporte permanece na etapa seguinte.
+Publicação de demonstração em 2026-10-13: site em https://schoolgether-pap.github.io/SchoolGether/ e API Production em https://schoolgether-api.runasp.net/. Base Aiven gratuita separada, quatro migrações EF aplicadas e nova conta master autorizada; segredos apenas no servidor/ficheiros privados ignorados. Login, painel, 390 px, CORS, logout e revogação verificados com a versão pública; health/ready HTTPS 200. Aplicação publicada do commit 5658013 (cinco jobs CI aprovados), artefactos no ramo gh-pages. PR #5 integrado pelo colega, confirmado em 2fafca8. Ver docs/deployment.md.
+
+Decisões de continuidade de 2026-10-13: suporte aprovado, primeiro no site e depois na app, preservado no ramo feature/support (5b2d806); ainda sem implementação. O utilizador pediu uma página inicial pública para apresentar SchoolGether/empresa e planos, com Entrar separado e contratação autónoma: escolher plano, criar credenciais, instituição e configurar a plataforma, semelhante ao percurso PHC GO. Pagamentos mantêm-se fictícios. Proposta em feature/public-onboarding e docs/superpowers/specs/2026-10-13-public-onboarding-design.md; prévia local verificada, sem registo real. Os painéis de instituição/professores/alunos continuam necessários; não considerar o perfil atual como entrega desses painéis. A ordem proposta passa pela adesão/configuração institucional antes de ligar o suporte, preservando o âmbito aprovado.
+
+Revisão de 2026-10-14: o utilizador escolheu preços de demonstração de 59/149/299 € mensais. Descrição da adesão/configuração e gestão inicial de docentes/alunos revista independentemente; nenhuma dúvida importante além dos limites. O utilizador escolheu 100/350/1150 contas (Essencial/Evolução/Campus), substituindo os limites inicialmente propostos, e depois aprovou a descrição e o plano com «Está aprovado». Plano em `docs/superpowers/plans/2026-10-14-public-onboarding.md`; execução local por tarefas com revisão. Prévia v3 local verificada em desktop/390 px, sem chamadas à API ou criação de contas; produto ainda por implementar no momento da aprovação. A regra de proteção dos materiais por origem foi também confirmada e documentada em `docs/offline-rights.md`.
 
 - A equipa está a aprender: explicar as decisões, fazer alterações pequenas e fáceis de rever.
 - Sempre que uma tarefa for concluída e verificada, comunicar o resultado e indicar imediatamente o próximo passo concreto para dar continuidade ao projeto. Distinguir o trabalho que o agente executa das ações necessárias do utilizador; assumir os testes automatizados e evitar repetições manuais desnecessárias no Swagger.

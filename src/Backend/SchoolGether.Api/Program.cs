@@ -7,6 +7,8 @@ using SchoolGether.Api.Diagnostics;
 using SchoolGether.Api.Identity;
 using SchoolGether.Api.Platform;
 using SchoolGether.Infrastructure.Persistence;
+using SchoolGether.Infrastructure.Billing;
+using SchoolGether.Api.Onboarding;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
@@ -41,6 +43,8 @@ builder.Services.AddPersistence(builder.Configuration);
 builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>(
     "mysql", failureStatus: HealthStatus.Unhealthy, tags: ["ready"], timeout: TimeSpan.FromSeconds(5));
 builder.Services.AddApiIdentity();
+builder.Services.AddBillingModule();
+builder.Services.AddApiOnboarding();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
@@ -54,6 +58,7 @@ builder.Services.AddProblemDetails(options =>
             StatusCodes.Status405MethodNotAllowed => messages["MethodNotAllowed"],
             StatusCodes.Status500InternalServerError => messages["UnexpectedError"],
             StatusCodes.Status429TooManyRequests => messages["TooManyRequests"],
+            StatusCodes.Status413PayloadTooLarge => messages["SignupBodyTooLarge"],
             StatusCodes.Status401Unauthorized when context.ProblemDetails.Title is null or "Unauthorized" => messages["InvalidSession"],
             StatusCodes.Status403Forbidden when context.ProblemDetails.Title is null or "Forbidden" => messages["Forbidden"],
             _ => context.ProblemDetails.Title
@@ -107,9 +112,16 @@ else
 
 app.UseRouting();
 app.UseCors();
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api/v1/onboarding"))
+        context.Response.Headers.CacheControl = "no-store";
+    await next(context);
+});
 app.UseRateLimiter();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseOnboardingBodyLimit();
 
 app.MapControllers();
 

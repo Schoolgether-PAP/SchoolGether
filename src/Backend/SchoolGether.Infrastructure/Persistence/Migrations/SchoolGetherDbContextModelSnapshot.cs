@@ -162,6 +162,89 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.ToTable("audit_entry", (string)null);
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Billing.DemonstrationSubscription", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<int>("AccountLimit")
+                        .HasColumnType("int")
+                        .HasColumnName("account_limit");
+
+                    b.Property<string>("CatalogVersion")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("catalog_version");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Currency")
+                        .IsRequired()
+                        .HasMaxLength(3)
+                        .HasColumnType("varchar(3)")
+                        .HasColumnName("currency");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<decimal>("MonthlyPrice")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("monthly_price");
+
+                    b.Property<string>("PlanId")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("PlanNameKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("plan_name_key");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.Property<int>("UsedAccounts")
+                        .HasColumnType("int")
+                        .HasColumnName("used_accounts");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId")
+                        .IsUnique();
+
+                    b.ToTable("demonstration_subscription", (string)null);
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Identity.InstitutionMember", b =>
                 {
                     b.Property<int>("Id")
@@ -268,6 +351,70 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("institution", (string)null);
+                });
+
+            modelBuilder.Entity("SchoolGether.Domain.Institutions.InstitutionProfile", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AcademicYear")
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("academic_year");
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<string>("InstitutionType")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("institution_type");
+
+                    b.Property<bool>("IsComplete")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_complete");
+
+                    b.Property<string>("Locality")
+                        .HasMaxLength(100)
+                        .HasColumnType("varchar(100)")
+                        .HasColumnName("locality");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId")
+                        .IsUnique();
+
+                    b.ToTable("institution_profile", (string)null);
                 });
 
             modelBuilder.Entity("SchoolGether.Infrastructure.Identity.ApplicationUser", b =>
@@ -536,6 +683,15 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Billing.DemonstrationSubscription", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
+                        .WithOne()
+                        .HasForeignKey("SchoolGether.Domain.Billing.DemonstrationSubscription", "InstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Identity.InstitutionMember", b =>
                 {
                     b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
@@ -547,6 +703,15 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.HasOne("SchoolGether.Infrastructure.Identity.ApplicationUser", null)
                         .WithOne()
                         .HasForeignKey("SchoolGether.Domain.Identity.InstitutionMember", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SchoolGether.Domain.Institutions.InstitutionProfile", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
+                        .WithOne()
+                        .HasForeignKey("SchoolGether.Domain.Institutions.InstitutionProfile", "InstitutionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

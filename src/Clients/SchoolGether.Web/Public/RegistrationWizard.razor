@@ -1,0 +1,165 @@
+@using System.ComponentModel.DataAnnotations
+@using System.Net
+@using SchoolGether.ApiClient.Billing
+@using SchoolGether.ApiClient.Onboarding
+@using SchoolGether.Contracts.Billing
+@using SchoolGether.Contracts.Onboarding
+@implements IDisposable
+@inject PlanApiClient Plans
+@inject OnboardingApiClient Onboarding
+@inject IdentitySession Session
+@inject NavigationManager Navigation
+<section class="wizard" aria-labelledby="join-title">
+    <div class="wizard-head"><strong>@T("Brand")</strong><a href="@Navigation.BaseUri">@T("CancelRegistration")</a></div>
+    @if (Session.Account is not null && !ownLogin)
+    {
+        <h1 id="join-title">@T("ActiveSessionTitle")</h1><p>@T("ActiveSessionHelp")</p>
+        <div class="actions"><a class="button primary" href="@PublicNavigation.Url(Navigation, "area")">@T("MyArea")</a><button @onclick="SignOutAsync" disabled="@busy">@T("SignOut")</button></div>
+    }
+    else if (finished)
+    {
+        <h1 id="join-title" tabindex="-1" @ref="heading">@T("RegistrationContinueTitle")</h1>
+        <p role="status">@message</p><a class="button primary" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
+    }
+    else
+    {
+        <ol class="progress" aria-label="@T("RegistrationSteps")">
+            @for (var index = 0; index < 4; index++) { <li aria-current="@(step == index ? "step" : null)" class="@(step == index ? "current" : "")">@(index + 1). @T("JoinStep" + index)</li> }
+        </ol>
+        <h1 id="join-title" tabindex="-1" @ref="heading">@T("JoinTitle" + step)</h1>
+        <p class="small">@T("ExampleDataNotice")</p>
+        @if (catalog is null)
+        {
+            <p role="status">@T(catalogFailed ? "CatalogUnavailable" : "CatalogLoading")</p>
+            @if (catalogFailed) { <button type="button" @onclick="LoadCatalogAsync">@T("TryAgain")</button> }
+        }
+        else if (!catalog.RegistrationEnabled)
+        {
+            <p role="status">@T("RegistrationDisabled")</p><a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
+        }
+        else
+        {
+            @if (Selected is { } chosen && step > 0) { <div class="chosen"><strong>@chosen.Name</strong><span>@PublicLanding.Price(chosen) @T("PerMonth") · @UiMessages.Format("PlanAccounts", chosen.AccountLimit)</span></div> }
+            <form @onsubmit="ContinueAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
+                <fieldset disabled="@busy">
+                @if (step == 0)
+                {
+                    <label for="join-plan">@T("JoinStep0")</label>
+                    <select id="join-plan" @bind="planId" aria-invalid="@Invalid("plan")" aria-describedby="join-error" @ref="planInput"><option value="">@T("ChoosePlanPrompt")</option>@foreach (var plan in catalog.Plans) { <option value="@plan.Id">@plan.Name — @PublicLanding.Price(plan) / @T("Month") — @UiMessages.Format("PlanAccounts", plan.AccountLimit)</option> }</select>
+                }
+                else if (step == 1)
+                {
+                    <div class="fields">
+                        <div><label for="join-owner">@T("OwnerName")</label><input id="join-owner" autocomplete="name" maxlength="150" @bind="ownerName" @bind:event="oninput" aria-invalid="@Invalid("owner")" aria-describedby="join-error" @ref="ownerInput" /></div>
+                        <div><label for="join-email">@T("Email")</label><input id="join-email" type="email" autocomplete="username" maxlength="256" @bind="email" @bind:event="oninput" aria-invalid="@Invalid("email")" aria-describedby="join-error" @ref="emailInput" /></div>
+                        <div class="two"><div><label for="join-password">@T("Password")</label><input id="join-password" type="password" autocomplete="new-password" maxlength="128" @bind="password" @bind:event="oninput" aria-invalid="@Invalid("password")" aria-describedby="join-error password-help" @ref="passwordInput" /></div>
+                        <div><label for="join-confirmation">@T("PasswordConfirmation")</label><input id="join-confirmation" type="password" autocomplete="new-password" maxlength="128" @bind="confirmation" @bind:event="oninput" aria-invalid="@Invalid("confirmation")" aria-describedby="join-error password-help" @ref="confirmationInput" /></div></div>
+                        <p class="small" id="password-help">@T("PasswordPolicy")</p>
+                    </div>
+                }
+                else if (step == 2)
+                {
+                    <div class="fields">
+                        <div><label for="join-institution">@T("InstitutionName")</label><input id="join-institution" maxlength="200" @bind="institutionName" @bind:event="oninput" aria-invalid="@Invalid("institution")" aria-describedby="join-error" @ref="institutionInput" /></div>
+                        <div><label for="join-type">@T("InstitutionType")</label><select id="join-type" @bind="institutionType" aria-invalid="@Invalid("type")" aria-describedby="join-error" @ref="typeInput"><option value="">@T("ChooseTypePrompt")</option>@foreach (var type in Types) { <option value="@type">@T("InstitutionType_" + type)</option> }</select></div>
+                        <div><label for="join-locality">@T("LocalityOptional")</label><input id="join-locality" maxlength="100" @bind="locality" @bind:event="oninput" aria-invalid="@Invalid("locality")" aria-describedby="join-error" @ref="localityInput" /></div>
+                    </div>
+                }
+                else if (Selected is { } plan)
+                {
+                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @T("PerMonth") — @UiMessages.Format("PlanAccounts", plan.AccountLimit)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd></dl>
+                    <p class="notice">@T("CreationNotice")</p>
+                    <label class="consent"><input id="join-consent" type="checkbox" @bind="accepted" aria-invalid="@Invalid("consent")" aria-describedby="join-error" @ref="consentInput" /><span>@T("DemonstrationConsent")</span></label>
+                }
+                <div class="actions">@if (step > 0) { <button type="button" @onclick="Back">@T("Back")</button> }<button class="primary" type="submit">@T(busy ? "Registering" : step == 3 ? "ConfirmRegistration" : "Continue")</button></div>
+                </fieldset>
+            </form>
+        }
+        @if (message is not null) { <p id="join-error" class="error" role="alert">@message</p>@if (offerLogin) { <a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a> } }
+    }
+</section>
+@code {
+    [Parameter] public string? InitialPlanId { get; set; }
+    private readonly CancellationTokenSource lifetime = new();
+    private static readonly string[] Types = ["School", "Faculty", "Polytechnic", "TrainingCenter", "Other"];
+    private PlanCatalogResponse? catalog;
+    private PlanResponse? Selected => catalog?.Plans.FirstOrDefault(plan => plan.Id == planId);
+    private string planId = "", ownerName = "", email = "", password = "", confirmation = "", institutionName = "", institutionType = "", locality = "";
+    private string? message, invalidField;
+    private int step;
+    private bool busy, accepted, finished, ownLogin, catalogFailed, offerLogin, disposed, focusHeading;
+    private ElementReference heading, planInput, ownerInput, emailInput, passwordInput, confirmationInput, institutionInput, typeInput, localityInput, consentInput;
+    private static string T(string key) => UiMessages.Get(key);
+    private string Invalid(string field) => invalidField == field ? "true" : "false";
+    protected override async Task OnInitializedAsync() { planId = InitialPlanId ?? ""; Session.Changed += SessionChanged; await LoadCatalogAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focusHeading && !disposed) { focusHeading = false; await heading.FocusAsync(); } }
+    private void SessionChanged()
+    {
+        if (ownLogin) return;
+        // Any session transition invalidates anonymous work, including an external sign-out/sign-in.
+        lifetime.Cancel(); ClearSecrets();
+        _ = InvokeAsync(StateHasChanged);
+    }
+    private async Task LoadCatalogAsync()
+    {
+        catalogFailed = false;
+        try { var loaded = await Plans.GetCatalogAsync(lifetime.Token); if (!disposed && !lifetime.IsCancellationRequested) { catalog = loaded; if (Selected is null) { planId = ""; step = 0; } } }
+        catch { if (!disposed) catalogFailed = true; }
+    }
+    private void Back() { if (busy) return; step--; accepted = false; message = null; invalidField = null; focusHeading = true; }
+    private async Task ErrorAsync(string field, string key, ElementReference input) { invalidField = field; message = T(key); await input.FocusAsync(); }
+    private async Task ContinueAsync()
+    {
+        if (busy || disposed || lifetime.IsCancellationRequested || Session.Account is not null || catalog?.RegistrationEnabled != true) return;
+        message = null; invalidField = null; offerLogin = false;
+        if (step == 0 && Selected is null) { await ErrorAsync("plan", "ChoosePlanPrompt", planInput); return; }
+        if (step == 1)
+        {
+            ownerName = ownerName.Trim(); email = email.Trim();
+            if (ownerName.Length is < 1 or > 150) { await ErrorAsync("owner", "OwnerRequired", ownerInput); return; }
+            if (email.Length is < 1 or > 256 || !new EmailAddressAttribute().IsValid(email)) { await ErrorAsync("email", "EmailInvalid", emailInput); return; }
+            if (password.Length is < 12 or > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(c => !char.IsLetterOrDigit(c))) { await ErrorAsync("password", "PasswordPolicy", passwordInput); return; }
+            if (password != confirmation) { await ErrorAsync("confirmation", "PasswordMismatch", confirmationInput); return; }
+        }
+        if (step == 2)
+        {
+            institutionName = institutionName.Trim(); locality = locality.Trim();
+            if (institutionName.Length is < 1 or > 200) { await ErrorAsync("institution", "InstitutionRequired", institutionInput); return; }
+            if (!Types.Contains(institutionType)) { await ErrorAsync("type", "ChooseTypePrompt", typeInput); return; }
+            if (locality.Length > 100) { await ErrorAsync("locality", "LocalityTooLong", localityInput); return; }
+        }
+        if (step < 3) { step++; focusHeading = true; return; }
+        if (!accepted) { await ErrorAsync("consent", "ConsentRequired", consentInput); return; }
+        busy = true;
+        try
+        {
+            var created = await Onboarding.RegisterAsync(new(planId, catalog.Version, ownerName, email, password, institutionName, institutionType, locality.Length == 0 ? null : locality, true), lifetime.Token);
+            if (disposed || lifetime.IsCancellationRequested || Session.Account is not null) return;
+            ownLogin = true;
+            try
+            {
+                await Session.SignInAsync(new(created.Email, password), lifetime.Token);
+                if (!disposed && !lifetime.IsCancellationRequested) Navigation.NavigateTo(PublicNavigation.Url(Navigation, "area"));
+            }
+            catch { if (!disposed && !lifetime.IsCancellationRequested) { finished = true; message = T("CreatedLoginRequired"); focusHeading = true; } }
+            finally { ClearSecrets(); ownLogin = false; }
+        }
+        catch (IdentityApiException exception) when (exception.StatusCode == HttpStatusCode.Conflict)
+        {
+            var previousVersion = catalog.Version;
+            catalog = null; accepted = false; await LoadCatalogAsync();
+            if (!disposed && !lifetime.IsCancellationRequested) { message = T(catalog is not null && catalog.Version != previousVersion ? "CatalogChanged" : "RegistrationConflict"); offerLogin = true; }
+        }
+        catch (IdentityApiException exception) { if (!disposed && !lifetime.IsCancellationRequested) message = T(exception.StatusCode == HttpStatusCode.TooManyRequests ? "RateLimit" : exception.StatusCode == HttpStatusCode.BadRequest ? "RegistrationInvalid" : "RegistrationUnavailable"); }
+        catch { if (!disposed && !lifetime.IsCancellationRequested) { ClearSecrets(); finished = true; message = T("RegistrationUnknown"); focusHeading = true; } }
+        finally { busy = false; }
+    }
+    private async Task SignOutAsync()
+    {
+        busy = true;
+        try { await Session.SignOutAsync(); }
+        finally { ClearSecrets(); Navigation.NavigateTo(PublicNavigation.Url(Navigation, "aderir"), forceLoad: true); }
+    }
+    private void ClearSecrets() { password = ""; confirmation = ""; }
+    public void Dispose() { disposed = true; Session.Changed -= SessionChanged; lifetime.Cancel(); ClearSecrets(); lifetime.Dispose(); }
+}

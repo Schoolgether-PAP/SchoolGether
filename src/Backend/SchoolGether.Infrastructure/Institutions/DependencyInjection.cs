@@ -9,6 +9,8 @@ public static class DependencyInjection
     {
         services.AddScoped<IInstitutionDirectory, InstitutionDirectory>();
         services.AddScoped<InstitutionService>();
+        services.AddScoped<IInstitutionSetupStore, InstitutionSetupStore>();
+        services.AddScoped<InstitutionSetupService>();
         services.AddScoped<IPlatformInstitutionDirectory, PlatformInstitutionDirectory>();
         services.AddScoped<PlatformInstitutionService>();
         return services;
