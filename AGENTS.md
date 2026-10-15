@@ -157,6 +157,8 @@ Adesão pública e área institucional mínima implementadas localmente em 2026-
 
 ### Próximas etapas da Fase 0
 
+Atualização operacional de 2026-10-15: PR #6 aprovado pelo colega e integrado em `develop` (`7f9354a`), com a árvore do head revisto `97e57aa` e cinco jobs do CI aprovados. API/site publicados; `gh-pages` em `bb7c657`. Backup cifrado verificado, duas novas migrações aplicadas ao Aiven e contagens anteriores preservadas. IP efetivo confirmado nos registos W3C do website correto, comparado com sonda conhecida em IIS inprocess; `Onboarding__Enabled=true` apenas na configuração privada do alojamento. Código continua desativado por omissão. Verificação online aprovou adesão/entrada automática/configuração persistente, criação/lista de docente e aluno, ocupação 3/100, permissões educativas, desktop/390 px, saída e refresh revogado. Uma instituição e três contas fictícias de teste técnico foram conservadas; sem eliminação de dados anteriores ou promoção de contas existentes. Isto atualiza os estados históricos de publicação pendente acima. Ver `docs/deployment.md` e `docs/public-onboarding.md`.
+
 5. Base de dados: MySQL local, Aiven e primeira migração.
 6. API base: Swagger, `ProblemDetails`, versão `/api/v1`, CORS.
 7. Identity: login, papéis e isolamento por instituição.

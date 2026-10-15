@@ -9,7 +9,21 @@
 
 A raiz da API não é uma página do site. Swagger está disponível apenas em desenvolvimento.
 
-## Versão publicada em 2026-10-13
+## Versão atual — 2026-10-15
+
+O PR #6 foi revisto por outro elemento e integrado em `develop`, commit `7f9354af6bc8028164dc31d2647dc36b3d8c9c97`. A árvore publicada coincide com o head revisto `97e57aa`, cujos cinco jobs do CI passaram. API e site foram gerados em Release a partir do commit integrado. O ramo de artefactos `gh-pages` foi atualizado para `bb7c657`, preservando a história; `deployment-manifest.json` no site identifica o commit de origem.
+
+As migrações EF `20261014093325_PublicInstitutionOnboarding` e `20261014210542_InstitutionSetupCompletion` foram aplicadas ao Aiven com a credencial operacional. Antes delas foi criado um backup consistente, cifrado localmente e verificado após decifração; a ligação do cliente de backup validou CA e hostname com `VERIFY_IDENTITY`. As contagens de instituições e contas ficaram iguais após as migrações. A API conserva a sua credencial SQL de execução, sem permissões de migração.
+
+A adesão pública está ativa na demonstração (`Onboarding__Enabled=true` apenas na configuração privada do alojamento). O valor por omissão do código continua falso. A raiz do site apresenta a empresa/produto e os planos; a entrada tem percurso separado. Ver [public-onboarding.md](public-onboarding.md).
+
+Antes de ativar, uma sonda foi comparada com os registos W3C do website correto no MonsterASP.NET: o IP registado correspondeu ao IP de saída conhecido e diferiu do `X-Forwarded-For` de teste. O pacote utiliza IIS `inprocess`; a aplicação usa `RemoteIpAddress` e não lê esse cabeçalho diretamente. Não foram adicionadas regras genéricas de confiança em proxies. Esta verificação é específica deste alojamento/configuração e deve ser repetida se a infraestrutura mudar.
+
+Verificação online: funcionamento/prontidão 200, catálogo e três planos, entrada do master/dashboard/saída, adesão 201 e entrada automática como InstitutionAdmin, configuração/ano letivo persistentes, criação/listagem de docente e aluno e ocupação 3/100. Chromium verificou desktop e 390 px; saída devolveu 204 e reutilizar um refresh revogado devolveu 401. Docente/aluno entraram com os próprios perfis e receberam 403 nas operações administrativas testadas; configuração sem sessão devolveu 401. Sem erros JavaScript na verificação final.
+
+Foi conservada uma instituição claramente identificada como «Teste técnico PR 6», com responsável, docente e aluno fictícios (`example.invalid`). Não foram eliminados dados anteriores nem promovidas contas existentes. Estas verificações não substituem os testes locais de isolamento entre duas instituições, concorrência ou carga, nem demonstram a execução nativa da app. Os relatórios operacionais, capturas e credenciais cifradas estão na pasta privada ignorada `.superpowers/deployment/`; não publicar os seus conteúdos no Git.
+
+## Histórico — publicação inicial de 2026-10-13
 
 Código da aplicação: `565801362f1a654ea1256edfa40d8ab00c76e655`, com os cinco jobs do CI aprovados. Pacote estático: ramo `gh-pages`, commit `b68ae453b8134ac1bf77b7c733d9d1407abd38a1`; a origem consta em `deployment-manifest.json`. O PR #5 mantém a revisão/integração do código separada da publicação dos artefactos.
 
@@ -37,12 +51,14 @@ Na publicação inicial, os dois diagnósticos HTTPS devolveram 200. Chromium ca
 
 Os planos gratuitos destinam-se à demonstração: podem suspender processos por inatividade e a primeira resposta pode demorar. No MonsterASP.NET, HTTPS foi ativado pelo utilizador após o upload. Pagamentos continuam fictícios; o módulo de suporte ainda não está implementado nesta versão.
 
-## Próxima entrega: adesão pública (ainda não publicada)
+## Operar a adesão pública
 
-A implementação local de 2026-10-15 está descrita em [public-onboarding.md](public-onboarding.md). Não altera a versão publicada acima nem confirma registo online ativo. Manter `Onboarding__Enabled=false` até CI, revisão independente/por colega e escolha explícita do commit de publicação.
+O processo de ativação desta entrega foi concluído conforme a secção da versão atual. Para outras instalações, manter `Onboarding__Enabled=false` até CI, revisão por colega, escolha do commit, backup, migrações e validação do IP efetivo. Não copiar os segredos da demonstração para outro ambiente.
 
-Antes de ativar, aplicar por EF as migrações `20261014093325_PublicInstitutionOnboarding` e `20261014210542_InstitutionSetupCompletion` com a credencial operacional privada e cópia de segurança, preservando os dados existentes. Os testes locais comprovaram migrações/legado/concorrência em instâncias temporárias Oracle MySQL 8; não aplicaram estas migrações ao Aiven.
+Aplicar novas migrações por EF com a credencial operacional privada e cópia de segurança, preservando os dados existentes. Os testes de migrações/legado/concorrência usam instâncias temporárias Oracle MySQL 8; a aplicação ao Aiven é uma etapa operacional separada.
 
 Validar no alojamento o endereço efetivo usado por `RemoteIpAddress`: a adesão limita 3/minuto/IP e 20/minuto/processo, sem fila, corpo máximo de 16 KiB. A aplicação não lê X-Forwarded-For diretamente; configurar confiança no proxy só após confirmar a infraestrutura. Não ativar com todos os utilizadores indistintamente identificados pelo mesmo proxy nem confiar em cabeçalhos arbitrários. Os limites por processo não são distribuídos entre instâncias.
 
-Publicar API e ficheiros estáticos com base `/SchoolGether/`, configurar a origem CORS/API HTTPS e verificar catálogo/desativação, navegação por query/reload, entrada, configuração, capacidade, 390 px e saída. Só após estes gates e validação controlada do IP/proxy deve o operador decidir ativar `Onboarding__Enabled=true`. Pagamentos permanecem fictícios. Os 265 testes normais, quatro cenários MySQL reais e fixtures Chromium locais são evidência local; CI remoto, migração operacional e verificação do alojamento continuam pendentes.
+Publicar API e ficheiros estáticos com base `/SchoolGether/`, configurar a origem CORS/API HTTPS e verificar catálogo/desativação, navegação por query/reload, entrada, configuração, capacidade, 390 px e saída. Só após estas verificações e validação controlada do IP/proxy deve o operador ativar `Onboarding__Enabled=true`. Pagamentos permanecem fictícios. Os 265 testes normais, quatro cenários MySQL reais e fixtures Chromium são evidência local; distinguir esses resultados do CI e das verificações da demonstração.
+
+Durante esta publicação, MySQL (TCP 21290) e WebDeploy (TCP 8172) expiravam numa rede Wi-Fi e passaram numa ligação móvel autorizada. Se voltar a acontecer, comparar as ligações com `Test-NetConnection` antes de alterar credenciais ou código; não desativar o firewall/antivírus como tentativa de correção.
