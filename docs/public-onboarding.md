@@ -1,6 +1,6 @@
 # Adesão pública e área institucional mínima
 
-Implementação local de 2026-10-15 no ramo `feature/public-onboarding-implementation`. Esta entrega ainda depende de revisão independente do ramo, CI e revisão de outro elemento da equipa antes de integrar/publicar. A demonstração publicada anteriormente continua descrita em [deployment.md](deployment.md); esta implementação não ativa o registo online.
+Implementação de 2026-10-15 integrada pelo PR #6 após revisão e CI. API/site publicados a partir de `7f9354a`; a adesão está ativa na demonstração, após backup, migrações e validação do IP efetivo no alojamento. Ver [deployment.md](deployment.md) para a versão, evidência operacional e procedimento de publicação. O registo continua desativado por omissão em novas instalações.
 
 ## Percurso no site
 
@@ -30,7 +30,7 @@ PlatformAdmin conserva o painel global; Teacher/Student conservam entrada/perfil
 
 `Onboarding:Enabled` é falso por omissão. Mantê-lo falso até revisão/CI, aplicação controlada das migrações e verificação do IP efetivo no proxy do alojamento. O limite é 3 registos/minuto/IP e 20/minuto/processo, sem fila, corpo até 16 KiB. O código usa RemoteIpAddress e não confia diretamente em X-Forwarded-For. Confirmar o comportamento real do alojamento antes de ativar; não adicionar confiança indiscriminada em cabeçalhos. Os limites por processo não equivalem a uma quota distribuída entre instâncias.
 
-Novas migrações EF: `20261014093325_PublicInstitutionOnboarding` e `20261014210542_InstitutionSetupCompletion`. Aplicação operacional exige credenciais próprias e cópia de segurança; nunca alterar o esquema manualmente ou usar a credencial SQL da API para migrar. Não foram aplicadas nesta entrega à base pessoal/Aiven.
+Novas migrações EF: `20261014093325_PublicInstitutionOnboarding` e `20261014210542_InstitutionSetupCompletion`. Foram aplicadas ao Aiven em 2026-10-15, com backup e preservação das contagens de instituições/contas. A aplicação operacional exige credenciais próprias e cópia de segurança; nunca alterar o esquema manualmente ou usar a credencial SQL da API para migrar.
 
 ## Evidência local e limites
 
@@ -48,4 +48,10 @@ Cada cenário MySQL executou/aprovou 1 teste, com 0 skips: migrações/isolament
 
 Chromium com HTTP controlado passou adesão pública, área institucional e regressões de entrada/painel global sob `/SchoolGether/`, incluindo teclado/foco, erros, 409/429/401, cancelamento, double-click, respostas tardias e capturas desktop/390 px inspecionadas. Todas as chamadas `/api/**` foram interceptadas; não usaram a API/contas pessoais ou o alojamento online. Os cenários e logs ficam no workspace ignorado `.superpowers/verification/public-onboarding` e `.superpowers/sdd/2026-10-14-public-onboarding`.
 
-MAUI Windows (`net10.0-windows10.0.19041.0`) e Android (`net10.0-android`) compilaram em Debug com 0 avisos/erros, verificando compatibilidade dos contratos; execução nativa/SecureStorage real e distribuição continuam verificações separadas. Não houve publicação, ativação online, testes de carga no alojamento nem faturação real. CI e revisão do colega continuam gates externos.
+MAUI Windows (`net10.0-windows10.0.19041.0`) e Android (`net10.0-android`) compilaram em Debug com 0 avisos/erros, verificando compatibilidade dos contratos; execução nativa/SecureStorage real e distribuição continuam verificações separadas. Estas verificações locais antecederam o CI, a revisão do colega e a publicação descrita abaixo. Não foram feitos testes de carga no alojamento nem faturação real.
+
+## Verificação da demonstração online — 2026-10-15
+
+Depois da publicação e ativação, o percurso real no site criou uma instituição de teste e o primeiro responsável, entrou automaticamente, guardou a configuração e criou docente/aluno. O resumo/lista refletiram três contas de cem no plano Essencial, e a configuração concluída persistiu numa entrada posterior. As contas educativas entraram nos próprios perfis, sem acesso à administração testada. Foram verificados desktop/390 px, saída e rejeição do refresh revogado. A instituição e as três contas fictícias estão identificadas como teste técnico e foram conservadas; nenhum dado anterior foi eliminado.
+
+O primeiro script de navegador foi interrompido ao tentar reler uma resposta HTTP já consumida pelo cliente WASM. A verificação retomou as mesmas contas, confirmou o estado persistido e terminou sem repetir a adesão nem criar duplicados. Isto foi uma limitação de captura do teste, não um erro de registo da aplicação. Evidência privada em `.superpowers/deployment/releases/2026-10-15-7f9354a/`; apenas o resumo operacional pertence ao repositório público.
