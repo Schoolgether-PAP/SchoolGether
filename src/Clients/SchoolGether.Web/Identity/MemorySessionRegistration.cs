@@ -25,6 +25,9 @@ public static class MemorySessionRegistration
         services.AddScoped<IRefreshTokenStore, MemoryRefreshTokenStore>();
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IdentitySession>();
+        services.AddScoped<SchoolGether.ApiClient.Support.SupportApiClient>();
+        services.AddScoped<SchoolGether.ApiClient.Support.SupportLiveClient>();
+        services.AddScoped<SchoolGether.ApiClient.Support.SupportConversationState>();
         return services;
     }
 }
