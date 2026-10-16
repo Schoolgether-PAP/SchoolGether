@@ -6,14 +6,17 @@ public static class PlatformCapabilities
     public const string InstitutionsWrite = "institutions.write";
     public const string InstitutionsSuspend = "institutions.suspend";
     public const string AuditRead = "audit.read";
+    public const string SupportRead = "support.read";
+    public const string SupportManage = "support.manage";
     public static IReadOnlyList<string> All { get; } = Array.AsReadOnly(new[] {
-        InstitutionsRead, InstitutionsWrite, InstitutionsSuspend, AuditRead });
+        InstitutionsRead, InstitutionsWrite, InstitutionsSuspend, AuditRead, SupportRead, SupportManage });
 
     public static string[] Normalize(IEnumerable<string>? permissions)
     {
         var values = (permissions ?? []).Select(x => x?.Trim().ToLowerInvariant() ?? string.Empty)
             .Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal).ToArray();
         if (values.Any(x => !All.Contains(x))) throw new PlatformException("InvalidPermissions");
+        if (values.Contains(SupportManage) && !values.Contains(SupportRead)) throw new PlatformException("InvalidPermissions");
         return values;
     }
 }

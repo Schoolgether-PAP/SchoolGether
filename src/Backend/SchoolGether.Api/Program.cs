@@ -9,6 +9,7 @@ using SchoolGether.Api.Platform;
 using SchoolGether.Infrastructure.Persistence;
 using SchoolGether.Infrastructure.Billing;
 using SchoolGether.Api.Onboarding;
+using SchoolGether.Api.Support;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
@@ -45,6 +46,7 @@ builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>(
 builder.Services.AddApiIdentity();
 builder.Services.AddBillingModule();
 builder.Services.AddApiOnboarding();
+builder.Services.AddApiSupport();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>

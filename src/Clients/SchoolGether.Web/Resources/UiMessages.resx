@@ -615,4 +615,7 @@
 <data name="InstitutionMemberConflict" xml:space="preserve"><value>Não foi possível criar a conta: o e-mail já existe ou a capacidade da instituição foi atingida. Os campos não sensíveis foram conservados.</value></data>
 <data name="InstitutionMemberNameRequired" xml:space="preserve"><value>Indica o nome completo, até 150 caracteres.</value></data>
 <data name="InstitutionYearInvalid" xml:space="preserve"><value>Indica dois anos consecutivos no formato AAAA/AAAA, com início entre 1900 e 2199.</value></data>
+<data name="PermissionSupportRead" xml:space="preserve"><value>Consultar suporte</value></data>
+  <data name="PermissionSupportManage" xml:space="preserve"><value>Gerir suporte</value></data>
+  <data name="SupportPermissionDependency" xml:space="preserve"><value>Gerir suporte inclui a permissão de consultar suporte.</value></data>
 </root>

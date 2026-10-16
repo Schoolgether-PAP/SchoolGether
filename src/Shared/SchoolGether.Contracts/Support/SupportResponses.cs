@@ -12,3 +12,9 @@ public sealed record SupportMessageResponse(int Id, Guid ClientId, int AuthorId,
 
 public sealed record SupportAdminMessageResponse(int Id, Guid ClientId, int AuthorId, string AuthorName,
     string Text, DateTime CreatedAt, IReadOnlyList<SupportAttachmentResponse> Attachments, bool Internal);
+
+public sealed record SupportContextResponse(bool Enabled, bool CanOpen, bool CanReadGlobal, bool CanManageGlobal);
+public sealed record SupportAssigneeResponse(int Id, string Name);
+public sealed record SupportTicketPageResponse(IReadOnlyList<SupportTicketResponse> Items, int Total, int Page, int PageSize);
+public sealed record SupportMessagePageResponse(IReadOnlyList<SupportMessageResponse> Items, bool HasMore);
+public sealed record SupportAdminMessagePageResponse(IReadOnlyList<SupportAdminMessageResponse> Items, bool HasMore);

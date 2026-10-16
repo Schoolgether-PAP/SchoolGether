@@ -67,4 +67,9 @@
   <data name="UnknownPlan" xml:space="preserve"><value>Escolha um plano disponível no catálogo.</value></data>
   <data name="SignupBodyTooLarge" xml:space="preserve"><value>O pedido excede o tamanho permitido.</value></data>
   <data name="InvalidInstitutionSetup" xml:space="preserve"><value>Verifique o nome, tipo e localidade da instituição. Indique um ano letivo no formato AAAA/AAAA, com anos consecutivos e início entre 1900 e 2199.</value></data>
+<data name="InvalidSupportInput" xml:space="preserve"><value>Verifique os dados do pedido de suporte.</value></data>
+  <data name="SupportDisabled" xml:space="preserve"><value>O suporte está temporariamente indisponível.</value></data>
+  <data name="SupportNotFound" xml:space="preserve"><value>O pedido de suporte não foi encontrado.</value></data>
+  <data name="SupportReplayConflict" xml:space="preserve"><value>Este envio já foi utilizado com dados diferentes. Atualize a conversa.</value></data>
+  <data name="TicketClosed" xml:space="preserve"><value>O pedido está fechado e não aceita alterações.</value></data>
 </root>
