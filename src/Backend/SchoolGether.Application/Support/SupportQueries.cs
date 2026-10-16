@@ -3,7 +3,7 @@ using SchoolGether.Domain.Support;
 
 namespace SchoolGether.Application.Support;
 
-public sealed class SupportQueries(SupportAuthorization authorization, ISupportStore store, IPlatformAdminDirectory directory)
+public sealed class SupportQueries(SupportAuthorization authorization, ISupportStore store, IPlatformAdminDirectory directory, IFileStorage storage)
 {
     public async Task<SupportTicketPage> ListAsync(SupportTicketQuery query, CancellationToken ct)
     {
@@ -37,7 +37,8 @@ public sealed class SupportQueries(SupportAuthorization authorization, ISupportS
     }
     public async Task<SupportDownload> DownloadAsync(int attachmentId, CancellationToken ct)
     {
-        await authorization.RequireAsync("read", null, ct);
-        throw new SupportException("SupportFilesUnavailable");
+        var scope = await authorization.RequireAsync("read", null, ct);
+        var attachment = await store.FindAttachmentAsync(scope, attachmentId, ct) ?? throw new SupportException("SupportNotFound");
+        return new(await storage.OpenReadAsync(attachment.StorageKey, ct), attachment.FileName, attachment.ContentType);
     }
 }

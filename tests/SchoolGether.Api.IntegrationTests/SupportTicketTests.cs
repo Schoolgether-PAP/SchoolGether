@@ -22,7 +22,7 @@ public sealed class SupportTicketTests
         for (var i = 0; i < 3; i++)
         {
             loaded = await client.GetFromJsonAsync<JsonElement>($"{Route}/{id}");
-            Assert.Equal(HttpStatusCode.Created, (await client.PostAsJsonAsync($"{Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = loaded.GetProperty("rowVersion").GetInt64(), Text = "Mensagem " + i, Internal = false })).StatusCode);
+            Assert.Equal(HttpStatusCode.Created, (await client.PostSupportAsync($"{Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = loaded.GetProperty("rowVersion").GetInt64(), Text = "Mensagem " + i, Internal = false })).StatusCode);
         }
         var after = await client.GetFromJsonAsync<JsonElement>($"{Route}/{id}/messages?afterId={initialId}&take=2");
         Assert.True(after.GetProperty("hasMore").GetBoolean());
@@ -43,7 +43,7 @@ public sealed class SupportTicketTests
         await using var factory = new IdentityFactory(supportEnabled: true); await factory.SeedAsync();
         using var client = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(client, "teacher-a@example.test");
         var payload = new Dictionary<string, object> { ["clientId"] = Guid.NewGuid(), ["subject"] = "Pedido", ["category"] = "Technical", ["priority"] = "Normal", ["description"] = "Descrição", [field] = value };
-        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync(Route, payload)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostSupportAsync(Route, payload)).StatusCode);
     }
 
     [Fact]
@@ -60,7 +60,7 @@ public sealed class SupportTicketTests
         using var operatorClient = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(operatorClient, "manager@example.test");
         Assert.Equal(HttpStatusCode.OK, (await master.PutAsJsonAsync("/api/v1/platform/admins/" + manager.GetProperty("id").GetInt32(), new {
             Name = "Administrador", IsActive = true, Permissions = new[] { "support.read" }, RowVersion = manager.GetProperty("rowVersion").GetInt64(), Reason = "Revogar gestão" })).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await operatorClient.PostAsJsonAsync($"{Route}/{id}/close", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Summary = "Sem permissão" })).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await operatorClient.PostSupportAsync($"{Route}/{id}/close", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Summary = "Sem permissão" })).StatusCode);
         Assert.Single((await master.GetFromJsonAsync<JsonElement>("/api/v1/support/assignees")).EnumerateArray());
         Assert.Equal(HttpStatusCode.BadRequest, (await master.PutAsJsonAsync($"{Route}/{id}", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Status = "Open", Priority = "Normal", AssigneeId = manager.GetProperty("id").GetInt32() })).StatusCode);
     }
@@ -77,24 +77,24 @@ public sealed class SupportTicketTests
         Assert.Equal(HttpStatusCode.OK, update.StatusCode);
         version = (await update.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("rowVersion").GetInt64();
         var note = new { ClientId = Guid.NewGuid(), RowVersion = version, Text = "INTERNAL-ONLY", Internal = true };
-        Assert.Equal(HttpStatusCode.Created, (await admin.PostAsJsonAsync($"{Route}/{id}/messages", note)).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await admin.PostSupportAsync($"{Route}/{id}/messages", note)).StatusCode);
         var afterNote = await admin.GetFromJsonAsync<JsonElement>($"{Route}/{id}");
         var message = new { ClientId = Guid.NewGuid(), RowVersion = afterNote.GetProperty("rowVersion").GetInt64(), Text = "Resposta do cliente", Internal = false };
-        Assert.Equal(HttpStatusCode.Created, (await customer.PostAsJsonAsync($"{Route}/{id}/messages", message)).StatusCode);
-        Assert.Equal(HttpStatusCode.Conflict, (await admin.PostAsJsonAsync($"{Route}/{id}/messages", message)).StatusCode);
+        Assert.Equal(HttpStatusCode.Created, (await customer.PostSupportAsync($"{Route}/{id}/messages", message)).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await admin.PostSupportAsync($"{Route}/{id}/messages", message)).StatusCode);
         var reopened = await customer.GetFromJsonAsync<JsonElement>($"{Route}/{id}");
         Assert.Equal("Open", reopened.GetProperty("status").GetString());
         var schoolMessages = await customer.GetStringAsync($"{Route}/{id}/messages");
         Assert.DoesNotContain("INTERNAL-ONLY", schoolMessages);
         Assert.DoesNotContain("\"internal\"", schoolMessages);
         Assert.Contains("INTERNAL-ONLY", await admin.GetStringAsync($"{Route}/{id}/messages"));
-        using var close = await admin.PostAsJsonAsync($"{Route}/{id}/close", new { RowVersion = reopened.GetProperty("rowVersion").GetInt64(), Summary = "Resolvido" });
+        using var close = await admin.PostSupportAsync($"{Route}/{id}/close", new { RowVersion = reopened.GetProperty("rowVersion").GetInt64(), Summary = "Resolvido" });
         Assert.Equal(HttpStatusCode.OK, close.StatusCode);
         Assert.False((await close.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("canReply").GetBoolean());
-        Assert.Equal(HttpStatusCode.OK, (await customer.PostAsJsonAsync(Route, SupportAuthorizationTests.Create(creationId))).StatusCode);
-        Assert.Equal(HttpStatusCode.OK, (await customer.PostAsJsonAsync($"{Route}/{id}/messages", message)).StatusCode);
-        Assert.Equal(HttpStatusCode.Conflict, (await customer.PostAsJsonAsync(Route, SupportAuthorizationTests.Create(creationId, "Payload diferente"))).StatusCode);
-        Assert.Equal(HttpStatusCode.Conflict, (await customer.PostAsJsonAsync($"{Route}/{id}/messages", message with { Text = "Diferente" })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await customer.PostSupportAsync(Route, SupportAuthorizationTests.Create(creationId))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await customer.PostSupportAsync($"{Route}/{id}/messages", message)).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await customer.PostSupportAsync(Route, SupportAuthorizationTests.Create(creationId, "Payload diferente"))).StatusCode);
+        Assert.Equal(HttpStatusCode.Conflict, (await customer.PostSupportAsync($"{Route}/{id}/messages", message with { Text = "Diferente" })).StatusCode);
     }
 
     [Fact]
@@ -125,7 +125,7 @@ public sealed class SupportTicketTests
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PutAsJsonAsync($"{Route}/{id}", new { RowVersion = version, Status = "Open", Priority = "Normal", AssigneeId = reader.GetProperty("id").GetInt32() })).StatusCode);
         await PlatformAdminTests.Authenticate(client, "reader@example.test");
         var read = await client.GetFromJsonAsync<JsonElement>($"{Route}/{id}"); Assert.False(read.GetProperty("canReply").GetBoolean());
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync($"{Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = version, Text = "Recusado", Internal = false })).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync($"{Route}/{id}/close", new { RowVersion = version, Summary = "Recusado" })).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostSupportAsync($"{Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = version, Text = "Recusado", Internal = false })).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostSupportAsync($"{Route}/{id}/close", new { RowVersion = version, Summary = "Recusado" })).StatusCode);
     }
 }

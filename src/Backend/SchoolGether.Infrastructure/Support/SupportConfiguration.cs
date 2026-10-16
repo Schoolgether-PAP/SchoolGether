@@ -43,7 +43,30 @@ internal sealed class SupportMessageConfiguration : IEntityTypeConfiguration<Sup
         b.Property(x => x.Fingerprint).HasMaxLength(64); b.Property(x => x.RowVersion).IsConcurrencyToken();
         b.HasIndex(x => new { x.TicketId, x.ClientId }).IsUnique();
         b.HasIndex(x => new { x.InstitutionId, x.TicketId, x.Id });
-        b.Ignore(x => x.Attachments);
+        b.HasMany(x => x.Attachments).WithOne().HasForeignKey(x => x.MessageId).OnDelete(DeleteBehavior.Restrict);
+        b.Navigation(x => x.Attachments).HasField("_attachments").UsePropertyAccessMode(PropertyAccessMode.Field);
+        SupportTicketConfiguration.ConfigureColumns(b.Metadata);
+    }
+}
+
+internal sealed class SupportAttachmentConfiguration : IEntityTypeConfiguration<SupportAttachment>
+{
+    public void Configure(EntityTypeBuilder<SupportAttachment> b)
+    {
+        b.ToTable("support_attachment"); b.HasKey(x => x.Id);
+        b.Property(x => x.StorageKey).HasMaxLength(32); b.HasIndex(x => x.StorageKey).IsUnique();
+        b.Property(x => x.FileName).HasMaxLength(150); b.Property(x => x.ContentType).HasMaxLength(150);
+        b.Property(x => x.Sha256).HasMaxLength(64); b.Property(x => x.RowVersion).IsConcurrencyToken();
+        b.HasIndex(x => new { x.InstitutionId, x.MessageId });
+        SupportTicketConfiguration.ConfigureColumns(b.Metadata);
+    }
+}
+internal sealed class SupportStorageUsageConfiguration : IEntityTypeConfiguration<SupportStorageUsage>
+{
+    public void Configure(EntityTypeBuilder<SupportStorageUsage> b)
+    {
+        b.ToTable("support_storage_usage"); b.HasKey(x => x.InstitutionId);
+        b.Property(x => x.InstitutionId).ValueGeneratedNever(); b.HasIndex(x => x.InstitutionId).IsUnique();
         SupportTicketConfiguration.ConfigureColumns(b.Metadata);
     }
 }

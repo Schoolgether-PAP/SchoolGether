@@ -14,7 +14,7 @@ public sealed class SupportExceptionHandler(IProblemDetailsService problems, ISt
         if (code is null) return false;
         var status = code switch {
             "InvalidSession" => 401, "Forbidden" => 403, "SupportNotFound" => 404,
-            "VersionConflict" or "SupportReplayConflict" or "TicketClosed" => 409, "SupportDisabled" => 503, _ => 400 };
+            "VersionConflict" or "SupportReplayConflict" or "TicketClosed" or "SupportStorageQuotaExceeded" => 409, "SupportDisabled" or "SupportFileUnavailable" => 503, "SupportRequestTooLarge" => 413, _ => 400 };
         context.Response.StatusCode = status;
         if (status == 401) context.Response.Headers.WWWAuthenticate = "Bearer";
         var resource = status == 400 ? "InvalidSupportInput" : code;

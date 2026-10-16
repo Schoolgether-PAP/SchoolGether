@@ -9,13 +9,13 @@ namespace SchoolGether.Application.Support;
 
 public sealed class SupportService(SupportAuthorization authorization, ISupportStore store,
     ISupportUnitOfWork unitOfWork, IAuditWriter audit, IPlatformAdminDirectory directory, TimeProvider clock,
-    ISupportNotifier notifier)
+    ISupportNotifier notifier, IFileStorage storage, SupportOptions options)
 {
     public async Task<SupportTicketResult> CreateAsync(CreateSupportTicket command, CancellationToken ct)
     {
         var scope = await authorization.RequireAsync("create", null, ct);
-        RequireNoFiles(command.Files);
-        var fingerprint = Fingerprint(scope.Actor.Id, command.Subject, command.Category, command.Priority, command.Description);
+        await using var files = await SupportFileBatch.PrepareAsync(storage, command.Files, ct);
+        var fingerprint = Fingerprint(files.Files, scope.Actor.Id, command.Subject, command.Category, command.Priority, command.Description);
         var replay = false;
         var ticket = await unitOfWork.ExecuteAsync(scope, async token =>
         {
@@ -31,13 +31,15 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
             var created = SupportTicket.Open(scope.Actor.InstitutionId!.Value, scope.Actor.Id, scope.Actor.Name,
                 command.ClientId, command.Subject, Parse<SupportCategory>(command.Category), Parse<SupportPriority>(command.Priority), now);
             var message = SupportMessage.CreateInitial(created.InstitutionId, 0, scope.Actor.Id, scope.Actor.Name,
-                command.ClientId, command.Description, 0, fingerprint, now);
+                command.ClientId, command.Description, files.Files.Count, fingerprint, now, Attachments(files.Files, created.InstitutionId, scope.Actor.Id, now));
             created.AddMessage(message, true, now);
             store.AddTicket(created);
+            await store.ReserveBytesAsync(scope, files.Files.Sum(x => x.Size), options.InstitutionStorageLimitBytes, token);
             Audit(scope, created, "create");
+            await files.CommitFilesAsync(token);
             return created;
         }, ct);
-        if (!replay) await NotifyAsync(ticket.Id, false);
+        if (!replay) { files.MarkPersisted(); await NotifyAsync(ticket.Id, false); }
         return await ProjectAsync(ticket, scope, replay, ct);
     }
 
@@ -45,8 +47,8 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
     {
         var scope = await authorization.RequireAsync("reply", ticketId, ct);
         if (command.Internal && !scope.Actor.CanManageGlobal) throw new SupportException("Forbidden");
-        RequireNoFiles(command.Files);
-        var fingerprint = Fingerprint(scope.Actor.Id, command.Text, command.Internal);
+        await using var files = await SupportFileBatch.PrepareAsync(storage, command.Files, ct);
+        var fingerprint = Fingerprint(files.Files, scope.Actor.Id, command.Text, command.Internal);
         var replay = false;
         var message = await unitOfWork.ExecuteAsync(scope, async token =>
         {
@@ -61,13 +63,15 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
             RequireVersion(ticket, command.RowVersion);
             var now = clock.GetUtcNow().UtcDateTime;
             var created = SupportMessage.Create(ticket.InstitutionId, ticket.Id, scope.Actor.Id, scope.Actor.Name,
-                command.ClientId, command.Text, command.Internal, 0, fingerprint, now);
+                command.ClientId, command.Text, command.Internal, files.Files.Count, fingerprint, now, Attachments(files.Files, ticket.InstitutionId, scope.Actor.Id, now));
             ticket.AddMessage(created, !scope.Global, now);
             store.AddMessage(created);
+            await store.ReserveBytesAsync(scope, files.Files.Sum(x => x.Size), options.InstitutionStorageLimitBytes, token);
             Audit(scope, ticket, command.Internal ? "note" : "reply");
+            await files.CommitFilesAsync(token);
             return created;
         }, ct);
-        if (!replay) await NotifyAsync(ticketId, command.Internal);
+        if (!replay) { files.MarkPersisted(); await NotifyAsync(ticketId, command.Internal); }
         return SupportProjection.Message(message, replay);
     }
 
@@ -110,8 +114,8 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
     internal static T Parse<T>(string value) where T : struct, Enum =>
         Enum.TryParse<T>(value, false, out var result) && Enum.IsDefined(result) && Enum.GetName(result) == value
             ? result : throw new SupportException("InvalidSupportInput");
-    private static void RequireNoFiles(IReadOnlyList<IncomingAttachment> files)
-    { if (files is null || files.Count != 0) throw new SupportException("SupportFilesUnavailable"); }
+    private static IReadOnlyList<SupportAttachment> Attachments(IReadOnlyList<PreparedAttachment> files, int institution, int actor, DateTime now) =>
+        files.Select(x => SupportAttachment.Create(institution, 0, x.StorageKey, x.FileName, x.ContentType, x.Size, x.Sha256, actor, now)).ToArray();
     private static void RequireVersion(SupportTicket ticket, long version)
     { if (ticket.RowVersion != version) throw new SupportException("VersionConflict"); }
     private static void RequireReplay(SupportMessage? message, int actorId, string fingerprint)
@@ -119,7 +123,11 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
         if (message is null || message.AuthorId != actorId || message.Fingerprint != fingerprint)
             throw new SupportException("SupportReplayConflict");
     }
-    private static string Fingerprint(params object?[] parts) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parts))));
+    private static string Fingerprint(IReadOnlyList<PreparedAttachment> files, params object?[] parts)
+    {
+        if (files.Count > 0) parts = [.. parts, files.Select(x => new { x.FileName, x.ContentType, x.Size, x.Sha256 }).ToArray()];
+        return Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(JsonSerializer.Serialize(parts))));
+    }
     private void Audit(AuthorizedSupportScope scope, SupportTicket ticket, string action) => audit.Append(new(
         new(scope.Actor.Id, scope.Actor.Name), "support." + action, "support.ticket:" + ticket.ClientId.ToString("D"), "success", string.Empty,
         ticket.InstitutionId, After: new Dictionary<string, object?> { ["rowVersion"] = ticket.RowVersion }));

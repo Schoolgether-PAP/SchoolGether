@@ -36,10 +36,10 @@ internal sealed class SupportStore(SchoolGetherDbContext db) : ISupportStore
     public async Task<SupportTicket?> FindTicketByClientIdAsync(AuthorizedSupportScope scope, Guid clientId, CancellationToken ct) =>
         await Tickets(scope).SingleOrDefaultAsync(x => x.AuthorId == scope.Actor.Id && x.ClientId == clientId, ct);
     public async Task<SupportMessage?> FindMessageByClientIdAsync(AuthorizedSupportScope scope, int ticketId, Guid clientId, CancellationToken ct) =>
-        await Messages(scope, ticketId).AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId, ct);
+        await Messages(scope, ticketId).Include(x => x.Attachments).AsNoTracking().SingleOrDefaultAsync(x => x.ClientId == clientId, ct);
     public async Task<SupportMessagePage> ListMessagesAsync(AuthorizedSupportScope scope, int ticketId, int? beforeId, int? afterId, int take, CancellationToken ct)
     {
-        var query = Messages(scope, ticketId).AsNoTracking();
+        var query = Messages(scope, ticketId).Include(x => x.Attachments).AsNoTracking();
         if (beforeId is int before) query = query.Where(x => x.Id < before);
         if (afterId is int after) query = query.Where(x => x.Id > after);
         var ordered = afterId.HasValue ? query.OrderBy(x => x.Id) : query.OrderByDescending(x => x.Id);
@@ -60,7 +60,21 @@ internal sealed class SupportStore(SchoolGetherDbContext db) : ISupportStore
         db.SupportMessages.Add(message);
     }
     public Task<SupportAttachment?> FindAttachmentAsync(AuthorizedSupportScope scope, int id, CancellationToken ct) =>
-        throw new SupportException("SupportFilesUnavailable");
-    public Task ReserveBytesAsync(AuthorizedSupportScope scope, long bytes, long limit, CancellationToken ct) =>
-        throw new SupportException("SupportFilesUnavailable");
+        db.SupportAttachments.IgnoreQueryFilters().AsNoTracking().Where(x => x.Id == id && x.DeletedAt == null &&
+            db.SupportMessages.IgnoreQueryFilters().Any(m => m.Id == x.MessageId && m.InstitutionId == x.InstitutionId &&
+                m.DeletedAt == null && (scope.IncludeInternal || !m.Internal) && Tickets(scope).Any(t => t.Id == m.TicketId && t.InstitutionId == m.InstitutionId)))
+            .SingleOrDefaultAsync(ct);
+    public async Task ReserveBytesAsync(AuthorizedSupportScope scope, long bytes, long limit, CancellationToken ct)
+    {
+        var institution = (db.SupportScope ?? throw new InvalidOperationException("SupportWriteDenied")).RequireInstitution(scope);
+        if (bytes < 0 || limit <= 0 || bytes > limit) throw new SupportException("SupportStorageQuotaExceeded");
+        if (bytes == 0) return;
+        // A linha exclusiva da quota serializa reservas de todos os tickets da instituição.
+        if (db.Database.ProviderName == "Microsoft.EntityFrameworkCore.Sqlite")
+            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO support_storage_usage (institution_id, used_bytes) VALUES ({institution}, 0) ON CONFLICT(institution_id) DO NOTHING", ct);
+        else
+            await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO support_storage_usage (institution_id, used_bytes) VALUES ({institution}, 0) ON DUPLICATE KEY UPDATE used_bytes = used_bytes", ct);
+        var changed = await db.Database.ExecuteSqlInterpolatedAsync($"UPDATE support_storage_usage SET used_bytes = used_bytes + {bytes} WHERE institution_id = {institution} AND used_bytes <= {limit - bytes}", ct);
+        if (changed != 1) throw new SupportException("SupportStorageQuotaExceeded");
+    }
 }

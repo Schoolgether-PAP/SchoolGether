@@ -28,6 +28,12 @@ internal sealed class SupportWriteScope(SchoolGetherDbContext db, AuthorizedSupp
             throw new InvalidOperationException("SupportWriteDenied");
         messages.Add(value);
     }
+    internal int RequireInstitution(AuthorizedSupportScope scope)
+    {
+        if (!ReferenceEquals(authorized, scope) || ticket is null || authorized.Operation is not ("create" or "reply") ||
+            db.Database.CurrentTransaction?.TransactionId != transactionId) throw new InvalidOperationException("SupportWriteDenied");
+        return ticket.InstitutionId;
+    }
     internal bool Allows(EntityEntry entry)
     {
         if (db.Database.CurrentTransaction?.TransactionId != transactionId || ticket is null) return false;
@@ -45,6 +51,10 @@ internal sealed class SupportWriteScope(SchoolGetherDbContext db, AuthorizedSupp
                 : new[] { "Status", "Priority", "AssigneeId", "ClosedAt", "ClosedBy", "CloseSummary", "RowVersion", "UpdatedAt" };
             return entry.Properties.Where(x => x.IsModified).All(x => allowed.Contains(x.Metadata.Name));
         }
+        if (entry.Entity is SupportAttachment attachment)
+            return entry.State == EntityState.Added && authorized.Operation is "create" or "reply" &&
+                attachment.InstitutionId == ticket.InstitutionId && attachment.CreatedBy == authorized.Actor.Id &&
+                messages.Any(m => m.Attachments.Contains(attachment) && m.Id == attachment.MessageId && (!m.Internal || authorized.Actor.CanManageGlobal));
         return entry.Entity is SupportMessage message && messages.Contains(message) && entry.State == EntityState.Added &&
             authorized.Operation is "create" or "reply" && message.AuthorId == authorized.Actor.Id &&
             message.CreatedBy == authorized.Actor.Id && message.InstitutionId == ticket.InstitutionId && message.TicketId == ticket.Id &&

@@ -27,7 +27,7 @@ public sealed class SupportConcurrencyTests
         using var client = host.CreateClient(); await factory.SeedAsync();
         await PlatformAdminTests.Authenticate(client, "teacher-a@example.test");
         failure.Enabled = true;
-        Assert.Equal(HttpStatusCode.InternalServerError, (await client.PostAsJsonAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create())).StatusCode);
+        Assert.Equal(HttpStatusCode.InternalServerError, (await client.PostSupportAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create())).StatusCode);
         Assert.True(failure.ObservedSavedRows);
         using var scope = host.Services.CreateScope(); var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         Assert.Empty(await db.SupportTickets.IgnoreQueryFilters().ToListAsync());
@@ -45,7 +45,7 @@ public sealed class SupportConcurrencyTests
         using var client = host.CreateClient(); await factory.SeedAsync();
         await PlatformAdminTests.Authenticate(client, "teacher-a@example.test");
         var clientId = Guid.NewGuid(); await SupportAuthorizationTests.Ticket(client, clientId);
-        Assert.Equal(HttpStatusCode.OK, (await client.PostAsJsonAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create(clientId))).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await client.PostSupportAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create(clientId))).StatusCode);
         using var scope = host.Services.CreateScope();
         Assert.Equal(1, await scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>().SupportTickets.IgnoreQueryFilters().CountAsync());
     }
@@ -121,7 +121,7 @@ public sealed class SupportConcurrencyTests
         services.GetRequiredService<IPlatformAdminDirectory>(), new() { Enabled = true });
     private static SupportService Service(IServiceProvider services, Principal actor) => new(Authorization(services, actor),
         services.GetRequiredService<ISupportStore>(), services.GetRequiredService<ISupportUnitOfWork>(), services.GetRequiredService<IAuditWriter>(),
-        services.GetRequiredService<IPlatformAdminDirectory>(), TimeProvider.System, services.GetRequiredService<ISupportNotifier>());
+        services.GetRequiredService<IPlatformAdminDirectory>(), TimeProvider.System, services.GetRequiredService<ISupportNotifier>(), services.GetRequiredService<IFileStorage>(), services.GetRequiredService<SupportOptions>());
     private sealed record Principal(int? UserId, int? InstitutionId, string? Role) : ICurrentAccount;
     [Fact]
     public async Task SendAndClose_CompeteForSameVersion_OnlyOneWins()
@@ -130,9 +130,9 @@ public sealed class SupportConcurrencyTests
         using var customer = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(customer, "teacher-a@example.test");
         using var admin = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(admin);
         var ticket = await SupportAuthorizationTests.Ticket(customer); var id = ticket.GetProperty("id").GetInt32(); var version = ticket.GetProperty("rowVersion").GetInt64();
-        var send = await customer.PostAsJsonAsync($"{SupportAuthorizationTests.Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = version, Text = "Corrida", Internal = false });
+        var send = await customer.PostSupportAsync($"{SupportAuthorizationTests.Route}/{id}/messages", new { ClientId = Guid.NewGuid(), RowVersion = version, Text = "Corrida", Internal = false });
         Assert.Equal(HttpStatusCode.Created, send.StatusCode);
-        var close = await admin.PostAsJsonAsync($"{SupportAuthorizationTests.Route}/{id}/close", new { RowVersion = version, Summary = "Resolvido" });
+        var close = await admin.PostSupportAsync($"{SupportAuthorizationTests.Route}/{id}/close", new { RowVersion = version, Summary = "Resolvido" });
         Assert.Equal(HttpStatusCode.Conflict, close.StatusCode);
     }
 
@@ -141,7 +141,7 @@ public sealed class SupportConcurrencyTests
     {
         await using var factory = new IdentityFactory(supportEnabled: true, auditWriter: new FailingAudit()); await factory.SeedAsync();
         using var client = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(client, "teacher-a@example.test");
-        Assert.Equal(HttpStatusCode.InternalServerError, (await client.PostAsJsonAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create())).StatusCode);
+        Assert.Equal(HttpStatusCode.InternalServerError, (await client.PostSupportAsync(SupportAuthorizationTests.Route, SupportAuthorizationTests.Create())).StatusCode);
         var list = await client.GetFromJsonAsync<JsonElement>(SupportAuthorizationTests.Route);
         Assert.Equal(0, list.GetProperty("total").GetInt32());
     }

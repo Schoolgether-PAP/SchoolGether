@@ -14,7 +14,7 @@ public sealed class SupportAuthorizationTests
         new { ClientId = clientId ?? Guid.NewGuid(), Subject = subject, Category = "Technical", Priority = "Normal", Description = "Não consigo abrir a atividade." };
     internal static async Task<JsonElement> Ticket(HttpClient client, Guid? clientId = null)
     {
-        using var response = await client.PostAsJsonAsync(Route, Create(clientId));
+        using var response = await client.PostSupportAsync(Route, Create(clientId));
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
         return await response.Content.ReadFromJsonAsync<JsonElement>();
     }
@@ -56,7 +56,7 @@ public sealed class SupportAuthorizationTests
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync($"{Route}?institutionId={factory.InstitutionA}")).StatusCode);
         await PlatformAdminTests.Authenticate(client, "student-a@example.test");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(Route)).StatusCode);
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(Route, Create())).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostSupportAsync(Route, Create())).StatusCode);
     }
 
     [Fact]
@@ -64,12 +64,12 @@ public sealed class SupportAuthorizationTests
     {
         await using var factory = new IdentityFactory(supportEnabled: true); await factory.SeedAsync();
         using var client = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(client);
-        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/platform/admins", PlatformAdminTests.Create("invalid@example.test", "support.manage"))).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await client.PostSupportAsync("/api/v1/platform/admins", PlatformAdminTests.Create("invalid@example.test", "support.manage"))).StatusCode);
         await PlatformAdminTests.Created(client, "none@example.test");
         await PlatformAdminTests.Created(client, "read@example.test", "support.read");
         await PlatformAdminTests.Created(client, "manage@example.test", "support.read", "support.manage");
         Assert.False((await client.GetFromJsonAsync<JsonElement>("/api/v1/support/context")).GetProperty("canOpen").GetBoolean());
-        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostAsJsonAsync(Route, Create())).StatusCode);
+        Assert.Equal(HttpStatusCode.Forbidden, (await client.PostSupportAsync(Route, Create())).StatusCode);
         await PlatformAdminTests.Authenticate(client, "none@example.test");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync(Route)).StatusCode);
         await PlatformAdminTests.Authenticate(client, "read@example.test");
@@ -106,6 +106,6 @@ public sealed class SupportAuthorizationTests
             await db.SaveChangesAsync();
         }
         Assert.Equal(HttpStatusCode.Unauthorized, (await client.GetAsync(Route)).StatusCode);
-        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostAsJsonAsync(Route, Create(clientId))).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await client.PostSupportAsync(Route, Create(clientId))).StatusCode);
     }
 }

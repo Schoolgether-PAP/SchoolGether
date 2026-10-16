@@ -29,10 +29,12 @@ public sealed class SupportController(SupportAuthorization authorization, Suppor
     }
     [HttpGet("tickets/{id:int}")]
     public async Task<SupportTicketResponse> Get(int id, CancellationToken ct) => Ticket(await queries.GetAsync(id, ct));
-    [HttpPost("tickets")]
-    public async Task<IActionResult> Create(CreateSupportTicketRequest request, CancellationToken ct)
+    [HttpPost("tickets"), Consumes("multipart/form-data"), SupportMultipart, RequestSizeLimit(16777216)]
+    public async Task<IActionResult> Create(CancellationToken ct)
     {
-        var result = await service.CreateAsync(new(request.ClientId, request.Subject, request.Category, request.Priority, request.Description, []), ct);
+        using var body = await SupportMultipartRequest<CreateSupportTicketRequest>.ReadAsync(Request, ct);
+        var request = body.Request;
+        var result = await service.CreateAsync(new(request.ClientId, request.Subject, request.Category, request.Priority, request.Description, body.Files), ct);
         return result.Replay ? Ok(Ticket(result)) : CreatedAtAction(nameof(Get), new { id = result.Id }, Ticket(result));
     }
     [HttpGet("tickets/{id:int}/messages")]
@@ -44,10 +46,12 @@ public sealed class SupportController(SupportAuthorization authorization, Suppor
             return Ok(new SupportAdminMessagePageResponse(page.PublicMessages.Concat(page.InternalMessages).OrderBy(x => x.Id).Select(AdminMessage).ToArray(), page.HasMore));
         return Ok(new SupportMessagePageResponse(page.PublicMessages.Select(Message).ToArray(), page.HasMore));
     }
-    [HttpPost("tickets/{id:int}/messages")]
-    public async Task<IActionResult> Send(int id, SendSupportMessageRequest request, CancellationToken ct)
+    [HttpPost("tickets/{id:int}/messages"), Consumes("multipart/form-data"), SupportMultipart, RequestSizeLimit(16777216)]
+    public async Task<IActionResult> Send(int id, CancellationToken ct)
     {
-        var result = await service.SendAsync(id, new(request.ClientId, request.RowVersion, request.Text, request.Internal, []), ct);
+        using var body = await SupportMultipartRequest<SendSupportMessageRequest>.ReadAsync(Request, ct);
+        var request = body.Request;
+        var result = await service.SendAsync(id, new(request.ClientId, request.RowVersion, request.Text, request.Internal, body.Files), ct);
         object response = current.Role == "PlatformAdmin" ? AdminMessage(result) : Message(result);
         return result.Replay ? Ok(response) : CreatedAtAction(nameof(Messages), new { id }, response);
     }

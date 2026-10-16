@@ -20,6 +20,8 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     internal SupportWriteScope? SupportScope { get; set; }
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
     public DbSet<SupportMessage> SupportMessages => Set<SupportMessage>();
+    public DbSet<SupportAttachment> SupportAttachments => Set<SupportAttachment>();
+    public DbSet<SupportStorageUsage> SupportStorageUsages => Set<SupportStorageUsage>();
     private int? AccountId => current?.UserId;
     private string? AccountRoleName => current?.Role;
     public DbSet<InstitutionProfile> InstitutionProfiles => Set<InstitutionProfile>();
@@ -38,7 +40,9 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchoolGetherDbContext).Assembly);
         IdentityModel.Configure(modelBuilder);
-        modelBuilder.Ignore<SupportAttachment>();
+        modelBuilder.Entity<SupportAttachment>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null &&
+            x.InstitutionId == InstitutionId && SupportMessages.Any(m => m.Id == x.MessageId));
+        modelBuilder.Entity<SupportStorageUsage>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId);
         modelBuilder.Entity<SupportTicket>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null &&
             x.InstitutionId == InstitutionId && (AccountRoleName == "InstitutionAdmin" || (AccountRoleName == "Teacher" && x.AuthorId == AccountId)));
         modelBuilder.Entity<SupportMessage>().HasQueryFilter(x => x.DeletedAt == null && !x.Internal && InstitutionId != null &&
@@ -59,7 +63,7 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
                 if (!SupportScope.Allows(change)) throw new InvalidOperationException("SupportWriteDenied");
             return;
         }
-        if (ChangeTracker.Entries().Any(x => x.Entity is SupportTicket or SupportMessage && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+        if (ChangeTracker.Entries().Any(x => x.Entity is SupportTicket or SupportMessage or SupportAttachment or SupportStorageUsage && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("SupportWriteDenied");
         if (OnboardingScope is not null)
         {

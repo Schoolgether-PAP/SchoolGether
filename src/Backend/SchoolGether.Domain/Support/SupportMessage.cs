@@ -23,7 +23,7 @@ public sealed class SupportMessage
     public IReadOnlyCollection<SupportAttachment> Attachments => _attachments.AsReadOnly();
 
     public static SupportMessage Create(int institutionId, int ticketId, int authorId, string authorName,
-        Guid clientId, string text, bool internalMessage, int attachmentsCount, string fingerprint, DateTime now)
+        Guid clientId, string text, bool internalMessage, int attachmentsCount, string fingerprint, DateTime now, IReadOnlyList<SupportAttachment>? attachments = null)
     {
         if (institutionId <= 0 || ticketId < 0 || authorId <= 0 || clientId == Guid.Empty || string.IsNullOrWhiteSpace(authorName))
             throw new SupportRuleException("InvalidMessageIdentity");
@@ -32,18 +32,25 @@ public sealed class SupportMessage
             throw new SupportRuleException("InvalidMessageText");
         if (string.IsNullOrWhiteSpace(fingerprint)) throw new SupportRuleException("FingerprintRequired");
         if (now.Kind != DateTimeKind.Utc) throw new SupportRuleException("UtcDateRequired");
-        return new SupportMessage
+        var message = new SupportMessage
         {
             InstitutionId = institutionId, TicketId = ticketId, AuthorId = authorId, AuthorName = authorName,
             ClientId = clientId, Text = text ?? string.Empty, Internal = internalMessage,
             AttachmentsCount = attachmentsCount, Fingerprint = fingerprint, CreatedAt = now, CreatedBy = authorId
         };
+        if (attachments is not null)
+        {
+            if (attachments.Count != attachmentsCount || attachments.Any(x => x.InstitutionId != institutionId || x.MessageId != 0 || x.CreatedBy != authorId))
+                throw new SupportRuleException("InvalidAttachmentIdentity");
+            message._attachments.AddRange(attachments);
+        }
+        return message;
     }
 
     public static SupportMessage CreateInitial(int institutionId, int ticketId, int authorId, string authorName,
-        Guid clientId, string text, int attachmentsCount, string fingerprint, DateTime now)
+        Guid clientId, string text, int attachmentsCount, string fingerprint, DateTime now, IReadOnlyList<SupportAttachment>? attachments = null)
     {
         if (string.IsNullOrWhiteSpace(text)) throw new SupportRuleException("InitialDescriptionRequired");
-        return Create(institutionId, ticketId, authorId, authorName, clientId, text, false, attachmentsCount, fingerprint, now);
+        return Create(institutionId, ticketId, authorId, authorName, clientId, text, false, attachmentsCount, fingerprint, now, attachments);
     }
 }

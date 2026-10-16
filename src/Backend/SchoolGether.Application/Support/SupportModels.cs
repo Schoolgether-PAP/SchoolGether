@@ -37,7 +37,7 @@ public sealed record SupportAssignee(int Id, string Name);
 public sealed record SupportContext(bool Enabled, bool CanOpen, bool CanReadGlobal, bool CanManageGlobal);
 public sealed record SupportDownload(Stream Content, string FileName, string ContentType);
 public sealed class SupportException(string code) : Exception(code) { public string Code { get; } = code; }
-public sealed class SupportOptions { public bool Enabled { get; set; } }
+public sealed class SupportOptions { public bool Enabled { get; set; } public string FilesRoot { get; set; } = string.Empty; public long InstitutionStorageLimitBytes { get; set; } = 104857600; }
 
 public static class SupportProjection
 {

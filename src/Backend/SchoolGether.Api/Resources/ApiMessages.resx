@@ -72,4 +72,7 @@
   <data name="SupportNotFound" xml:space="preserve"><value>O pedido de suporte não foi encontrado.</value></data>
   <data name="SupportReplayConflict" xml:space="preserve"><value>Este envio já foi utilizado com dados diferentes. Atualize a conversa.</value></data>
   <data name="TicketClosed" xml:space="preserve"><value>O pedido está fechado e não aceita alterações.</value></data>
+  <data name="SupportFileUnavailable" xml:space="preserve"><value>O ficheiro está temporariamente indisponível. Tente novamente mais tarde.</value></data>
+  <data name="SupportStorageQuotaExceeded" xml:space="preserve"><value>A instituição atingiu o limite de armazenamento de anexos do suporte.</value></data>
+  <data name="SupportRequestTooLarge" xml:space="preserve"><value>O envio excede o tamanho máximo permitido de 16 MiB.</value></data>
 </root>

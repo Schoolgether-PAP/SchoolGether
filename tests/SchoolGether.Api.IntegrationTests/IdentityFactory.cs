@@ -22,19 +22,24 @@ namespace SchoolGether.Api.IntegrationTests;
 public sealed class IdentityFactory : WebApplicationFactory<Program>
 {
     public const string Password = "Test-Only-Password42!";
-    private readonly SqliteConnection connection = new("Data Source=:memory:");
+    private readonly SqliteConnection connection;
+    private readonly bool concurrentSqlite;
     private readonly IInstitutionDirectory? institutionDirectory;
     private readonly string? mySqlConnectionString;
     private readonly bool onboardingEnabled;
     private readonly bool supportEnabled;
     private readonly string? migrationTarget;
     private readonly IAuditWriter? auditWriter;
+    private readonly string supportFilesRoot = Path.Combine(Path.GetTempPath(), "schoolgether-support-test-" + Guid.NewGuid().ToString("N"));
     public string PrivateKey { get; }
     public int InstitutionA { get; private set; }
     public int InstitutionB { get; private set; }
 
-    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null, bool onboardingEnabled = false, IAuditWriter? auditWriter = null, string? migrationTarget = null, bool supportEnabled = false)
+    public IdentityFactory(IInstitutionDirectory? institutionDirectory = null, string? mySqlConnectionString = null, bool onboardingEnabled = false, IAuditWriter? auditWriter = null, string? migrationTarget = null, bool supportEnabled = false, bool concurrentSqlite = false)
     {
+        this.concurrentSqlite = concurrentSqlite;
+        if (concurrentSqlite) Directory.CreateDirectory(supportFilesRoot);
+        connection = new SqliteConnection(concurrentSqlite ? $"Data Source={Path.Combine(supportFilesRoot, "database.sqlite")};Pooling=False;Default Timeout=10" : "Data Source=:memory:");
         this.institutionDirectory = institutionDirectory;
         this.migrationTarget = migrationTarget;
         this.onboardingEnabled = onboardingEnabled;
@@ -62,14 +67,14 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
         builder.ConfigureAppConfiguration((_, configuration) => configuration.AddInMemoryCollection(
-            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = PrivateKey, ["Onboarding:Enabled"] = onboardingEnabled.ToString(), ["Support:Enabled"] = supportEnabled.ToString() }));
+            new Dictionary<string, string?> { ["Jwt:PrivateKeyPem"] = PrivateKey, ["Onboarding:Enabled"] = onboardingEnabled.ToString(), ["Support:Enabled"] = supportEnabled.ToString(), ["Support:FilesRoot"] = supportFilesRoot }));
         builder.ConfigureServices(services =>
         {
             services.RemoveAll<DbContextOptions<SchoolGetherDbContext>>();
             services.RemoveAll<IDbContextOptionsConfiguration<SchoolGetherDbContext>>();
             services.AddDbContext<SchoolGetherDbContext>(options =>
             {
-                if (mySqlConnectionString is null) options.UseSqlite(connection);
+                if (mySqlConnectionString is null) { if (concurrentSqlite) options.UseSqlite(connection.ConnectionString); else options.UseSqlite(connection); }
                 else options.UseMySQL(mySqlConnectionString);
             });
             if (auditWriter is not null)
@@ -122,15 +127,24 @@ public sealed class IdentityFactory : WebApplicationFactory<Program>
     protected override void Dispose(bool disposing)
     {
         base.Dispose(disposing);
-        if (disposing) connection.Dispose();
+        if (disposing) { connection.Dispose(); DeleteSupportTestFiles(); }
     }
 
     public override async ValueTask DisposeAsync()
     {
         await base.DisposeAsync();
         await connection.DisposeAsync();
+        DeleteSupportTestFiles();
     }
 
+    private void DeleteSupportTestFiles()
+    {
+        var absolute = Path.GetFullPath(supportFilesRoot);
+        var parent = Path.TrimEndingDirectorySeparator(Path.GetFullPath(Path.GetTempPath()));
+        if (Path.GetDirectoryName(absolute) != parent || !Path.GetFileName(absolute).StartsWith("schoolgether-support-test-", StringComparison.Ordinal))
+            throw new InvalidOperationException("UnsafeTestCleanup");
+        if (Directory.Exists(absolute)) Directory.Delete(absolute, recursive: true);
+    }
     private sealed class SeedAccount(int userId) : ICurrentAccount
     {
         public int? UserId => userId;
