@@ -141,7 +141,7 @@ public sealed class SupportConversationState : IAsyncDisposable
             if (Draft?.Fingerprint == fingerprint) return;
             if (DeliveryUncertain && !replaceUncertain) throw new InvalidOperationException("ConfirmDraftReplacement");
             Draft = new(Guid.NewGuid(), text, internalNote, verified.AsReadOnly(), fingerprint);
-            DeliveryUncertain = false;
+            DeliveryUncertain = false; context.UncertainDraftVersion = null;
         });
     }
     public async Task SendDraftAsync(CancellationToken ct = default)
@@ -152,7 +152,13 @@ public sealed class SupportConversationState : IAsyncDisposable
         try
         {
             SupportMessageDraft draft; long version;
-            lock (gate) { RequireCurrent(context); draft = Draft ?? throw new InvalidOperationException("MissingDraft"); version = Ticket?.RowVersion ?? throw new InvalidOperationException("MissingTicket"); }
+            lock (gate)
+            {
+                RequireCurrent(context);
+                draft = Draft ?? throw new InvalidOperationException("MissingDraft");
+                version = (DeliveryUncertain ? context.UncertainDraftVersion : null)
+                    ?? Ticket?.RowVersion ?? throw new InvalidOperationException("MissingTicket");
+            }
             try
             {
                 var request = new SendSupportMessageRequest(draft.ClientId, version, draft.Text, draft.Internal);
@@ -163,11 +169,13 @@ public sealed class SupportConversationState : IAsyncDisposable
                 {
                     // A confirmação pode saltar IDs ainda não lidos; só páginas HTTP avançam o cursor.
                     Merge(context, [message], older: false, advanceCursor: false);
-                    if (ReferenceEquals(Draft, draft)) { Draft = null; DeliveryUncertain = false; }
+                    if (ReferenceEquals(Draft, draft)) { Draft = null; DeliveryUncertain = false; context.UncertainDraftVersion = null; }
                 });
             }
             catch (IdentityApiException ex) when (ex.StatusCode == HttpStatusCode.Conflict)
             {
+                // O 409 exige revisão; só uma ação posterior poderá aceitar a versão relida.
+                Apply(context, () => { DeliveryUncertain = false; context.UncertainDraftVersion = null; });
                 try { await RefreshAsync(linked.Token); } catch (Exception refreshError) { Apply(context, () => Error = refreshError); }
                 throw;
             }
@@ -175,7 +183,7 @@ public sealed class SupportConversationState : IAsyncDisposable
             {
                 // Um transporte interrompido pode ter perdido apenas a confirmação do envio.
                 if (ex is not IdentityApiException)
-                    lock (gate) { if (IsCurrent(context)) DeliveryUncertain = true; }
+                    lock (gate) { if (IsCurrent(context)) { DeliveryUncertain = true; context.UncertainDraftVersion = version; } }
                 throw;
             }
             await RefreshAsync(linked.Token);
@@ -202,6 +210,12 @@ public sealed class SupportConversationState : IAsyncDisposable
         {
             if (!older) HasOlderMessages = true;
             merged = older ? merged.Take(500).ToArray() : merged.TakeLast(500).ToArray();
+            if (older)
+            {
+                // Mensagens recentes descartadas têm de voltar a ser elegíveis para AfterId.
+                context.AfterId = Math.Min(context.AfterId, merged[^1].Id);
+                RecoveryPending = true;
+            }
         }
         Messages = Array.AsReadOnly(merged);
     }
@@ -257,6 +271,7 @@ public sealed class SupportConversationState : IAsyncDisposable
         public CancellationToken Token { get; }
         public Conversation(int ticketId, long generation) { TicketId = ticketId; Generation = generation; Token = cancellation.Token; }
         public int AfterId { get; set; }
+        public long? UncertainDraftVersion { get; set; }
         public bool LiveStarted { get; set; }
         public void Dispose() { cancellation.Cancel(); cancellation.Dispose(); }
     }

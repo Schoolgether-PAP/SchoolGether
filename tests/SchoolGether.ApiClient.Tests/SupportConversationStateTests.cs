@@ -1,4 +1,5 @@
 using System.Net;
+using System.Text.Json;
 using SchoolGether.ApiClient.Identity;
 using SchoolGether.ApiClient.Support;
 using SchoolGether.Contracts.Support;
@@ -157,12 +158,70 @@ public sealed class SupportConversationStateTests
             if (!r.Path.Contains("messages")) return Task.FromResult(SessionTestFixture.Json(SupportApiClientTests.Ticket()));
             if (r.Path.Contains("beforeId=101")) return Task.FromResult(Page(Enumerable.Range(51, 50).ToArray(), true));
             var after = r.Path.Contains("afterId=") ? int.Parse(r.Path.Split("afterId=")[1]) : 0;
-            var ids = Enumerable.Range(after + 1, 50).ToArray();
+            var ids = Enumerable.Range(after + 1, Math.Min(50, 600 - after)).ToArray();
             return Task.FromResult(Page(ids, after is > 0 and < 550));
         };
         await state.LoadAsync(3); await state.RefreshAsync();
         Assert.Equal(500, state.Messages.Count); Assert.Equal(101, state.Messages[0].Id); Assert.True(state.HasOlderMessages);
         await state.LoadOlderAsync(); Assert.Equal(500, state.Messages.Count); Assert.Equal(51, state.Messages[0].Id);
+        await state.RefreshAsync();
+        Assert.Equal(Enumerable.Range(101, 500), state.Messages.Select(m => m.Id));
+        Assert.False(state.RecoveryPending);
+    }
+
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task UncertainRetryKeepsAttemptedVersionAndRecognizesPersistedReplay(bool firstAttemptPersisted)
+    {
+        using var f = new SessionTestFixture(); await f.Session.SignInAsync(SessionTestFixture.Credentials);
+        await using var live = OfflineLive(f); await using var state = new SupportConversationState(new(f.Http, f.Session), live, f.Session);
+        var version = 9L; var requests = new List<SendSupportMessageRequest>(); var writes = 0;
+        SupportMessageResponse? saved = null;
+        f.Respond = (r, _) =>
+        {
+            if (r.Method != "POST") return Task.FromResult(r.Path.Contains("messages")
+                ? SessionTestFixture.Json(new SupportMessagePageResponse(saved is null ? [] : [saved], false))
+                : SessionTestFixture.Json(SupportApiClientTests.Ticket(version: version)));
+            var start = r.Body!.IndexOf('{'); var end = r.Body.IndexOf('}', start);
+            var request = JsonSerializer.Deserialize<SendSupportMessageRequest>(r.Body[start..(end + 1)], new JsonSerializerOptions(JsonSerializerDefaults.Web))!;
+            requests.Add(request);
+            if (saved?.ClientId == request.ClientId) return Task.FromResult(SessionTestFixture.Json(saved));
+            if (request.RowVersion != version) return Task.FromResult(new HttpResponseMessage(HttpStatusCode.Conflict));
+            if (requests.Count > 1 || firstAttemptPersisted)
+            {
+                saved = SupportApiClientTests.Message(1) with { ClientId = request.ClientId };
+                writes++; version++;
+            }
+            if (requests.Count == 1) throw new HttpRequestException("Confirmação perdida");
+            return Task.FromResult(SessionTestFixture.Json(saved!));
+        };
+        await state.LoadAsync(3);
+        await state.SetDraftAsync("Conservar", files: [new("a.txt", 1, _ => Task.FromResult<Stream>(new MemoryStream([1])))]);
+        var draft = state.Draft;
+        await Assert.ThrowsAsync<HttpRequestException>(() => state.SendDraftAsync());
+        version = 71; await state.RefreshAsync();
+        Assert.True(state.DeliveryUncertain); Assert.Same(draft, state.Draft); Assert.Equal(71, state.Ticket!.RowVersion);
+        if (firstAttemptPersisted)
+        {
+            await state.SendDraftAsync();
+            Assert.Null(state.Draft); Assert.Single(state.Messages); Assert.Equal(1, writes);
+        }
+        else
+        {
+            var conflict = await Assert.ThrowsAsync<IdentityApiException>(() => state.SendDraftAsync());
+            Assert.Equal(HttpStatusCode.Conflict, conflict.StatusCode);
+            Assert.Same(draft, state.Draft); Assert.Single(state.Draft!.Files); Assert.Equal(0, writes);
+            Assert.False(state.DeliveryUncertain);
+        }
+        Assert.Equal(new long[] { 9, 9 }, requests.Select(r => r.RowVersion));
+        Assert.All(requests, request => Assert.Equal(draft!.ClientId, request.ClientId));
+        if (!firstAttemptPersisted)
+        {
+            // Uma nova ação explícita após rever o 409 pode usar a versão apresentada.
+            await state.SendDraftAsync(); Assert.Equal(71, requests[^1].RowVersion);
+            Assert.Equal(draft!.ClientId, requests[^1].ClientId); Assert.Equal(1, writes); Assert.Null(state.Draft);
+        }
     }
 
     [Fact]
