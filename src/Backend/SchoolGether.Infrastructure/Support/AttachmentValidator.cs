@@ -78,14 +78,14 @@ internal static class AttachmentValidator
                 var name = entry.FullName;
                 if (!names.Add(name) || name.StartsWith('/') || name.Contains('\\') || name.Contains(':') ||
                     name.Split('/').Any(x => x == "..") || name.Any(char.IsControl) || name.Contains("vba", StringComparison.OrdinalIgnoreCase) ||
-                    name.EndsWith(".bin", StringComparison.OrdinalIgnoreCase) || (total += entry.Length) > 100 * 1024 * 1024)
+                    (total += entry.Length) > 100 * 1024 * 1024)
                     throw Invalid();
             }
             var main = extension == ".docx" ? "word/document.xml" : extension == ".xlsx" ? "xl/workbook.xml" : "ppt/presentation.xml";
             var kind = extension == ".docx" ? "wordprocessingml.document" : extension == ".xlsx" ? "spreadsheetml.sheet" : "presentationml.presentation";
             var types = await ReadXmlAsync(archive.GetEntry("[Content_Types].xml"), ct);
             XNamespace contentNs = "http://schemas.openxmlformats.org/package/2006/content-types";
-            if (types.Root?.Name != contentNs + "Types" || types.Descendants().Attributes().Any(x => x.Value.Contains("macro", StringComparison.OrdinalIgnoreCase)) ||
+            if (types.Root?.Name != contentNs + "Types" || types.Descendants().Attributes().Any(x => IsMacro(x.Value)) ||
                 !types.Root.Elements(contentNs + "Override").Any(x => (string?)x.Attribute("PartName") == "/" + main &&
                     (string?)x.Attribute("ContentType") == "application/vnd.openxmlformats-officedocument." + kind + ".main+xml")) throw Invalid();
             var rels = await ReadXmlAsync(archive.GetEntry("_rels/.rels"), ct);
@@ -93,6 +93,7 @@ internal static class AttachmentValidator
             if (rels.Root?.Name != relNs + "Relationships" || !rels.Root.Elements(relNs + "Relationship").Any(x =>
                     (string?)x.Attribute("Type") == "http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" &&
                     (string?)x.Attribute("Target") == main && (string?)x.Attribute("TargetMode") != "External")) throw Invalid();
+            await ValidateBinaryPartsAsync(archive, types, extension, ct);
             var document = await ReadXmlAsync(archive.GetEntry(main), ct);
             var root = extension == ".docx" ? "document" : extension == ".xlsx" ? "workbook" : "presentation";
             var ns = extension == ".docx" ? "wordprocessingml" : extension == ".xlsx" ? "spreadsheetml" : "presentationml";
@@ -100,6 +101,42 @@ internal static class AttachmentValidator
         }
         catch (Exception ex) when (ex is InvalidDataException or XmlException or EndOfStreamException or OverflowException or NotSupportedException)
         { throw Invalid(); }
+    }
+    private static bool IsMacro(string value) => value.Contains("macro", StringComparison.OrdinalIgnoreCase) || value.Contains("vba", StringComparison.OrdinalIgnoreCase);
+
+    private static async Task ValidateBinaryPartsAsync(ZipArchive archive, XDocument types, string extension, CancellationToken ct)
+    {
+        XNamespace relNs = "http://schemas.openxmlformats.org/package/2006/relationships";
+        XNamespace contentNs = "http://schemas.openxmlformats.org/package/2006/content-types";
+        var printerParts = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var entry in archive.Entries.Where(x => x.FullName.EndsWith(".rels", StringComparison.OrdinalIgnoreCase)))
+        {
+            var relationships = await ReadXmlAsync(entry, ct);
+            if (relationships.Root?.Name != relNs + "Relationships" || relationships.Descendants().Attributes().Any(x => IsMacro(x.Value))) throw Invalid();
+            var marker = entry.FullName.LastIndexOf("/_rels/", StringComparison.Ordinal);
+            if (marker < 0) continue;
+            var source = entry.FullName[..(marker + 1)] + entry.FullName[(marker + 7)..^5];
+            if (archive.GetEntry(source) is null) continue;
+            var sourceUri = new Uri("https://package/" + source);
+            foreach (var relationship in relationships.Root.Elements(relNs + "Relationship"))
+            {
+                if ((string?)relationship.Attribute("Type") != "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings" ||
+                    string.Equals((string?)relationship.Attribute("TargetMode"), "External", StringComparison.OrdinalIgnoreCase)) continue;
+                var target = (string?)relationship.Attribute("Target");
+                if (string.IsNullOrEmpty(target) || target.IndexOfAny([':', '\\', '#', '?']) >= 0 ||
+                    !Uri.TryCreate(sourceUri, target, out var targetUri) || targetUri.Host != sourceUri.Host) throw Invalid();
+                printerParts.Add(Uri.UnescapeDataString(targetUri.AbsolutePath[1..]));
+            }
+        }
+        var printerType = "application/vnd.openxmlformats-officedocument." +
+            (extension == ".docx" ? "wordprocessingml" : extension == ".xlsx" ? "spreadsheetml" : "presentationml") + ".printerSettings";
+        foreach (var entry in archive.Entries.Where(x => x.FullName.EndsWith(".bin", StringComparison.OrdinalIgnoreCase)))
+        {
+            var declarations = types.Root!.Elements(contentNs + "Override").Where(x => (string?)x.Attribute("PartName") == "/" + entry.FullName).ToArray();
+            if (declarations.Length == 0)
+                declarations = types.Root.Elements(contentNs + "Default").Where(x => string.Equals((string?)x.Attribute("Extension"), "bin", StringComparison.OrdinalIgnoreCase)).ToArray();
+            if (declarations.Length != 1 || (string?)declarations[0].Attribute("ContentType") != printerType || !printerParts.Contains(entry.FullName)) throw Invalid();
+        }
     }
     private static async Task<XDocument> ReadXmlAsync(ZipArchiveEntry? entry, CancellationToken ct)
     {

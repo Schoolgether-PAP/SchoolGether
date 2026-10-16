@@ -5,8 +5,15 @@ using SchoolGether.Application.Support;
 
 namespace SchoolGether.Api.Support;
 
+// Shared by Create and Send: generic static fields would give each DTO its own limit.
+internal static class SupportMultipartAdmission
+{
+    internal static readonly SemaphoreSlim Slots = new(2, 2);
+}
+
 internal sealed class SupportMultipartRequest<T> : IDisposable
 {
+    private int admitted;
     internal const int BodyLimit = 16777216;
     internal T Request { get; private set; } = default!;
     internal List<IncomingAttachment> Files { get; } = [];
@@ -18,6 +25,9 @@ internal sealed class SupportMultipartRequest<T> : IDisposable
             if (!MediaTypeHeaderValue.TryParse(request.ContentType, out var type) || !type.MediaType.Equals("multipart/form-data", StringComparison.OrdinalIgnoreCase) ||
                 !type.Boundary.HasValue || type.Boundary.Length > 128) throw new SupportException("InvalidSupportInput");
             if (request.ContentLength > BodyLimit) throw new SupportException("SupportRequestTooLarge");
+            // This lease covers buffering through service completion; disk storage has separate slots.
+            await SupportMultipartAdmission.Slots.WaitAsync(ct);
+            result.admitted = 1;
             using var limited = new LimitedBody(request.Body);
             var reader = new MultipartReader(HeaderUtilities.RemoveQuotes(type.Boundary).Value!, limited) { HeadersLengthLimit = 8192, BodyLengthLimit = BodyLimit };
             var hasRequest = false;
@@ -63,7 +73,14 @@ internal sealed class SupportMultipartRequest<T> : IDisposable
         }
         catch { data.Dispose(); throw; }
     }
-    public void Dispose() { foreach (var file in Files) file.Content.Dispose(); }
+    public void Dispose()
+    {
+        try { foreach (var file in Files) file.Content.Dispose(); }
+        finally
+        {
+            if (Interlocked.Exchange(ref admitted, 0) == 1) SupportMultipartAdmission.Slots.Release();
+        }
+    }
     private sealed class LimitedBody(Stream source) : Stream
     {
         private long read;

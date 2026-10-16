@@ -25,6 +25,74 @@ public sealed partial class SupportStorageTests
         await storage.DeleteAsync(prepared.StorageKey, default);
     }
     [Theory]
+    [InlineData("override")]
+    [InlineData("default")]
+    public async Task AcceptsMacroFreeOfficePrinterSettings_WithDeclaredTypeAndRelationship(string declaration)
+    {
+        await using var factory = new IdentityFactory(supportEnabled: true);
+        var storage = factory.Services.GetRequiredService<IFileStorage>();
+        var bytes = OfficeWithPrinterSettings(declaration);
+        using var input = new MemoryStream(bytes);
+        var prepared = await storage.PrepareAsync(new("print-layout.docx", input), default);
+        Assert.Equal("application/vnd.openxmlformats-officedocument.wordprocessingml.document", prepared.ContentType);
+        await storage.CommitAsync(prepared, default);
+        await using (var downloaded = await storage.OpenReadAsync(prepared.StorageKey, default))
+        {
+            using var actual = new MemoryStream();
+            await downloaded.CopyToAsync(actual);
+            Assert.Equal(bytes, actual.ToArray());
+        }
+        await storage.DeleteAsync(prepared.StorageKey, default);
+    }
+
+    [Theory]
+    [InlineData("undeclared")]
+    [InlineData("unrelated")]
+    [InlineData("external")]
+    [InlineData("wrongType")]
+    [InlineData("macro")]
+    [InlineData("vbaType")]
+    [InlineData("vbaRelationship")]
+    public async Task RejectsUndeclaredOrMacroBinaryParts_EvenWithPrinterSettings(string defect)
+    {
+        await using var factory = new IdentityFactory(supportEnabled: true);
+        var storage = factory.Services.GetRequiredService<IFileStorage>();
+        using var input = new MemoryStream(OfficeWithPrinterSettings("override", defect));
+        await Assert.ThrowsAsync<SupportException>(() => storage.PrepareAsync(new("document.docx", input), default));
+        var root = factory.Services.GetRequiredService<SupportOptions>().FilesRoot;
+        Assert.Empty(Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories));
+    }
+
+    private static byte[] OfficeWithPrinterSettings(string declaration, string? defect = null)
+    {
+        const string printerType = "application/vnd.openxmlformats-officedocument.wordprocessingml.printerSettings";
+        var contentType = defect == "vbaType" ? "application/vnd.ms-office.vbaProject" : defect == "wrongType" ? "application/octet-stream" : printerType;
+        var declared = defect == "undeclared" ? "" : declaration == "default"
+            ? $"<Default Extension=\"bin\" ContentType=\"{contentType}\"/>"
+            : $"<Override PartName=\"/word/printerSettings/printerSettings1.bin\" ContentType=\"{contentType}\"/>";
+        var relationType = defect == "vbaRelationship" ? "http://schemas.microsoft.com/office/2006/relationships/vbaProject"
+            : "http://schemas.openxmlformats.org/officeDocument/2006/relationships/printerSettings";
+        using var data = new MemoryStream();
+        using (var archive = new ZipArchive(data, ZipArchiveMode.Create, true))
+        {
+            void Add(string name, string value) { using var writer = new StreamWriter(archive.CreateEntry(name).Open(), new UTF8Encoding(false)); writer.Write(value); }
+            Add("[Content_Types].xml", "<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Default Extension=\"xml\" ContentType=\"application/xml\"/><Default Extension=\"rels\" ContentType=\"application/vnd.openxmlformats-package.relationships+xml\"/><Override PartName=\"/word/document.xml\" ContentType=\"application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml\"/>" + declared + "</Types>");
+            Add("_rels/.rels", "<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"r1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"word/document.xml\"/></Relationships>");
+            Add("word/document.xml", "<w:document xmlns:w=\"http://schemas.openxmlformats.org/wordprocessingml/2006/main\" xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><w:body><w:sectPr><w:printerSettings r:id=\"printer1\"/></w:sectPr></w:body></w:document>");
+            if (defect != "unrelated")
+                Add("word/_rels/document.xml.rels", $"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"printer1\" Type=\"{relationType}\" Target=\"printerSettings/printerSettings1.bin\"{(defect == "external" ? " TargetMode=\"External\"" : "")}/></Relationships>");
+            // Synthetic DEVMODEW: no real device data or driver-specific payload.
+            var settings = new byte[220];
+            Encoding.Unicode.GetBytes("Synthetic test printer").CopyTo(settings, 0);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(settings.AsSpan(64), 0x0401);
+            System.Buffers.Binary.BinaryPrimitives.WriteUInt16LittleEndian(settings.AsSpan(68), 220);
+            using (var printer = archive.CreateEntry("word/printerSettings/printerSettings1.bin").Open()) printer.Write(settings);
+            if (defect == "macro") Add("word/vbaProject.bin", "macro");
+        }
+        return data.ToArray();
+    }
+
+    [Theory]
     [InlineData("missing")]
     [InlineData("macro")]
     [InlineData("../escape.xml")]
