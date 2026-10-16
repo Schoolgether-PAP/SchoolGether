@@ -89,11 +89,11 @@ O processo de publicação deve preservar o diretório de anexos; migrações gu
 
 ### Tempo real, avisos e falhas de ligação
 
-Usar ASP.NET Core SignalR, já incluído no framework do servidor, e o cliente oficial Microsoft.AspNetCore.SignalR.Client compatível com .NET 10. É a única dependência nova proposta: permite reaproveitar o chat na app e evita um protocolo WebSocket próprio. Referência: https://learn.microsoft.com/en-us/aspnet/core/signalr/dotnet-client?view=aspnetcore-10.0.
+Usar ASP.NET Core SignalR, já incluído no framework do servidor, e o cliente oficial Microsoft.AspNetCore.SignalR.Client 10.0.13, compatível com .NET 10 e mínimo corrigido para GHSA-334f-vvp4-7g6p. É a única dependência nova proposta: permite reaproveitar o chat na app e evita um protocolo WebSocket próprio. Referência: https://learn.microsoft.com/en-us/aspnet/core/signalr/dotnet-client?view=aspnetcore-10.0.
 
 Enviar mensagens e anexos por HTTP autenticado; SignalR avisa que existem alterações, sem transportar corpos de mensagens, notas ou anexos. O cliente volta a consultar a API autorizada. A inscrição num pedido exige autorização; separar os grupos público/interno. Nunca enviar notificações de notas internas aos grupos escolares. Fechar ligações quando expira a autenticação, revalidar inscrições ao reconectar e obter o token pela sessão existente, sem expor tokens aos componentes.
 
-Permitir token na query apenas no caminho exato do hub quando necessário pelo transporte do navegador; não registar query strings sensíveis. Rejeitar origens de navegador fora do CORS autorizado. Referência: https://learn.microsoft.com/en-us/aspnet/core/signalr/authn-and-authz?view=aspnetcore-10.0.
+Nesta entrega, usar LongPolling com Authorization no navegador e rejeitar autenticação por access_token na query em todos os caminhos, incluindo o hub. A supressão de queries nos registos IIS W3C não está demonstrada; WebSockets nativos podem usar cabeçalhos. Não registar query strings sensíveis. Rejeitar origens de navegador fora do CORS autorizado. Referência: https://learn.microsoft.com/en-us/aspnet/core/signalr/authn-and-authz?view=aspnetcore-10.0.
 
 Ao reconectar, consultar mensagens posteriores ao último ID conhecido e atualizar estado/permissões; não confiar na entrega de eventos durante a interrupção. Usar um client_id GUID por envio para reconhecer repetições. Se a mesma chave já tiver sido aceite, devolver o envio existente; a mesma chave com conteúdo diferente devolve 409. Nunca duplicar mensagens/anexos numa repetição após timeout.
 

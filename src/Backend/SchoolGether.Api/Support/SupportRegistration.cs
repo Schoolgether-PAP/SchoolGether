@@ -1,5 +1,7 @@
 using SchoolGether.Infrastructure.Support;
 using SchoolGether.Application.Support;
+using Microsoft.AspNetCore.Http.Connections;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace SchoolGether.Api.Support;
 
@@ -8,6 +10,10 @@ public static class SupportRegistration
     public static IServiceCollection AddApiSupport(this IServiceCollection services)
     {
         services.AddSupportModule();
+        services.AddSignalR(options => options.EnableDetailedErrors = false);
+        services.AddSingleton<SupportConnectionRegistry>();
+        services.RemoveAll<ISupportNotifier>();
+        services.AddSingleton<ISupportNotifier, SupportNotifier>();
         services.AddHostedService<OrphanFileCleanupWorker>();
         services.AddSingleton(sp =>
         {
@@ -26,6 +32,26 @@ public static class SupportRegistration
         services.AddExceptionHandler<SupportExceptionHandler>();
         return services;
     }
+
+    public static IApplicationBuilder UseSupportLiveOriginGuard(this IApplicationBuilder app) => app.Use(async (context, next) =>
+    {
+        if (context.Request.Path.StartsWithSegments("/api/v1/support/live") && context.Request.Headers.TryGetValue("Origin", out var origin))
+        {
+            var allowed = context.RequestServices.GetRequiredService<IConfiguration>().GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+            if (origin.Count != 1 || !allowed.Contains(origin[0], StringComparer.OrdinalIgnoreCase))
+            { context.Response.StatusCode = StatusCodes.Status403Forbidden; return; }
+        }
+        await next(context);
+    });
+
+    public static IEndpointConventionBuilder MapSupportLive(this IEndpointRouteBuilder endpoints) =>
+        endpoints.MapHub<SupportHub>("/api/v1/support/live", options =>
+        {
+            options.CloseOnAuthenticationExpiration = true;
+            // O navegador usa LongPolling com Authorization; WebSockets nativos apenas com cabeçalho.
+            options.Transports = HttpTransportType.LongPolling | HttpTransportType.WebSockets;
+            options.AllowStatefulReconnects = false;
+        });
 }
 
 internal sealed class OrphanFileCleanupWorker(IServiceScopeFactory scopes, SupportOptions options,

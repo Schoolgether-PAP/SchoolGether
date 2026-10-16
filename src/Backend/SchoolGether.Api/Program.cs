@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Localization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using SchoolGether.Api;
 using SchoolGether.Api.Diagnostics;
 using SchoolGether.Api.Identity;
@@ -72,9 +73,10 @@ builder.Services.AddProblemDetails(options =>
     };
 });
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddCors();
+builder.Services.AddOptions<CorsOptions>().Configure<IConfiguration>((options, configuration) =>
+    options.AddDefaultPolicy(policy => policy.WithOrigins(configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+        .AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
 
@@ -113,6 +115,7 @@ else
 }
 
 app.UseRouting();
+app.UseSupportLiveOriginGuard();
 app.UseCors();
 app.Use(async (context, next) =>
 {
@@ -126,6 +129,7 @@ app.UseAuthorization();
 app.UseOnboardingBodyLimit();
 
 app.MapControllers();
+app.MapSupportLive();
 
 app.Run();
 

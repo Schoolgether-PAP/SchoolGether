@@ -25,6 +25,34 @@ public sealed class SupportAuthorization(ICurrentAccount current, IIdentityStore
     public async Task<AuthorizedSupportScope> RequireAsync(string operation, int? ticketId, CancellationToken ct)
     {
         var actor = await ResolveAsync(ct);
+        return RequireScope(actor, operation, ticketId);
+    }
+
+    public async Task<AuthorizedSupportScope> RequireSessionAsync(SupportSession session, int? ticketId, CancellationToken ct)
+    {
+        var account = await identities.FindForAuthenticationAsync(session.Id, ct);
+        if (account is null || account.Id != session.Id || account.InstitutionId != session.InstitutionId || account.Role.ToString() != session.Role)
+            throw new SupportException("InvalidSession");
+        SupportActor actor;
+        if (session.Role == "PlatformAdmin")
+        {
+            var admin = await directory.FindAsync(session.Id, ct);
+            if (session.InstitutionId is not null || admin is null || !admin.IsActive) throw new SupportException("InvalidSession");
+            var read = admin.IsMaster || admin.Permissions.Contains(PlatformCapabilities.SupportRead);
+            actor = new(account.Id, account.Name, session.Role, null, read,
+                read && (admin.IsMaster || admin.Permissions.Contains(PlatformCapabilities.SupportManage)));
+        }
+        else
+        {
+            if (session.Role is not ("Teacher" or "InstitutionAdmin")) throw new SupportException("Forbidden");
+            if (session.InstitutionId is not > 0) throw new SupportException("InvalidSession");
+            actor = new(account.Id, account.Name, session.Role, session.InstitutionId, false, false);
+        }
+        return RequireScope(actor, "read", ticketId);
+    }
+
+    private AuthorizedSupportScope RequireScope(SupportActor actor, string operation, int? ticketId)
+    {
         if (!options.Enabled) throw new SupportException("SupportDisabled");
         if (actor.Role == "PlatformAdmin" && (!actor.CanReadGlobal || operation == "create" ||
             (operation is "reply" or "manage" && !actor.CanManageGlobal))) throw new SupportException("Forbidden");

@@ -3,6 +3,8 @@ using SchoolGether.Domain.Support;
 namespace SchoolGether.Application.Support;
 
 public sealed record SupportActor(int Id, string Name, string Role, int? InstitutionId, bool CanReadGlobal, bool CanManageGlobal);
+// Identidade autenticada capturada pelo servidor; não transporta permissões nem um ator autorizado.
+public sealed record SupportSession(int Id, int? InstitutionId, string Role);
 public sealed class AuthorizedSupportScope
 {
     internal AuthorizedSupportScope(SupportActor actor, string operation, int? ticketId = null)
