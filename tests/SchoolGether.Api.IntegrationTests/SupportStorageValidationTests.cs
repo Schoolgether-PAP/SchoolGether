@@ -25,6 +25,18 @@ public sealed partial class SupportStorageTests
         await storage.DeleteAsync(prepared.StorageKey, default);
     }
     [Theory]
+    [InlineData("https://example.org/macroeconomics")]
+    [InlineData("https://example.org/vba-reference")]
+    public async Task AcceptsMacroFreeOfficeHyperlinks_WithMacroOrVbaWordsInTargetAndId(string target)
+    {
+        await using var factory = new IdentityFactory(supportEnabled: true);
+        var storage = factory.Services.GetRequiredService<IFileStorage>();
+        using var input = new MemoryStream(Office("docx", "hyperlink", target));
+        var prepared = await storage.PrepareAsync(new("references.docx", input), default);
+        Assert.Equal("application/vnd.openxmlformats-officedocument.wordprocessingml.document", prepared.ContentType);
+        await storage.DeleteAsync(prepared.StorageKey, default);
+    }
+    [Theory]
     [InlineData("override")]
     [InlineData("default")]
     public async Task AcceptsMacroFreeOfficePrinterSettings_WithDeclaredTypeAndRelationship(string declaration)
@@ -113,7 +125,7 @@ public sealed partial class SupportStorageTests
         var root = factory.Services.GetRequiredService<IConfiguration>()["Support:FilesRoot"]!;
         Assert.Empty(Directory.EnumerateFiles(root, "*", SearchOption.AllDirectories));
     }
-    private static byte[] Office(string extension, string? defect = null)
+    private static byte[] Office(string extension, string? defect = null, string? hyperlinkTarget = null)
     {
         var main = extension == "docx" ? "word/document.xml" : extension == "xlsx" ? "xl/workbook.xml" : "ppt/presentation.xml";
         var kind = extension == "docx" ? "wordprocessingml.document" : extension == "xlsx" ? "spreadsheetml.sheet" : "presentationml.presentation";
@@ -125,7 +137,10 @@ public sealed partial class SupportStorageTests
             void Add(string name, string value) { using var writer = new StreamWriter(archive.CreateEntry(name).Open(), new UTF8Encoding(false)); writer.Write(value); }
             Add("[Content_Types].xml", $"<Types xmlns=\"http://schemas.openxmlformats.org/package/2006/content-types\"><Override PartName=\"/{main}\" ContentType=\"application/vnd.openxmlformats-officedocument.{kind}.main+xml\"/></Types>");
             Add("_rels/.rels", $"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"r1\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument\" Target=\"{main}\"/></Relationships>");
-            if (defect != "missing") Add(main, (defect == "dtd" ? "<!DOCTYPE document [<!ENTITY x SYSTEM 'file:///not-read'>]>" : "") + $"<{root} xmlns=\"http://schemas.openxmlformats.org/{ns}/2006/main\">{(defect == "largeXml" ? new string('x', 524289) : "")}</{root}>");
+            var content = defect == "hyperlink" ? "<body xmlns:r=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships\"><p><hyperlink r:id=\"macroVbaLink\"><r><t>Reference</t></r></hyperlink></p></body>" : defect == "largeXml" ? new string('x', 524289) : "";
+            if (defect != "missing") Add(main, (defect == "dtd" ? "<!DOCTYPE document [<!ENTITY x SYSTEM 'file:///not-read'>]>" : "") + $"<{root} xmlns=\"http://schemas.openxmlformats.org/{ns}/2006/main\">{content}</{root}>");
+            if (defect == "hyperlink")
+                Add("word/_rels/document.xml.rels", $"<Relationships xmlns=\"http://schemas.openxmlformats.org/package/2006/relationships\"><Relationship Id=\"macroVbaLink\" Type=\"http://schemas.openxmlformats.org/officeDocument/2006/relationships/hyperlink\" Target=\"{hyperlinkTarget}\" TargetMode=\"External\"/></Relationships>");
             if (defect == "macro") Add("word/vbaProject.bin", "macro");
             if (defect?.Contains("escape") == true || defect == "/absolute.xml") Add(defect, "unexpected");
             if (defect == "many") for (var i = 0; i < 2001; i++) Add($"extra/{i}.xml", "x");

@@ -85,7 +85,7 @@ internal static class AttachmentValidator
             var kind = extension == ".docx" ? "wordprocessingml.document" : extension == ".xlsx" ? "spreadsheetml.sheet" : "presentationml.presentation";
             var types = await ReadXmlAsync(archive.GetEntry("[Content_Types].xml"), ct);
             XNamespace contentNs = "http://schemas.openxmlformats.org/package/2006/content-types";
-            if (types.Root?.Name != contentNs + "Types" || types.Descendants().Attributes().Any(x => IsMacro(x.Value)) ||
+            if (types.Root?.Name != contentNs + "Types" || types.Root.Elements().Attributes("ContentType").Any(x => IsMacro(x.Value)) ||
                 !types.Root.Elements(contentNs + "Override").Any(x => (string?)x.Attribute("PartName") == "/" + main &&
                     (string?)x.Attribute("ContentType") == "application/vnd.openxmlformats-officedocument." + kind + ".main+xml")) throw Invalid();
             var rels = await ReadXmlAsync(archive.GetEntry("_rels/.rels"), ct);
@@ -112,7 +112,7 @@ internal static class AttachmentValidator
         foreach (var entry in archive.Entries.Where(x => x.FullName.EndsWith(".rels", StringComparison.OrdinalIgnoreCase)))
         {
             var relationships = await ReadXmlAsync(entry, ct);
-            if (relationships.Root?.Name != relNs + "Relationships" || relationships.Descendants().Attributes().Any(x => IsMacro(x.Value))) throw Invalid();
+            if (relationships.Root?.Name != relNs + "Relationships" || relationships.Root.Elements(relNs + "Relationship").Attributes("Type").Any(x => IsMacro(x.Value))) throw Invalid();
             var marker = entry.FullName.LastIndexOf("/_rels/", StringComparison.Ordinal);
             if (marker < 0) continue;
             var source = entry.FullName[..(marker + 1)] + entry.FullName[(marker + 7)..^5];
