@@ -1,7 +1,7 @@
 @inherits SupportView
 <form class="support-compose @(internalNote ? "internal" : "")" @onsubmit="SendAsync" @onsubmit:preventDefault aria-busy="@Busy">
     <fieldset disabled="@(Busy || State.DeliveryUncertain)">
-        <div class="support-tabs"><button type="button" aria-pressed="@(!internalNote)" @onclick="() => ModeAsync(false)">@T("SupportPublic")</button>@if (CanManage) { <button type="button" aria-pressed="@internalNote" @onclick="() => ModeAsync(true)">@T("SupportInternal")</button> }</div>
+        <div class="support-tabs"><button type="button" aria-pressed="@(internalNote ? "false" : "true")" @onclick="() => ModeAsync(false)">@T("SupportPublic")</button>@if (CanManage) { <button type="button" aria-pressed="@(internalNote ? "true" : "false")" @onclick="() => ModeAsync(true)">@T("SupportInternal")</button> }</div>
         <label for="support-message">@T(internalNote ? "SupportInternalText" : "SupportPublicText")</label><textarea id="support-message" rows="3" maxlength="4000" value="@text" @oninput="TextAsync" aria-describedby="support-compose-help"></textarea>
         <p id="support-compose-help">@T(internalNote ? "SupportInternalHelp" : "SupportPublicHelp")</p>
         <label for="support-files">@T("SupportAttach")</label><InputFile id="support-files" @key="fileKey" OnChange="FilesAsync" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.docx,.xlsx,.pptx" /><p>@T("SupportFileHelp")</p>

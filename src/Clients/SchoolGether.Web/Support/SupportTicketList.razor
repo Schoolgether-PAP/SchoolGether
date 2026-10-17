@@ -3,7 +3,7 @@
 <div class="support-queue-tools">
     <form @onsubmit="SearchAsync" @onsubmit:preventDefault>
         <label for="support-search">@T("SupportSearch")</label><input id="support-search" type="search" maxlength="150" @bind="search" @ref="searchElement" />
-        <div class="support-tabs"><button type="button" aria-pressed="@(!history)" @onclick="() => TabAsync(false)">@T("SupportTickets")</button><button type="button" aria-pressed="@history" @onclick="() => TabAsync(true)">@T("SupportHistory")</button></div>
+        <div class="support-tabs"><button type="button" disabled="@Busy" aria-pressed="@(history ? "false" : "true")" @onclick="() => TabAsync(false)">@T("SupportTickets")</button><button type="button" disabled="@Busy" aria-pressed="@(history ? "true" : "false")" @onclick="() => TabAsync(true)">@T("SupportHistory")</button></div>
         <label for="support-state">@T("State")</label><select id="support-state" disabled="@history" @bind="status"><option value="">@T("SupportAllStates")</option>@foreach (var s in states) { <option value="@s">@Label(s)</option> }</select>
         <label for="support-priority">@T("SupportPriority")</label><select id="support-priority" @bind="priority"><option value="">@T("SupportAllPriorities")</option>@foreach (var p in priorities) { <option value="@p">@Label(p)</option> }</select>
         @if (Context.CanReadGlobal) { <details><summary>@T("SupportMoreFilters")</summary><div class="support-filter-pair"><div><label for="support-institution">@T("SupportInstitutionId")</label><input id="support-institution" type="number" min="1" @bind="institutionId" /></div><div><label for="support-assignee-filter">@T("SupportAssigneeId")</label><input id="support-assignee-filter" type="number" min="1" @bind="assigneeId" /></div></div></details> }
@@ -39,7 +39,7 @@ else if (data is { } rows)
     protected override Task OnInitializedAsync() => RefreshAsync();
     public async Task RefreshAsync() { await RunAsync(async () => { var result = await Api.ListAsync(page, 20, Empty(search), history ? "Closed" : (Empty(status) ?? "Active"), Empty(priority), Context.CanReadGlobal ? institutionId : null, Context.CanReadGlobal ? assigneeId : null, Lifetime.Token); if (!Disposed) data = result; }); if (!Disposed) await InvokeAsync(StateHasChanged); }
     private static string? Empty(string value) => string.IsNullOrWhiteSpace(value) ? null : value.Trim();
-    private async Task TabAsync(bool value) { history = value; page = 1; await RefreshAsync(); }
+    private async Task TabAsync(bool value) { if (Busy || Disposed) return; history = value; page = 1; await RefreshAsync(); }
     private async Task SearchAsync() { page = 1; await RefreshAsync(); }
     private async Task PageAsync(int delta) { page += delta; await RefreshAsync(); }
     public Task FocusAsync() => searchElement.FocusAsync().AsTask();
