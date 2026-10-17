@@ -39,16 +39,18 @@ internal sealed class SupportWriteScope(SchoolGetherDbContext db, AuthorizedSupp
         if (db.Database.CurrentTransaction?.TransactionId != transactionId || ticket is null) return false;
         if (entry.Entity is AuditEntry audit)
             return entry.State == EntityState.Added && audit.ActorId == authorized.Actor.Id && audit.InstitutionId == ticket.InstitutionId &&
-                audit.Action == "support." + (authorized.Operation == "manage" ? (ticket.Status == SupportStatus.Closed ? "close" : "update") :
+                audit.Action == "support." + (authorized.Operation == "manage" ? "update" :
                     authorized.Operation == "reply" && messages.Any(x => x.Internal) ? "note" : authorized.Operation);
         if (ReferenceEquals(entry.Entity, ticket))
         {
             if (entry.State == EntityState.Added)
                 return authorized.Operation == "create" && ticket.AuthorId == authorized.Actor.Id && ticket.InstitutionId == authorized.Actor.InstitutionId;
-            if (entry.State != EntityState.Modified || authorized.Operation is not ("reply" or "manage")) return false;
-            var allowed = authorized.Operation == "reply"
-                ? new[] { "Status", "RowVersion", "UpdatedAt" }
-                : new[] { "Status", "Priority", "AssigneeId", "ClosedAt", "ClosedBy", "CloseSummary", "RowVersion", "UpdatedAt" };
+            if (entry.State != EntityState.Modified || authorized.Operation is not ("reply" or "manage" or "close")) return false;
+            if (authorized.Operation == "close" && (ticket.Status != SupportStatus.Closed || ticket.ClosedBy != authorized.Actor.Id)) return false;
+            var allowed = authorized.Operation switch {
+                "reply" => new[] { "Status", "RowVersion", "UpdatedAt" },
+                "close" => new[] { "Status", "ClosedAt", "ClosedBy", "CloseSummary", "RowVersion", "UpdatedAt" },
+                _ => new[] { "Status", "Priority", "AssigneeId", "RowVersion", "UpdatedAt" } };
             return entry.Properties.Where(x => x.IsModified).All(x => allowed.Contains(x.Metadata.Name));
         }
         if (entry.Entity is SupportAttachment attachment)

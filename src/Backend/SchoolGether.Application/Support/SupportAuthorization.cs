@@ -55,7 +55,7 @@ public sealed class SupportAuthorization(ICurrentAccount current, IIdentityStore
     {
         if (!options.Enabled) throw new SupportException("SupportDisabled");
         if (actor.Role == "PlatformAdmin" && (!actor.CanReadGlobal || operation == "create" ||
-            (operation is "reply" or "manage" && !actor.CanManageGlobal))) throw new SupportException("Forbidden");
+            (operation is "reply" or "manage" or "close" && !actor.CanManageGlobal))) throw new SupportException("Forbidden");
         if (actor.Role != "PlatformAdmin" && operation == "manage") throw new SupportException("Forbidden");
         return new(actor, operation, ticketId);
     }
@@ -84,6 +84,6 @@ public sealed class SupportAuthorization(ICurrentAccount current, IIdentityStore
         var admin = await directory.FindAsync(id.Value, ct);
         if (admin is null || !EligibleAssignee(admin)) throw new SupportException("InvalidSupportAssignee");
     }
-    private static bool EligibleAssignee(PlatformAdmin admin) => admin.IsActive && (admin.IsMaster ||
+    internal static bool EligibleAssignee(PlatformAdmin admin) => admin.IsActive && (admin.IsMaster ||
         (admin.Permissions.Contains(PlatformCapabilities.SupportRead) && admin.Permissions.Contains(PlatformCapabilities.SupportManage)));
 }

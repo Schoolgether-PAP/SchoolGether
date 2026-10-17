@@ -18,7 +18,12 @@ internal sealed class SupportStore(SchoolGetherDbContext db) : ISupportStore
     public async Task<SupportTicketPage> ListAsync(AuthorizedSupportScope scope, SupportTicketQuery query, CancellationToken ct)
     {
         var tickets = Tickets(scope).AsNoTracking();
-        if (query.Search is not null) tickets = tickets.Where(x => x.Subject.Contains(query.Search));
+        if (query.Search is not null)
+        {
+            var ticketId = int.TryParse(query.Search, System.Globalization.NumberStyles.None,
+                System.Globalization.CultureInfo.InvariantCulture, out var id) && id > 0 ? id : (int?)null;
+            tickets = tickets.Where(x => x.Subject.Contains(query.Search) || x.Id == ticketId);
+        }
         if (query.Status == "Active") tickets = tickets.Where(x => x.Status != SupportStatus.Closed);
         else if (query.Status is not null) { var status = Enum.Parse<SupportStatus>(query.Status); tickets = tickets.Where(x => x.Status == status); }
         if (query.Priority is not null) { var priority = Enum.Parse<SupportPriority>(query.Priority); tickets = tickets.Where(x => x.Priority == priority); }

@@ -78,13 +78,13 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
     public async Task<SupportTicketResult> UpdateAsync(int ticketId, UpdateSupportTicket command, CancellationToken ct)
     {
         var scope = await authorization.RequireAsync("manage", ticketId, ct);
-        await authorization.RequireAssigneeAsync(command.AssigneeId, ct);
         var status = Parse<SupportStatus>(command.Status);
         var priority = Parse<SupportPriority>(command.Priority);
         var ticket = await unitOfWork.ExecuteAsync(scope, async token =>
         {
             var ticket = await store.FindTicketAsync(scope, ticketId, token) ?? throw new SupportException("SupportNotFound");
             RequireVersion(ticket, command.RowVersion);
+            if (ticket.AssigneeId != command.AssigneeId) await authorization.RequireAssigneeAsync(command.AssigneeId, token);
             var now = clock.GetUtcNow().UtcDateTime;
             ticket.ChangeStatus(status, now);
             if (ticket.Priority != priority) ticket.ChangePriority(priority, now);
@@ -98,7 +98,7 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
 
     public async Task<SupportTicketResult> CloseAsync(int ticketId, CloseSupportTicket command, CancellationToken ct)
     {
-        var scope = await authorization.RequireAsync("manage", ticketId, ct);
+        var scope = await authorization.RequireAsync("close", ticketId, ct);
         var ticket = await unitOfWork.ExecuteAsync(scope, async token =>
         {
             var ticket = await store.FindTicketAsync(scope, ticketId, token) ?? throw new SupportException("SupportNotFound");
@@ -131,8 +131,12 @@ public sealed class SupportService(SupportAuthorization authorization, ISupportS
     private void Audit(AuthorizedSupportScope scope, SupportTicket ticket, string action) => audit.Append(new(
         new(scope.Actor.Id, scope.Actor.Name), "support." + action, "support.ticket:" + ticket.ClientId.ToString("D"), "success", string.Empty,
         ticket.InstitutionId, After: new Dictionary<string, object?> { ["rowVersion"] = ticket.RowVersion }));
-    private async Task<SupportTicketResult> ProjectAsync(SupportTicket ticket, AuthorizedSupportScope scope, bool replay, CancellationToken ct) =>
-        SupportProjection.Ticket(ticket, scope, ticket.AssigneeId is int id ? (await directory.FindAsync(id, ct))?.Name : null, replay);
+    private async Task<SupportTicketResult> ProjectAsync(SupportTicket ticket, AuthorizedSupportScope scope, bool replay, CancellationToken ct)
+    {
+        var assignee = ticket.AssigneeId is int id ? await directory.FindAsync(id, ct) : null;
+        return SupportProjection.Ticket(ticket, scope, assignee?.Name, replay,
+            ticket.AssigneeId is null || (assignee is not null && SupportAuthorization.EligibleAssignee(assignee)));
+    }
     private async Task NotifyAsync(int ticketId, bool internalOnly)
     {
         // O aviso é posterior ao commit: uma falha de transporte não desfaz uma escrita aceite.

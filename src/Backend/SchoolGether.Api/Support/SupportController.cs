@@ -64,7 +64,7 @@ public sealed class SupportController(SupportAuthorization authorization, Suppor
 
     private static SupportTicketResponse Ticket(SupportTicketResult x) => new(x.Id, x.InstitutionId, x.AuthorId, x.AuthorName,
         x.Subject, x.Category, x.Priority, x.Status, x.AssigneeId, x.AssigneeName, x.RowVersion, x.CreatedAt, x.ClosedAt,
-        x.ClosedBy, x.CloseSummary, x.CanReply, x.CanManage, x.CanClose);
+        x.ClosedBy, x.CloseSummary, x.CanReply, x.CanManage, x.CanClose, x.AssigneeAvailable);
     private static SupportMessageResponse Message(SupportMessageResult x) => new(x.Id, x.ClientId, x.AuthorId, x.AuthorName,
         x.Text, x.CreatedAt, x.Attachments.Select(Attachment).ToArray());
     private static SupportAdminMessageResponse AdminMessage(SupportMessageResult x) => new(x.Id, x.ClientId, x.AuthorId, x.AuthorName,

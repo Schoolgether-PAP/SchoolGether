@@ -99,7 +99,7 @@ public sealed class MySqlSupportTests
         factory.Services.GetRequiredService<SchoolGether.Application.Support.SupportOptions>().InstitutionStorageLimitBytes = 100 * 1024 * 1024;
         var latest = await teacher.GetFromJsonAsync<JsonElement>(route);
         var race = await Task.WhenAll(teacher.PostSupportAsync(route + "/messages", new { ClientId = Guid.NewGuid(), RowVersion = latest.GetProperty("rowVersion").GetInt64(), Text = "Corrida envio fecho", Internal = false }),
-            master.PostSupportAsync(route + "/close", new { RowVersion = latest.GetProperty("rowVersion").GetInt64(), Summary = "Ensaio MySQL concluído" }));
+            teacher.PostSupportAsync(route + "/close", new { RowVersion = latest.GetProperty("rowVersion").GetInt64(), Summary = "Ensaio MySQL concluído" }));
         Assert.Equal(1, race.Count(x => x.IsSuccessStatusCode)); Assert.Equal(1, race.Count(x => x.StatusCode == HttpStatusCode.Conflict));
         var sendWon = race[0].IsSuccessStatusCode;
         foreach (var response in race) response.Dispose();
@@ -112,6 +112,27 @@ public sealed class MySqlSupportTests
             Assert.Equal(2, await db.SupportAttachments.IgnoreQueryFilters().CountAsync());
             Assert.Equal(6 + (sendWon ? 1 : 0), await db.SupportMessages.IgnoreQueryFilters().CountAsync());
             Assert.Equal(sendWon ? "Open" : "Closed", (await db.SupportTickets.IgnoreQueryFilters().SingleAsync(x => x.Id == id)).Status.ToString());
+        }
+        // Both school closing scopes must pass the Oracle provider's property/audit write guards.
+        using var schoolAdmin = factory.CreateClient(); await PlatformAdminTests.Authenticate(schoolAdmin, "admin-a@example.test");
+        var secondId = second.GetProperty("id").GetInt32();
+        var secondLatest = await schoolAdmin.GetFromJsonAsync<JsonElement>($"{SupportAuthorizationTests.Route}/{secondId}");
+        using var schoolClose = await schoolAdmin.PostAsJsonAsync($"{SupportAuthorizationTests.Route}/{secondId}/close", new {
+            RowVersion = secondLatest.GetProperty("rowVersion").GetInt64(), Summary = "Fecho pelo responsável escolar" });
+        Assert.Equal(HttpStatusCode.OK, schoolClose.StatusCode);
+        latest = await teacher.GetFromJsonAsync<JsonElement>(route);
+        if (sendWon)
+        {
+            using var teacherClose = await teacher.PostAsJsonAsync(route + "/close", new { RowVersion = latest.GetProperty("rowVersion").GetInt64(), Summary = "Fecho pelo docente" });
+            Assert.Equal(HttpStatusCode.OK, teacherClose.StatusCode);
+        }
+        Assert.Equal(HttpStatusCode.NotFound, (await other.PostAsJsonAsync(route + "/close", new { RowVersion = 1, Summary = "Fora do âmbito" })).StatusCode);
+        using (var verify = factory.Services.CreateScope())
+        {
+            var db = verify.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
+            Assert.Equal(2, await db.AuditEntries.CountAsync(x => x.Action == "support.close"));
+            Assert.Single(await db.AuditEntries.Where(x => x.Action == "support.download").ToListAsync());
+            Assert.Equal(2, await db.SupportTickets.IgnoreQueryFilters().CountAsync(x => x.Status == SchoolGether.Domain.Support.SupportStatus.Closed));
         }
         // Optional local browser rehearsal uses actual Kestrel/MySQL, never intercepted API responses.
         var browserScript = Environment.GetEnvironmentVariable("SCHOOLGETHER_SUPPORT_BROWSER_SCRIPT");

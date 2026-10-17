@@ -663,6 +663,7 @@
 <data name="SupportAuthor" xml:space="preserve"><value>Autor</value></data>
 <data name="SupportAssignee" xml:space="preserve"><value>Responsável</value></data>
 <data name="SupportUnassigned" xml:space="preserve"><value>Por atribuir</value></data>
+<data name="SupportAssigneeUnavailable" xml:space="preserve"><value>{0} (indisponível)</value></data>
 <data name="SupportCreated" xml:space="preserve"><value>Criado em</value></data>
 <data name="SupportCloseAction" xml:space="preserve"><value>Fechar atendimento</value></data>
 <data name="SupportAcceptVersion" xml:space="preserve"><value>Rever e usar versão atual</value></data>

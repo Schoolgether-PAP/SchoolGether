@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Localization;
 using SchoolGether.Application.Support;
 using SchoolGether.Domain.Support;
+using SchoolGether.Api.Platform;
 
 namespace SchoolGether.Api.Support;
 
@@ -12,6 +13,7 @@ public sealed class SupportExceptionHandler(IProblemDetailsService problems, ISt
     {
         var code = exception switch { SupportException ex => ex.Code, SupportRuleException ex => ex.Code, _ => null };
         if (code is null) return false;
+        await context.RequestServices.GetRequiredService<AdministrativeRefusalAudit>().RecordAsync(context, code, ct);
         var status = code switch {
             "InvalidSession" => 401, "Forbidden" => 403, "SupportNotFound" => 404,
             "VersionConflict" or "SupportReplayConflict" or "TicketClosed" or "SupportStorageQuotaExceeded" => 409, "SupportDisabled" or "SupportFileUnavailable" => 503, "SupportRequestTooLarge" => 413, _ => 400 };

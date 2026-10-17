@@ -23,10 +23,10 @@ else
             else if (ticket.CanReply) { <SupportComposer @key="ticket.Id" State="State" CanManage="ticket.CanManage" BusyChanged="ComposerBusyAsync" Sent="Updated" /> }
             else { <p class="support-closed">@T("SupportReadOnly")</p> }
         </div>
-        <aside class="support-context" aria-label="@T("SupportDetails")"><h3>@T("SupportDetails")</h3><dl><dt>@T("Institution")</dt><dd>#@ticket.InstitutionId</dd><dt>@T("SupportAuthor")</dt><dd>@ticket.AuthorName</dd><dt>@T("SupportAssignee")</dt><dd>@(ticket.AssigneeName ?? T("SupportUnassigned"))</dd><dt>@T("SupportPriority")</dt><dd>@Label(ticket.Priority)</dd><dt>@T("SupportCreated")</dt><dd>@Date(ticket.CreatedAt)</dd></dl>
+        <aside class="support-context" aria-label="@T("SupportDetails")"><h3>@T("SupportDetails")</h3><dl><dt>@T("Institution")</dt><dd>#@ticket.InstitutionId</dd><dt>@T("SupportAuthor")</dt><dd>@ticket.AuthorName</dd><dt>@T("SupportAssignee")</dt><dd>@AssigneeLabel(ticket)</dd><dt>@T("SupportPriority")</dt><dd>@Label(ticket.Priority)</dd><dt>@T("SupportCreated")</dt><dd>@Date(ticket.CreatedAt)</dd></dl>
         @if (ticket.CanManage && ticket.Status != "Closed")
         {
-            <form @onsubmit="SaveAsync" @onsubmit:preventDefault><fieldset disabled="@Busy"><label for="support-edit-state">@T("State")</label><select id="support-edit-state" @bind="status">@foreach (var s in new[] { "Open", "InProgress", "AwaitingClient" }) { <option value="@s">@Label(s)</option> }</select><label for="support-edit-priority">@T("SupportPriority")</label><select id="support-edit-priority" @bind="priority">@foreach (var p in new[] { "Low", "Normal", "High" }) { <option value="@p">@Label(p)</option> }</select><label for="support-edit-assignee">@T("SupportAssignee")</label><select id="support-edit-assignee" @bind="assignee"><option value="">@T("SupportUnassigned")</option>@foreach (var a in assignees) { <option value="@a.Id">@a.Name</option> }</select><button type="submit" class="support-primary" disabled="@conflict">@T("Save")</button></fieldset></form>
+            <form @onsubmit="SaveAsync" @onsubmit:preventDefault><fieldset disabled="@Busy"><label for="support-edit-state">@T("State")</label><select id="support-edit-state" @bind="status">@foreach (var s in new[] { "Open", "InProgress", "AwaitingClient" }) { <option value="@s">@Label(s)</option> }</select><label for="support-edit-priority">@T("SupportPriority")</label><select id="support-edit-priority" @bind="priority">@foreach (var p in new[] { "Low", "Normal", "High" }) { <option value="@p">@Label(p)</option> }</select><label for="support-edit-assignee">@T("SupportAssignee")</label><select id="support-edit-assignee" @bind="assignee"><option value="">@T("SupportUnassigned")</option>@if (ticket.AssigneeId is int unavailable && !ticket.AssigneeAvailable) { <option value="@unavailable">@AssigneeLabel(ticket)</option> }@foreach (var a in assignees.Where(a => a.Id != ticket.AssigneeId || ticket.AssigneeAvailable)) { <option value="@a.Id">@a.Name</option> }</select><button type="submit" class="support-primary" disabled="@conflict">@T("Save")</button></fieldset></form>
             @if (conflict) { <p role="alert">@T("SupportConflict")</p><button type="button" disabled="@Busy" @onclick="AcceptVersion">@T("SupportAcceptVersion")</button> }
         }
         @if (ticket.CanClose && ticket.Status != "Closed") { <button type="button" disabled="@Busy" @onclick="() => closing = true">@T("SupportCloseAction")</button> }
@@ -47,6 +47,8 @@ else
     private bool closing, conflict, focus, composing;
     private int loadedId;
     private ElementReference heading;
+    private string AssigneeLabel(SupportTicketResponse ticket) => ticket.AssigneeId is null ? T("SupportUnassigned") :
+        ticket.AssigneeAvailable ? ticket.AssigneeName ?? $"#{ticket.AssigneeId}" : UiMessages.Format("SupportAssigneeUnavailable", ticket.AssigneeName ?? $"#{ticket.AssigneeId}");
     protected override void OnInitialized() { State.Changed += Changed; Live.ConnectionStateChanged += ConnectionChanged; }
     protected override async Task OnParametersSetAsync()
     {

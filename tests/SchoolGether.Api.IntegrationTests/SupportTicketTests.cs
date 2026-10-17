@@ -92,7 +92,7 @@ public sealed class SupportTicketTests
             Name = "Administrador", IsActive = true, Permissions = new[] { "support.read" }, RowVersion = manager.GetProperty("rowVersion").GetInt64(), Reason = "Revogar gestão" })).StatusCode);
         Assert.Equal(HttpStatusCode.Forbidden, (await operatorClient.PostSupportAsync($"{Route}/{id}/close", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Summary = "Sem permissão" })).StatusCode);
         Assert.Single((await master.GetFromJsonAsync<JsonElement>("/api/v1/support/assignees")).EnumerateArray());
-        Assert.Equal(HttpStatusCode.BadRequest, (await master.PutAsJsonAsync($"{Route}/{id}", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Status = "Open", Priority = "Normal", AssigneeId = manager.GetProperty("id").GetInt32() })).StatusCode);
+        Assert.Equal(HttpStatusCode.OK, (await master.PutAsJsonAsync($"{Route}/{id}", new { RowVersion = updated.GetProperty("rowVersion").GetInt64(), Status = "Open", Priority = "Normal", AssigneeId = manager.GetProperty("id").GetInt32() })).StatusCode);
     }
 
     [Fact]

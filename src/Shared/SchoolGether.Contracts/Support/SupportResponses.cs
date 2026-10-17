@@ -3,7 +3,7 @@ namespace SchoolGether.Contracts.Support;
 public sealed record SupportTicketResponse(int Id, int InstitutionId, int AuthorId, string AuthorName,
     string Subject, string Category, string Priority, string Status, int? AssigneeId, string? AssigneeName,
     long RowVersion, DateTime CreatedAt, DateTime? ClosedAt, int? ClosedBy, string? CloseSummary,
-    bool CanReply, bool CanManage, bool CanClose);
+    bool CanReply, bool CanManage, bool CanClose, bool AssigneeAvailable = true);
 
 public sealed record SupportAttachmentResponse(int Id, string FileName, string ContentType, long Size);
 

@@ -28,7 +28,7 @@ public sealed record CloseSupportTicket(long RowVersion, string Summary);
 public sealed record SupportTicketResult(int Id, int InstitutionId, int AuthorId, string AuthorName,
     string Subject, string Category, string Priority, string Status, int? AssigneeId, string? AssigneeName,
     long RowVersion, DateTime CreatedAt, DateTime? ClosedAt, int? ClosedBy, string? CloseSummary,
-    bool CanReply, bool CanManage, bool CanClose, bool Replay = false);
+    bool CanReply, bool CanManage, bool CanClose, bool Replay = false, bool AssigneeAvailable = true);
 public sealed record SupportAttachmentResult(int Id, string FileName, string ContentType, long Size);
 public sealed record SupportMessageResult(int Id, Guid ClientId, int AuthorId, string AuthorName, string Text,
     DateTime CreatedAt, IReadOnlyList<SupportAttachmentResult> Attachments, bool Internal, bool Replay = false);
@@ -43,14 +43,15 @@ public sealed class SupportOptions { public bool Enabled { get; set; } public st
 
 public static class SupportProjection
 {
-    public static SupportTicketResult Ticket(SupportTicket ticket, AuthorizedSupportScope scope, string? assigneeName = null, bool replay = false)
+    public static SupportTicketResult Ticket(SupportTicket ticket, AuthorizedSupportScope scope, string? assigneeName = null, bool replay = false,
+        bool assigneeAvailable = true)
     {
         var open = ticket.Status != SupportStatus.Closed;
         return new(ticket.Id, ticket.InstitutionId, ticket.AuthorId, ticket.AuthorName, ticket.Subject,
             ticket.Category.ToString(), ticket.Priority.ToString(), ticket.Status.ToString(), ticket.AssigneeId, assigneeName,
             ticket.RowVersion, ticket.CreatedAt, ticket.ClosedAt, ticket.ClosedBy, ticket.CloseSummary,
             open && (!scope.Global || scope.Actor.CanManageGlobal), open && scope.Actor.CanManageGlobal,
-            open && scope.Actor.CanManageGlobal, replay);
+            open && (!scope.Global || scope.Actor.CanManageGlobal), replay, assigneeAvailable);
     }
     public static SupportMessageResult Message(SupportMessage message, bool replay = false) =>
         new(message.Id, message.ClientId, message.AuthorId, message.AuthorName, message.Text, message.CreatedAt,

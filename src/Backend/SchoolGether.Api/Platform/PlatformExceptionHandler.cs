@@ -10,6 +10,8 @@ public sealed class PlatformExceptionHandler(IProblemDetailsService problems, IS
     public async ValueTask<bool> TryHandleAsync(HttpContext context, Exception exception, CancellationToken cancellationToken)
     {
         if (exception is not PlatformException failure) return false;
+        if (context.Request.Path.StartsWithSegments("/api/v1/support"))
+            await context.RequestServices.GetRequiredService<AdministrativeRefusalAudit>().RecordAsync(context, failure.Code, cancellationToken);
         var status = failure.Code switch {
             "InvalidSession" => StatusCodes.Status401Unauthorized,
             "Forbidden" or "MasterProtected" => StatusCodes.Status403Forbidden,

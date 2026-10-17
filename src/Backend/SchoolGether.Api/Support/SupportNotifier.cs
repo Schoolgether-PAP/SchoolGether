@@ -9,14 +9,16 @@ public sealed class SupportNotifier(SupportConnectionRegistry connections, IServ
 {
     public async Task ChangedAsync(int ticketId, bool internalOnly, CancellationToken ct)
     {
+        using var budget = new CancellationTokenSource(TimeSpan.FromSeconds(5), clock);
+        using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct, budget.Token);
+        var token = timeout.Token;
         foreach (var connection in connections.Snapshot())
         {
-            using var timeout = CancellationTokenSource.CreateLinkedTokenSource(ct);
-            timeout.CancelAfter(TimeSpan.FromSeconds(5));
-            var token = timeout.Token;
-            await connection.Gate.WaitAsync(ct);
+            var acquired = false;
             try
             {
+                await connection.Gate.WaitAsync(token);
+                acquired = true;
                 if (connections.Find(connection.Id) != connection) continue;
                 if (connection.ExpiresAt <= clock.GetUtcNow()) { Remove(connection); continue; }
                 if (!connection.GlobalQueue && !(internalOnly ? connection.InternalTickets : connection.PublicTickets).Contains(ticketId)) continue;
@@ -31,12 +33,13 @@ public sealed class SupportNotifier(SupportConnectionRegistry connections, IServ
             }
             catch (SupportException) { Remove(connection); }
             catch (OperationCanceledException) when (ct.IsCancellationRequested) { throw; }
+            catch (OperationCanceledException) when (budget.IsCancellationRequested) { break; }
             catch (Exception)
             {
                 // Sem conteúdo, identidade, token, query ou exceção nos registos.
                 logger.LogWarning("Não foi possível entregar um aviso de suporte; o cliente pode recuperar por HTTP.");
             }
-            finally { connection.Gate.Release(); }
+            finally { if (acquired) connection.Gate.Release(); }
         }
     }
 
