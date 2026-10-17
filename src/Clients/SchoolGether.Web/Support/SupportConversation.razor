@@ -19,7 +19,7 @@ else
                 }
                 @if (State.RecoveryPending) { <button type="button" disabled="@Busy" @onclick="RefreshAsync">@T("SupportRecover")</button> }
             </div>
-            @if (ticket.Status == "Closed") { <div class="support-closed"><strong>@T("SupportClosed")</strong><p>@ticket.CloseSummary</p><p>@Date(ticket.ClosedAt ?? ticket.CreatedAt)</p><p>@T("SupportClosedHelp")</p></div> }
+            @if (ticket.Status == "Closed") { <div class="support-closed"><strong>@T("SupportClosed")</strong><p>@ticket.CloseSummary</p><p>@Date(ticket.ClosedAt ?? ticket.CreatedAt)</p><p>@T("SupportClosedHelp")</p>@if (CanOpen) { <button type="button" @onclick="NewTicket">@T("SupportCreateAnother")</button> }</div> }
             else if (ticket.CanReply) { <SupportComposer @key="ticket.Id" State="State" CanManage="ticket.CanManage" BusyChanged="ComposerBusyAsync" Sent="Updated" /> }
             else { <p class="support-closed">@T("SupportReadOnly")</p> }
         </div>
@@ -38,6 +38,8 @@ else
     [Parameter] public int TicketId { get; set; }
     [Parameter] public EventCallback Updated { get; set; }
     [Parameter] public EventCallback Back { get; set; }
+    [Parameter] public bool CanOpen { get; set; }
+    [Parameter] public EventCallback NewTicket { get; set; }
     private IReadOnlyList<SupportAssigneeResponse> assignees = [];
     private string status = "Open", priority = "Normal";
     private int? assignee;

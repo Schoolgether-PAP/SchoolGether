@@ -3,17 +3,18 @@
 @inject SupportLiveClient Live
 @inject SupportConversationState Conversation
 <section class="support-area">
-    <div class="support-heading"><div><PlatformHeading>@T("Support")</PlatformHeading><p>@T("SupportIntroduction")</p></div><span>@Session.Account?.Name</span></div>
+    <div class="support-heading"><div><PlatformHeading>@T("Support")</PlatformHeading><p>@T("SupportIntroduction")</p></div>@if (context?.CanOpen == true) { <button class="support-primary" type="button" disabled="@(Busy || detailBusy)" @onclick="NewAsync">@T("SupportNew")</button> }<span>@Session.Account?.Name</span></div>
     @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="InitializeAsync">@T("Retry")</button> }
     @if (context is null) { <p role="status">@T("Loading")</p> }
     else if (!context.Enabled) { <p>@T("SupportDisabled")</p> }
     else if (!context.CanReadGlobal && !context.CanOpen) { <p>@T("SupportForbidden")</p> }
     else
     {
-        <div class="support-desk @(selected is null ? "show-list" : "show-detail")">
+        <div class="support-desk @(selected is null && !creating ? "show-list" : "show-detail")">
             <div class="support-queue"><SupportTicketList @ref="list" SelectedId="selected" SelectionLocked="detailBusy" Selected="SelectAsync" Context="context" /></div>
             <div class="support-detail">
-                @if (selected is { } id) { <SupportConversation TicketId="id" BusyChanged="value => detailBusy = value" Updated="RefreshListAsync" Back="BackAsync" /> }
+                @if (creating) { <SupportNewTicket BusyChanged="value => detailBusy = value" DraftChanged="value => newDraft = value" Created="CreatedAsync" Cancel="BackAsync" /> }
+                else if (selected is { } id) { <SupportConversation TicketId="id" CanOpen="context.CanOpen" NewTicket="NewAsync" BusyChanged="value => detailBusy = value" Updated="RefreshListAsync" Back="BackAsync" /> }
                 else { <div class="support-empty">@T("SupportChoose")</div> }
             </div>
         </div>
@@ -24,8 +25,8 @@
     private SupportContextResponse? context;
     private SupportTicketList? list;
     private int? selected, pendingSelection;
-    private bool confirmLeave, detailBusy;
-    private bool HasDraft => Conversation.Draft is { } draft && (!string.IsNullOrWhiteSpace(draft.Text) || draft.Files.Count > 0);
+    private bool confirmLeave, detailBusy, creating, newDraft, pendingNew;
+    private bool HasDraft => newDraft || Conversation.Draft is { } draft && (!string.IsNullOrWhiteSpace(draft.Text) || draft.Files.Count > 0);
     protected override async Task OnInitializedAsync() { Live.Changed += Changed; Live.ConnectionStateChanged += ConnectionChanged; await InitializeAsync(); }
     private async Task InitializeAsync()
     {
@@ -33,10 +34,13 @@
         if (context?.Enabled == true && context.CanReadGlobal && selected is null) await StartQueueAsync();
     }
     private async Task StartQueueAsync() { try { await Live.StartQueueAsync(Lifetime.Token); } catch (Exception) when (!Lifetime.IsCancellationRequested) { } }
-    private Task SelectAsync(int id) { if (detailBusy || selected == id) return Task.CompletedTask; if (HasDraft) { pendingSelection = id; confirmLeave = true; } else selected = id; return Task.CompletedTask; }
-    private async Task BackAsync() { if (detailBusy) return; if (HasDraft) { pendingSelection = null; confirmLeave = true; return; } await ReturnAsync(); }
-    private async Task ConfirmLeaveAsync() { confirmLeave = false; if (pendingSelection is { } id) selected = id; else await ReturnAsync(); }
-    private async Task ReturnAsync() { selected = null; Conversation.Clear(); await StartQueueAsync(); await RefreshListAsync(); if (list is not null) await list.FocusAsync(); }
+    private Task SelectAsync(int id) { if (detailBusy || selected == id) return Task.CompletedTask; pendingNew = false; if (HasDraft) { pendingSelection = id; confirmLeave = true; } else { creating = false; selected = id; } return Task.CompletedTask; }
+    private Task NewAsync() { if (detailBusy || creating) return Task.CompletedTask; if (HasDraft) { pendingNew = true; confirmLeave = true; } else OpenNew(); return Task.CompletedTask; }
+    private void OpenNew() { Conversation.Clear(); selected = null; creating = true; newDraft = false; }
+    private async Task CreatedAsync(int id) { creating = false; newDraft = false; selected = id; detailBusy = false; await RefreshListAsync(); }
+    private async Task BackAsync() { if (detailBusy) return; pendingNew = false; if (HasDraft) { pendingSelection = null; confirmLeave = true; return; } await ReturnAsync(); }
+    private async Task ConfirmLeaveAsync() { confirmLeave = false; Conversation.Clear(); newDraft = false; if (pendingNew) OpenNew(); else if (pendingSelection is { } id) { creating = false; selected = id; } else await ReturnAsync(); }
+    private async Task ReturnAsync() { creating = false; newDraft = false; selected = null; Conversation.Clear(); if (context?.CanReadGlobal == true) await StartQueueAsync(); await RefreshListAsync(); if (list is not null) await list.FocusAsync(); }
     private Task RefreshListAsync() => list?.RefreshAsync() ?? Task.CompletedTask;
     private void Changed(SupportChangedEvent value) => _ = InvokeAsync(RefreshListAsync);
     private void ConnectionChanged(SupportConnectionState value) { if (value == SupportConnectionState.Connected) _ = InvokeAsync(RefreshListAsync); }

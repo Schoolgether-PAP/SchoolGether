@@ -695,4 +695,34 @@
 <data name="SupportLeaveHelp" xml:space="preserve"><value>O rascunho e os anexos ainda não enviados serão descartados ao sair desta conversa.</value></data>
 <data name="SupportDiscardDraft" xml:space="preserve"><value>Descartar rascunho e continuar</value></data>
 <data name="SupportMoreFilters" xml:space="preserve"><value>Mais filtros</value></data>
+<data name="SupportNewReplaceHelp" xml:space="preserve">
+    <value>O pedido anterior pode já ter sido criado. Revê a lista antes de confirmar uma nova criação.</value>
+  </data>
+<data name="SupportProfile" xml:space="preserve">
+    <value>Voltar ao perfil</value>
+  </data>
+<data name="SupportCreate" xml:space="preserve">
+    <value>Criar pedido</value>
+  </data>
+<data name="SupportDescription" xml:space="preserve">
+    <value>Descrição inicial</value>
+  </data>
+<data name="SupportNewUncertain" xml:space="preserve">
+    <value>A confirmação da criação não chegou. Repete o mesmo envio para recuperar o pedido sem criar um duplicado.</value>
+  </data>
+<data name="SupportSubject" xml:space="preserve">
+    <value>Assunto</value>
+  </data>
+<data name="SupportNew" xml:space="preserve">
+    <value>Novo pedido</value>
+  </data>
+<data name="SupportCategory" xml:space="preserve">
+    <value>Categoria</value>
+  </data>
+<data name="SupportNewHelp" xml:space="preserve">
+    <value>Descreve o que aconteceu. A equipa de suporte acompanha o pedido e os anexos nesta conversa.</value>
+  </data>
+<data name="SupportCreateAnother" xml:space="preserve">
+    <value>Criar novo pedido</value>
+  </data>
 </root>

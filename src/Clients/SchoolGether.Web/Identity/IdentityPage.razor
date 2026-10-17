@@ -15,6 +15,10 @@ else if (Session.Account?.Role == "InstitutionAdmin")
 {
     <SchoolGether.Web.Institutions.InstitutionPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
 }
+else if (Session.Account?.Role == "Teacher" && showSupport)
+{
+    <div class="teacher-support-shell"><header><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><button type="button" @onclick="BackToProfile">@T("SupportProfile")</button><button type="button" disabled="@busy" @onclick="SignOutAsync">@T("SignOut")</button></header><main><SchoolGether.Web.Support.SupportWorkspace @key="Session.Account.Id" /></main></div>
+}
 else
 {
 <div class="identity-layout">
@@ -38,6 +42,7 @@ else
                     <div><dt>@T("Institution")</dt><dd>@InstitutionLabel(profile)</dd></div>
                 </dl>
                 <div class="profile-actions" aria-busy="@(busy ? "true" : "false")">
+                    @if (profile.Role == "Teacher") { <button class="primary-action" type="button" @onclick="() => showSupport = true">@T("Support")</button> }
                     <button class="primary-action" type="button" disabled="@busy" @onclick="RefreshProfileAsync">
                         @T(busyAction == "refresh" ? "RefreshingProfile" : "RefreshProfile")
                     </button>
@@ -111,6 +116,8 @@ else
     private bool isError;
     private bool focusHeading = true;
     private bool focusEmail;
+    private bool showSupport;
+    private void BackToProfile() { showSupport = false; focusHeading = true; }
     private ElementReference heading;
     private ElementReference emailInput;
 
@@ -138,6 +145,7 @@ else
             SetMessage("SessionExpired", true);
             focusEmail = true;
         }
+        if (Session.Account is null) showSupport = false;
         StateHasChanged();
     });
 
