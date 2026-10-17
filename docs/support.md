@@ -1,6 +1,6 @@
 # Suporte: implementação e validação
 
-O módulo está desativado por omissão (`Support:Enabled=false`). As tarefas 1–6 implementam domínio, HTTP autorizado, anexos privados, avisos SignalR, cliente partilhado e atendimento global no site. A integração escolar é a tarefa seguinte. Não publicar nem ativar apenas por estes testes locais.
+O módulo está desativado por omissão (`Support:Enabled=false`). Está implementado no site para atendimento global, InstitutionAdmin e Teacher: domínio, HTTP autorizado, anexos privados, avisos SignalR e cliente partilhado. Student não tem acesso. Não publicar nem ativar apenas por estes testes locais.
 
 ## Canal ao vivo
 
@@ -41,3 +41,32 @@ A área Suporte aparece na navegação global com `support.read` (ou master); as
 A conversa distingue mensagens para o cliente de notas internas. O fecho exige resumo e confirmação, e torna o pedido apenas consultável. Conflitos 409 conservam texto/anexos e exigem revisão antes de novo envio. Falhas de transporte permitem repetir a mesma entrega idempotente; alterar um envio incerto exige confirmação porque o anterior pode já ter sido entregue. Rascunhos ficam apenas em memória e a troca de conversa pede confirmação para os descartar. O download passa pelo cliente autenticado, com libertação do stream e do URL temporário.
 
 No desktop, fila, conversa e detalhes têm deslocamento limitado ao espaço de trabalho. A 390 px, fila e detalhe alternam com um botão Voltar à fila e reposição do foco. O estado mostrado corresponde à ligação real; falhas do tempo real permitem continuar por HTTP e usar Atualizar dados. Não existem métricas ou disponibilidade de operadores simuladas.
+
+## Verificação local de entrega — 2026-10-17
+
+O cenário `Support` de `scripts/Test-MySqlIdentity.ps1` usa exclusivamente Oracle MySQL 8 em loopback, datadir/porta/credencial aleatórios e a base de teste validada pela fixture. Migra das seis migrações já publicadas para as oito atuais, conservando contas, membros, auditoria, layout e subscrição fictícia. Verifica isolamento HTTP/download/hub, nota interna invisível, criação/envio idempotentes e índices únicos, reserva concorrente de quota em pedidos diferentes e corrida envio/fecho com apenas um vencedor. Um concorrente idempotente pode receber 409; repetir explicitamente a mesma chave recupera o resultado único. Os quatro cenários anteriores (Identity, Onboarding, InstitutionCapacity e InstitutionSetup) também foram executados em instâncias próprias, um teste aprovado em cada cenário.
+
+Comandos reproduzíveis, a partir da raiz do repositório:
+
+```powershell
+./scripts/Test-MySqlIdentity.ps1 -Scenario Support -ArtifactsPath C:/PAP/artifacts/support-task8/mysql-build -EvidencePath C:/PAP/artifacts/support-task8
+dotnet test tests/SchoolGether.Domain.Tests/SchoolGether.Domain.Tests.csproj -c Release
+dotnet test tests/SchoolGether.Application.Tests/SchoolGether.Application.Tests.csproj -c Release
+dotnet test tests/SchoolGether.ApiClient.Tests/SchoolGether.ApiClient.Tests.csproj -c Release
+dotnet test tests/SchoolGether.Api.IntegrationTests/SchoolGether.Api.IntegrationTests.csproj -c Release
+dotnet ef migrations has-pending-model-changes --project src/Backend/SchoolGether.Infrastructure --startup-project src/Backend/SchoolGether.Api --configuration Release
+```
+
+Na matriz local: Domain 84, Application 7, ApiClient 85 e integração 274 aprovados; os cinco testes MySQL são ignorados normalmente e executados separadamente pelo script. API/Web Release e MAUI Debug Windows/Android compilaram sem avisos/erros; EF sem alterações pendentes. Compilar MAUI não demonstra execução nativa. A publicação Web indica ausência do workload opcional `wasm-tools`; o pacote produzido foi usado no ensaio browser, sem instalar workloads globais.
+
+Os artefactos privados ficam em `C:/PAP/artifacts/support-task8/`, fora do Git. A máquina tem runtime global 10.0.12; o pacote API autocontido e o runtime privado para o ensaio real usam 10.0.13, sem alterar a instalação global. Esta preparação não demonstra a versão do runtime do MonsterASP.NET. O CI/revisão de todo o ramo e os testes de alojamento continuam etapas separadas antes de merge/publicação.
+
+O ensaio Chromium usa dois BrowserContexts independentes, o pacote Web Release e Kestrel/MySQL temporários reais, sem substituir respostas das rotas de negócio. O host estático de ensaio configura `Blazor.start({environment:"Development"})` e `Api:BaseUrl` para permitir HTTP exclusivamente local; a validação HTTPS do produto não foi alterada. Passaram criação com anexo, troca pública automática, ausência de nota/anexo internos na escola, download privado, LongPolling com cabeçalhos e sem query bearer, reconexão/recuperação por cursor, fecho durante interrupção, 390 px e logout/DELETE; sem erros JavaScript. A interrupção é aplicada ao contexto escolar; mensagens reais terminam polls pendentes antes de confirmar a reconexão. Capturas, pedidos sem tokens e prova de runtime/base real ficam nos artefactos privados. Isto substitui a limitação anterior do fixture de negociação 503 para a prova local, mantendo por verificar o alojamento.
+
+`-EvidencePath` conserva o TRX antes da limpeza. `-BackupPath` no cenário Support conserva SQL + anexos e manifesto SHA-256, importa SQL numa segunda base do mesmo servidor temporário e compara contagens e hashes dos ficheiros restaurados. Após o ensaio, o conjunto é cifrado com DPAPI `CurrentUser`, a decifração é comparada byte a byte e as cópias em claro são removidas. O backup local só pode ser decifrado pelo mesmo utilizador Windows; não é um mecanismo portátil de recuperação do alojamento. Um backup operacional precisa do seu próprio armazenamento seguro e ensaio de recuperação.
+
+## Limites e continuidade
+
+Esta entrega disponibiliza suporte no site. Os ecrãs nativos da app, e-mail/push, sanções, faturação real e acesso assistido às contas ficam fora do âmbito. Não há reabertura, edição/eliminação do histórico nem fila offline de mensagens.
+
+Após concluir suporte e a sua revisão/entrega, a etapa seguinte é desenvolver os painéis completos de instituições, docentes e alunos e a funcionalidade académica, discutindo com o utilizador a navegação e as escolhas de funcionamento. A área institucional mínima e os perfis atuais mantêm-se; não são painéis académicos completos.
