@@ -618,4 +618,81 @@
 <data name="PermissionSupportRead" xml:space="preserve"><value>Consultar suporte</value></data>
   <data name="PermissionSupportManage" xml:space="preserve"><value>Gerir suporte</value></data>
   <data name="SupportPermissionDependency" xml:space="preserve"><value>Gerir suporte inclui a permissão de consultar suporte.</value></data>
+<data name="Support" xml:space="preserve"><value>Suporte</value></data>
+<data name="SupportIntroduction" xml:space="preserve"><value>Acompanha cada pedido, do primeiro contacto à resolução.</value></data>
+<data name="SupportDisabled" xml:space="preserve"><value>O suporte está desativado.</value></data>
+<data name="SupportForbidden" xml:space="preserve"><value>Já não tens acesso a esta operação. Atualiza a página para rever as permissões.</value></data>
+<data name="SupportChoose" xml:space="preserve"><value>Escolhe um pedido para consultar a conversa.</value></data>
+<data name="SupportSearch" xml:space="preserve"><value>Pesquisar pedidos</value></data>
+<data name="SupportTickets" xml:space="preserve"><value>Abertos</value></data>
+<data name="SupportHistory" xml:space="preserve"><value>Histórico</value></data>
+<data name="SupportAllStates" xml:space="preserve"><value>Todos os estados abertos</value></data>
+<data name="SupportAllPriorities" xml:space="preserve"><value>Todas as prioridades</value></data>
+<data name="SupportPriority" xml:space="preserve"><value>Prioridade</value></data>
+<data name="SupportInstitutionId" xml:space="preserve"><value>ID da instituição</value></data>
+<data name="SupportAssigneeId" xml:space="preserve"><value>ID do responsável</value></data>
+<data name="SupportApply" xml:space="preserve"><value>Aplicar filtros</value></data>
+<data name="SupportResultCount" xml:space="preserve"><value>{0} pedidos</value></data>
+<data name="SupportPage" xml:space="preserve"><value>Página {0}</value></data>
+<data name="SupportNoTickets" xml:space="preserve"><value>Não foram encontrados pedidos. Revê os filtros.</value></data>
+<data name="SupportOpen" xml:space="preserve"><value>Aberto</value></data>
+<data name="SupportInProgress" xml:space="preserve"><value>Em atendimento</value></data>
+<data name="SupportAwaitingClient" xml:space="preserve"><value>Aguarda cliente</value></data>
+<data name="SupportClosed" xml:space="preserve"><value>Fechado</value></data>
+<data name="SupportLow" xml:space="preserve"><value>Baixa</value></data>
+<data name="SupportNormal" xml:space="preserve"><value>Normal</value></data>
+<data name="SupportHigh" xml:space="preserve"><value>Alta</value></data>
+<data name="SupportAccess" xml:space="preserve"><value>Acesso</value></data>
+<data name="SupportAcademic" xml:space="preserve"><value>Académico</value></data>
+<data name="SupportTechnical" xml:space="preserve"><value>Técnico</value></data>
+<data name="SupportOther" xml:space="preserve"><value>Outro</value></data>
+<data name="SupportBack" xml:space="preserve"><value>Voltar à fila</value></data>
+<data name="SupportConversation" xml:space="preserve"><value>Conversa</value></data>
+<data name="SupportDisconnected" xml:space="preserve"><value>Tempo real indisponível. Usa Atualizar dados.</value></data>
+<data name="SupportConnecting" xml:space="preserve"><value>A ligar ao tempo real…</value></data>
+<data name="SupportConnected" xml:space="preserve"><value>Ligação em tempo real ativa</value></data>
+<data name="SupportReconnecting" xml:space="preserve"><value>A restabelecer ligação…</value></data>
+<data name="SupportRefreshFailed" xml:space="preserve"><value>Não foi possível atualizar a conversa. Usa Atualizar dados para tentar novamente.</value></data>
+<data name="SupportOlder" xml:space="preserve"><value>Carregar mensagens anteriores</value></data>
+<data name="SupportRecover" xml:space="preserve"><value>Recuperar mensagens recentes</value></data>
+<data name="SupportInternal" xml:space="preserve"><value>Nota interna</value></data>
+<data name="SupportFileSize" xml:space="preserve"><value>{0} KiB</value></data>
+<data name="SupportClosedHelp" xml:space="preserve"><value>Este atendimento terminou. O histórico permanece disponível.</value></data>
+<data name="SupportReadOnly" xml:space="preserve"><value>Tens acesso de consulta a este pedido.</value></data>
+<data name="SupportDetails" xml:space="preserve"><value>Detalhes do pedido</value></data>
+<data name="SupportAuthor" xml:space="preserve"><value>Autor</value></data>
+<data name="SupportAssignee" xml:space="preserve"><value>Responsável</value></data>
+<data name="SupportUnassigned" xml:space="preserve"><value>Por atribuir</value></data>
+<data name="SupportCreated" xml:space="preserve"><value>Criado em</value></data>
+<data name="SupportCloseAction" xml:space="preserve"><value>Fechar atendimento</value></data>
+<data name="SupportAcceptVersion" xml:space="preserve"><value>Rever e usar versão atual</value></data>
+<data name="SupportConflict" xml:space="preserve"><value>O pedido foi alterado. A conversa foi atualizada e o rascunho foi conservado. Revê as alterações antes de repetir.</value></data>
+<data name="SupportNotFound" xml:space="preserve"><value>Este pedido ou anexo já não está disponível para a tua conta.</value></data>
+<data name="SupportTooLarge" xml:space="preserve"><value>O envio excede os limites de tamanho. Revê os anexos.</value></data>
+<data name="SupportRateLimit" xml:space="preserve"><value>Foram feitos demasiados pedidos. Aguarda um pouco e tenta novamente.</value></data>
+<data name="SupportInvalid" xml:space="preserve"><value>Revê os campos e os limites dos anexos antes de tentar novamente.</value></data>
+<data name="SupportPublic" xml:space="preserve"><value>Mensagem para o cliente</value></data>
+<data name="SupportInternalText" xml:space="preserve"><value>Escrever nota interna</value></data>
+<data name="SupportPublicText" xml:space="preserve"><value>Escrever mensagem</value></data>
+<data name="SupportInternalHelp" xml:space="preserve"><value>Só a equipa de suporte pode ver esta nota.</value></data>
+<data name="SupportPublicHelp" xml:space="preserve"><value>Visível ao cliente e à equipa de suporte.</value></data>
+<data name="SupportAttach" xml:space="preserve"><value>Anexar ficheiros</value></data>
+<data name="SupportFileHelp" xml:space="preserve"><value>Até 3 ficheiros, 5 MiB por ficheiro e 15 MiB por mensagem. JPEG, PNG, WebP, PDF, TXT, DOCX, XLSX ou PPTX.</value></data>
+<data name="SupportRemove" xml:space="preserve"><value>Remover</value></data>
+<data name="SupportReviewed" xml:space="preserve"><value>Revi a conversa; manter rascunho</value></data>
+<data name="SupportUncertain" xml:space="preserve"><value>A confirmação do envio não chegou. Repete o mesmo envio para confirmar a entrega ou confirma a alteração do rascunho.</value></data>
+<data name="SupportRetryDelivery" xml:space="preserve"><value>Repetir o mesmo envio</value></data>
+<data name="SupportReplaceDraft" xml:space="preserve"><value>Alterar rascunho</value></data>
+<data name="SupportReplaceHelp" xml:space="preserve"><value>O envio anterior pode já ter sido entregue. Alterar o rascunho cria um novo envio. Confirma apenas depois de rever a conversa.</value></data>
+<data name="SupportConfirmReplace" xml:space="preserve"><value>Confirmar alteração do rascunho</value></data>
+<data name="SupportSaveNote" xml:space="preserve"><value>Guardar nota</value></data>
+<data name="SupportSend" xml:space="preserve"><value>Enviar mensagem</value></data>
+<data name="SupportCloseHelp" xml:space="preserve"><value>O fecho é definitivo. Confirma a resolução com um resumo para o cliente.</value></data>
+<data name="SupportCloseSummary" xml:space="preserve"><value>Resumo do fecho</value></data>
+<data name="SupportCloseConflict" xml:space="preserve"><value>O pedido mudou. Revê a versão atual antes de confirmar o fecho novamente.</value></data>
+<data name="SupportConfirmClose" xml:space="preserve"><value>Confirmar fecho definitivo</value></data>
+<data name="SupportLeaveDraft" xml:space="preserve"><value>Sair do rascunho</value></data>
+<data name="SupportLeaveHelp" xml:space="preserve"><value>O rascunho e os anexos ainda não enviados serão descartados ao sair desta conversa.</value></data>
+<data name="SupportDiscardDraft" xml:space="preserve"><value>Descartar rascunho e continuar</value></data>
+<data name="SupportMoreFilters" xml:space="preserve"><value>Mais filtros</value></data>
 </root>

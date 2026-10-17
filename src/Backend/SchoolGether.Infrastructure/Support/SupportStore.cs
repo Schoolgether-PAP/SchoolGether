@@ -19,7 +19,8 @@ internal sealed class SupportStore(SchoolGetherDbContext db) : ISupportStore
     {
         var tickets = Tickets(scope).AsNoTracking();
         if (query.Search is not null) tickets = tickets.Where(x => x.Subject.Contains(query.Search));
-        if (query.Status is not null) { var status = Enum.Parse<SupportStatus>(query.Status); tickets = tickets.Where(x => x.Status == status); }
+        if (query.Status == "Active") tickets = tickets.Where(x => x.Status != SupportStatus.Closed);
+        else if (query.Status is not null) { var status = Enum.Parse<SupportStatus>(query.Status); tickets = tickets.Where(x => x.Status == status); }
         if (query.Priority is not null) { var priority = Enum.Parse<SupportPriority>(query.Priority); tickets = tickets.Where(x => x.Priority == priority); }
         if (query.InstitutionId is int institution) tickets = tickets.Where(x => x.InstitutionId == institution);
         if (query.AssigneeId is int assignee) tickets = tickets.Where(x => x.AssigneeId == assignee);

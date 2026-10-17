@@ -13,7 +13,7 @@ public sealed class SupportQueries(SupportAuthorization authorization, ISupportS
             throw new SupportException("InvalidSupportInput");
         if (!scope.Global && query.InstitutionId is not null && query.InstitutionId != scope.Actor.InstitutionId)
             throw new SupportException("Forbidden");
-        if (query.Status is not null) SupportService.Parse<SupportStatus>(query.Status);
+        if (query.Status is not null and not "Active") SupportService.Parse<SupportStatus>(query.Status);
         if (query.Priority is not null) SupportService.Parse<SupportPriority>(query.Priority);
         var page = await store.ListAsync(scope, query, ct);
         var items = new List<SupportTicketResult>();

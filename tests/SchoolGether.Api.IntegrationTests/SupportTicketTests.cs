@@ -9,6 +9,36 @@ public sealed class SupportTicketTests
     private const string Route = SupportAuthorizationTests.Route;
 
     [Fact]
+    public async Task ActiveListGroupsNonClosedStatesBeforeCountingAndPaging()
+    {
+        await using var factory = new IdentityFactory(supportEnabled: true); await factory.SeedAsync();
+        using var school = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(school, "teacher-a@example.test");
+        using var master = PlatformAdminTests.Client(factory); await PlatformAdminTests.Authenticate(master);
+        var expected = new List<int>();
+        foreach (var status in new[] { "Open", "Closed", "InProgress", "AwaitingClient", "Closed" })
+        {
+            var ticket = await SupportAuthorizationTests.Ticket(school); var id = ticket.GetProperty("id").GetInt32();
+            var version = ticket.GetProperty("rowVersion").GetInt64();
+            if (status == "Closed") Assert.Equal(HttpStatusCode.OK, (await master.PostAsJsonAsync($"{Route}/{id}/close", new { RowVersion = version, Summary = "Resolvido" })).StatusCode);
+            else
+            {
+                expected.Insert(0, id);
+                if (status != "Open") Assert.Equal(HttpStatusCode.OK, (await master.PutAsJsonAsync($"{Route}/{id}", new { RowVersion = version, Status = status, Priority = "Normal", AssigneeId = (int?)null })).StatusCode);
+            }
+        }
+        var first = await master.GetAsync($"{Route}?status=Active&pageSize=2");
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        var page = await first.Content.ReadFromJsonAsync<JsonElement>();
+        Assert.Equal(3, page.GetProperty("total").GetInt32());
+        Assert.Equal(expected.Take(2), page.GetProperty("items").EnumerateArray().Select(x => x.GetProperty("id").GetInt32()));
+        page = await master.GetFromJsonAsync<JsonElement>($"{Route}?status=Active&pageSize=2&page=2");
+        Assert.Equal(3, page.GetProperty("total").GetInt32());
+        Assert.Equal(expected.Skip(2), page.GetProperty("items").EnumerateArray().Select(x => x.GetProperty("id").GetInt32()));
+        Assert.Equal(2, (await master.GetFromJsonAsync<JsonElement>($"{Route}?status=Closed")).GetProperty("total").GetInt32());
+        Assert.Equal(1, (await master.GetFromJsonAsync<JsonElement>($"{Route}?status=InProgress")).GetProperty("total").GetInt32());
+        Assert.Equal(HttpStatusCode.BadRequest, (await master.GetAsync($"{Route}?status=Unsupported")).StatusCode);
+    }
+    [Fact]
     public async Task PersistedDatesRemainUtc_AndCursorPagesDoNotSkipPublicMessages()
     {
         await using var factory = new IdentityFactory(supportEnabled: true); await factory.SeedAsync();

@@ -1,6 +1,6 @@
 # Suporte: implementação e validação
 
-O módulo está desativado por omissão (`Support:Enabled=false`). As tarefas 1–5 implementam domínio, HTTP autorizado, anexos privados, avisos SignalR e cliente partilhado; os ecrãs são as tarefas seguintes. Não publicar nem ativar apenas por estes testes locais.
+O módulo está desativado por omissão (`Support:Enabled=false`). As tarefas 1–6 implementam domínio, HTTP autorizado, anexos privados, avisos SignalR, cliente partilhado e atendimento global no site. A integração escolar é a tarefa seguinte. Não publicar nem ativar apenas por estes testes locais.
 
 ## Canal ao vivo
 
@@ -33,3 +33,11 @@ O rascunho é preparado por `SetDraftAsync`: a impressão local inclui conteúdo
 Os registos Web (scoped) e MAUI (singleton da sessão) estão disponíveis sem novos ecrãs nativos. O canal partilhado acompanha uma conversa ou a fila; os ecrãs devem coordenar essa seleção e chamar `Clear()` ao sair da conversa. Não ativar stateful reconnect nem introduzir query bearer.
 
 Os testes locais da tarefa 4 usam contas fictícias, SQLite temporário com ligações independentes e TestServer: LongPolling, WebSockets nativos, cabeçalhos, expiração, DELETE e isolamento. Não demonstram execução no browser nem no IIS/MonsterASP. A tarefa 8 deve verificar runtime/SDK corrigidos (10.0.13 ou superior na linha .NET 10), browser e transportes/CORS/DELETE reais, e que os registos de aplicação e do host não expõem tokens/queries. Os níveis atuais de aplicação mantêm `Microsoft.AspNetCore` em Warning; não habilitar registo de URLs/query sensíveis. A supressão de queries IIS W3C ainda não foi demonstrada, motivo pelo qual o browser não usa query tokens nesta entrega.
+
+## Atendimento global no site
+
+A área Suporte aparece na navegação global com `support.read` (ou master); as capacidades de cada pedido devolvidas pelo servidor controlam resposta, gestão e fecho. A fila apresenta 20 pedidos por página, pesquisa e filtros; `GET /api/v1/support/tickets?status=Active` reúne `Open`, `InProgress` e `AwaitingClient` antes de contar/paginar. `Active` é apenas um filtro de consulta, não um estado de domínio nem uma transição. Os filtros explícitos dos quatro estados continuam disponíveis na API; o separador Histórico usa `Closed`.
+
+A conversa distingue mensagens para o cliente de notas internas. O fecho exige resumo e confirmação, e torna o pedido apenas consultável. Conflitos 409 conservam texto/anexos e exigem revisão antes de novo envio. Falhas de transporte permitem repetir a mesma entrega idempotente; alterar um envio incerto exige confirmação porque o anterior pode já ter sido entregue. Rascunhos ficam apenas em memória e a troca de conversa pede confirmação para os descartar. O download passa pelo cliente autenticado, com libertação do stream e do URL temporário.
+
+No desktop, fila, conversa e detalhes têm deslocamento limitado ao espaço de trabalho. A 390 px, fila e detalhe alternam com um botão Voltar à fila e reposição do foco. O estado mostrado corresponde à ligação real; falhas do tempo real permitem continuar por HTTP e usar Atualizar dados. Não existem métricas ou disponibilidade de operadores simuladas.
