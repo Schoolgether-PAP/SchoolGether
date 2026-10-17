@@ -43,6 +43,9 @@ public static class MauiProgram
         builder.Services.AddSingleton<IRefreshTokenStore, SecureRefreshTokenStore>();
         builder.Services.AddSingleton(TimeProvider.System);
         builder.Services.AddSingleton<IdentitySession>();
+        builder.Services.AddSingleton<SchoolGether.ApiClient.Support.SupportApiClient>();
+        builder.Services.AddSingleton<SchoolGether.ApiClient.Support.SupportLiveClient>();
+        builder.Services.AddSingleton<SchoolGether.ApiClient.Support.SupportConversationState>();
         builder.Services.AddSingleton(services => new IdentityViewModel(
             services.GetRequiredService<IdentitySession>(),
             action => MainThread.BeginInvokeOnMainThread(action),

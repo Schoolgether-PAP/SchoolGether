@@ -2,6 +2,7 @@ using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Localization;
+using Microsoft.AspNetCore.Cors.Infrastructure;
 using SchoolGether.Api;
 using SchoolGether.Api.Diagnostics;
 using SchoolGether.Api.Identity;
@@ -9,6 +10,7 @@ using SchoolGether.Api.Platform;
 using SchoolGether.Infrastructure.Persistence;
 using SchoolGether.Infrastructure.Billing;
 using SchoolGether.Api.Onboarding;
+using SchoolGether.Api.Support;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
@@ -45,6 +47,7 @@ builder.Services.AddHealthChecks().AddCheck<DatabaseHealthCheck>(
 builder.Services.AddApiIdentity();
 builder.Services.AddBillingModule();
 builder.Services.AddApiOnboarding();
+builder.Services.AddApiSupport();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>
@@ -70,9 +73,10 @@ builder.Services.AddProblemDetails(options =>
     };
 });
 
-var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
-builder.Services.AddCors(options => options.AddDefaultPolicy(policy =>
-    policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
+builder.Services.AddCors();
+builder.Services.AddOptions<CorsOptions>().Configure<IConfiguration>((options, configuration) =>
+    options.AddDefaultPolicy(policy => policy.WithOrigins(configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [])
+        .AllowAnyHeader().AllowAnyMethod()));
 
 var app = builder.Build();
 
@@ -111,6 +115,7 @@ else
 }
 
 app.UseRouting();
+app.UseSupportLiveOriginGuard();
 app.UseCors();
 app.Use(async (context, next) =>
 {
@@ -124,6 +129,7 @@ app.UseAuthorization();
 app.UseOnboardingBodyLimit();
 
 app.MapControllers();
+app.MapSupportLive();
 
 app.Run();
 

@@ -10,7 +10,7 @@
         { <div class="field"><label for="record-password">@T("InitialPassword")</label><input id="record-password" type="password" required minlength="12" maxlength="128" autocomplete="new-password" @bind="password" @bind:event="oninput" /></div> }
         @if (Kind is "admin-create" or "admin-edit")
         {
-            <fieldset class="permissions-field"><legend>@T("Permissions")</legend>
+            <fieldset class="permissions-field"><legend>@T("Permissions")</legend><p>@T("SupportPermissionDependency")</p>
             @foreach (var permission in PlatformPermissions.All)
             { <label class="check"><input type="checkbox" checked="@permissions.Contains(permission)" @onchange="e => Permission(permission, (bool)e.Value!)" />@PermissionLabel(permission)</label> }
             </fieldset>
@@ -71,8 +71,12 @@
         version = Institution?.RowVersion ?? Admin?.RowVersion ?? 0;
         foreach (var permission in Admin?.Permissions ?? []) permissions.Add(permission);
     }
-    private void Permission(string permission, bool selected) { if (selected) permissions.Add(permission); else permissions.Remove(permission); }
-    public static string PermissionLabel(string permission) => T(permission switch { PlatformPermissions.InstitutionsRead => "PermissionInstitutionsRead", PlatformPermissions.InstitutionsWrite => "PermissionInstitutionsWrite", PlatformPermissions.InstitutionsSuspend => "PermissionInstitutionsSuspend", _ => "PermissionAuditRead" });
+    private void Permission(string permission, bool selected)
+    {
+        if (selected) { permissions.Add(permission); if (permission == PlatformPermissions.SupportManage) permissions.Add(PlatformPermissions.SupportRead); }
+        else { permissions.Remove(permission); if (permission == PlatformPermissions.SupportRead) permissions.Remove(PlatformPermissions.SupportManage); }
+    }
+    public static string PermissionLabel(string permission) => T(permission switch { PlatformPermissions.InstitutionsRead => "PermissionInstitutionsRead", PlatformPermissions.InstitutionsWrite => "PermissionInstitutionsWrite", PlatformPermissions.InstitutionsSuspend => "PermissionInstitutionsSuspend", PlatformPermissions.SupportRead => "PermissionSupportRead", PlatformPermissions.SupportManage => "PermissionSupportManage", _ => "PermissionAuditRead" });
     private async Task SaveAsync()
     {
         if (Busy || conflict || !Authorized || string.IsNullOrWhiteSpace(name) && Kind != "suspension" || Kind != "admin-create" && string.IsNullOrWhiteSpace(reason) || RequiresConfirmation && !confirmed) return;

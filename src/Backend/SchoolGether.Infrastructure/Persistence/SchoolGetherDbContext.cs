@@ -8,6 +8,8 @@ using SchoolGether.Domain.Audit;
 using SchoolGether.Infrastructure.Audit;
 using SchoolGether.Infrastructure.Onboarding;
 using SchoolGether.Domain.Billing;
+using SchoolGether.Domain.Support;
+using SchoolGether.Infrastructure.Support;
 
 namespace SchoolGether.Infrastructure.Persistence;
 
@@ -15,6 +17,13 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     : IdentityUserContext<ApplicationUser, int>(options)
 {
     internal OnboardingWriteScope? OnboardingScope { get; set; }
+    internal SupportWriteScope? SupportScope { get; set; }
+    public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
+    public DbSet<SupportMessage> SupportMessages => Set<SupportMessage>();
+    public DbSet<SupportAttachment> SupportAttachments => Set<SupportAttachment>();
+    public DbSet<SupportStorageUsage> SupportStorageUsages => Set<SupportStorageUsage>();
+    private int? AccountId => current?.UserId;
+    private string? AccountRoleName => current?.Role;
     public DbSet<InstitutionProfile> InstitutionProfiles => Set<InstitutionProfile>();
     public DbSet<DemonstrationSubscription> Subscriptions => Set<DemonstrationSubscription>();
     private int? InstitutionId => current?.InstitutionId;
@@ -31,6 +40,13 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchoolGetherDbContext).Assembly);
         IdentityModel.Configure(modelBuilder);
+        modelBuilder.Entity<SupportAttachment>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null &&
+            x.InstitutionId == InstitutionId && SupportMessages.Any(m => m.Id == x.MessageId));
+        modelBuilder.Entity<SupportStorageUsage>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId);
+        modelBuilder.Entity<SupportTicket>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null &&
+            x.InstitutionId == InstitutionId && (AccountRoleName == "InstitutionAdmin" || (AccountRoleName == "Teacher" && x.AuthorId == AccountId)));
+        modelBuilder.Entity<SupportMessage>().HasQueryFilter(x => x.DeletedAt == null && !x.Internal && InstitutionId != null &&
+            x.InstitutionId == InstitutionId && SupportTickets.Any(t => t.Id == x.TicketId));
         modelBuilder.Entity<InstitutionProfile>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null && x.InstitutionId == InstitutionId);
         modelBuilder.Entity<DemonstrationSubscription>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null && x.InstitutionId == InstitutionId);
         modelBuilder.Entity<InstitutionMember>().HasQueryFilter(member =>
@@ -41,6 +57,14 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     {
         if (ChangeTracker.Entries<AuditEntry>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("AuditAppendOnly");
+        if (SupportScope is not null)
+        {
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!SupportScope.Allows(change)) throw new InvalidOperationException("SupportWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries().Any(x => x.Entity is SupportTicket or SupportMessage or SupportAttachment or SupportStorageUsage && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+            throw new InvalidOperationException("SupportWriteDenied");
         if (OnboardingScope is not null)
         {
             foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))

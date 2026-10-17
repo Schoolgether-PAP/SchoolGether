@@ -10,9 +10,10 @@
         <nav aria-label="@T("InstitutionAreas")">
             @foreach (var item in Areas) { <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button> }
         </nav>
-        <main class="institution-content" aria-busy="@(Busy ? "true" : "false")">
+        <main class="institution-content @(area == "Support" ? "institution-support" : "")" aria-busy="@(Busy ? "true" : "false")">
             @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
             @if (setup is null || subscription is null) { <p role="status">@T("Loading")</p> }
+            else if (area == "Support") { <SchoolGether.Web.Support.SupportWorkspace /> }
             else if (area == "InstitutionSetup") { <InstitutionSetupForm @key="setup" Value="setup" Saved="SetupSavedAsync" /> }
             else if (area == "InstitutionMembers") { <InstitutionMembers OccupancyChanged="RefreshSubscriptionAsync" /> }
             else if (area == "InstitutionProfile")
@@ -34,7 +35,7 @@
 </div>
 @code {
     [Parameter] public EventCallback SignOut { get; set; }
-    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "InstitutionSetup", "InstitutionProfile"];
+    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "InstitutionSetup", "Support", "InstitutionProfile"];
     private InstitutionSetupResponse? setup;
     private InstitutionSubscriptionResponse? subscription;
     private string area = "InstitutionSummary";

@@ -1,0 +1,79 @@
+@inherits SupportView
+@inject SupportApiClient Api
+@inject SupportConversationState State
+@inject SupportLiveClient Live
+@inject IJSRuntime JS
+@if (Error is not null) { <p class="support-feedback" role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="RefreshAsync">@T("Retry")</button> }
+@if (State.Ticket is not { } ticket) { <p role="status">@T("Loading")</p> }
+else
+{
+    <div class="support-conversation">
+        <div class="support-chat">
+            <header class="support-chat-head"><button class="support-back" type="button" disabled="@(Busy || composing)" @onclick="Back">@T("SupportBack")</button><div class="support-chat-title"><h2 tabindex="-1" @ref="heading">@ticket.Subject</h2><button type="button" disabled="@Busy" @onclick="RefreshAsync">@T("RefreshData")</button></div><p>#@ticket.Id · @ticket.AuthorName · @Label(ticket.Category)</p><div class="support-chat-title"><span class="support-badge">@Label(ticket.Status)</span><span role="status">@Label(Live.State.ToString())</span></div></header>
+            @if (State.Error is not null) { <p class="support-feedback" role="alert">@T("SupportRefreshFailed")</p> }
+            <div class="support-messages" aria-label="@T("SupportConversation")">
+                @if (State.HasOlderMessages) { <button type="button" disabled="@Busy" @onclick="OlderAsync">@T("SupportOlder")</button> }
+                @foreach (var message in State.Messages)
+                {
+                    <article class="support-message @(message.AuthorId == Session.Account?.Id ? "mine" : "") @(message.Internal ? "note" : "")"><div class="support-message-meta"><strong>@message.AuthorName</strong> <time>@Date(message.CreatedAt)</time>@if (message.Internal) { <span>@T("SupportInternal")</span> }</div>@if (!string.IsNullOrWhiteSpace(message.Text)) { <div class="support-bubble">@message.Text</div> }@foreach (var file in message.Attachments) { <button type="button" class="support-file" disabled="@Busy" @onclick="() => DownloadAsync(file)">@file.FileName <small>@UiMessages.Format("SupportFileSize", Math.Ceiling(file.Size / 1024d))</small></button> }</article>
+                }
+                @if (State.RecoveryPending) { <button type="button" disabled="@Busy" @onclick="RefreshAsync">@T("SupportRecover")</button> }
+            </div>
+            @if (ticket.Status == "Closed") { <div class="support-closed"><strong>@T("SupportClosed")</strong><p>@ticket.CloseSummary</p><p>@Date(ticket.ClosedAt ?? ticket.CreatedAt)</p><p>@T("SupportClosedHelp")</p>@if (CanOpen) { <button type="button" @onclick="NewTicket">@T("SupportCreateAnother")</button> }</div> }
+            else if (ticket.CanReply) { <SupportComposer @key="ticket.Id" State="State" CanManage="ticket.CanManage" BusyChanged="ComposerBusyAsync" Sent="Updated" /> }
+            else { <p class="support-closed">@T("SupportReadOnly")</p> }
+        </div>
+        <aside class="support-context" aria-label="@T("SupportDetails")"><h3>@T("SupportDetails")</h3><dl><dt>@T("Institution")</dt><dd>#@ticket.InstitutionId</dd><dt>@T("SupportAuthor")</dt><dd>@ticket.AuthorName</dd><dt>@T("SupportAssignee")</dt><dd>@AssigneeLabel(ticket)</dd><dt>@T("SupportPriority")</dt><dd>@Label(ticket.Priority)</dd><dt>@T("SupportCreated")</dt><dd>@Date(ticket.CreatedAt)</dd></dl>
+        @if (ticket.CanManage && ticket.Status != "Closed")
+        {
+            <form @onsubmit="SaveAsync" @onsubmit:preventDefault><fieldset disabled="@Busy"><label for="support-edit-state">@T("State")</label><select id="support-edit-state" @bind="status">@foreach (var s in new[] { "Open", "InProgress", "AwaitingClient" }) { <option value="@s">@Label(s)</option> }</select><label for="support-edit-priority">@T("SupportPriority")</label><select id="support-edit-priority" @bind="priority">@foreach (var p in new[] { "Low", "Normal", "High" }) { <option value="@p">@Label(p)</option> }</select><label for="support-edit-assignee">@T("SupportAssignee")</label><select id="support-edit-assignee" @bind="assignee"><option value="">@T("SupportUnassigned")</option>@if (ticket.AssigneeId is int unavailable && !ticket.AssigneeAvailable) { <option value="@unavailable">@AssigneeLabel(ticket)</option> }@foreach (var a in assignees.Where(a => a.Id != ticket.AssigneeId || ticket.AssigneeAvailable)) { <option value="@a.Id">@a.Name</option> }</select><button type="submit" class="support-primary" disabled="@conflict">@T("Save")</button></fieldset></form>
+            @if (conflict) { <p role="alert">@T("SupportConflict")</p><button type="button" disabled="@Busy" @onclick="AcceptVersion">@T("SupportAcceptVersion")</button> }
+        }
+        @if (ticket.CanClose && ticket.Status != "Closed") { <button type="button" disabled="@Busy" @onclick="() => closing = true">@T("SupportCloseAction")</button> }
+        </aside>
+    </div>
+    @if (closing) { <SupportCloseDialog Ticket="ticket" Closed="ClosedAsync" Cancel="() => closing = false" /> }
+}
+@code {
+    [Parameter] public int TicketId { get; set; }
+    [Parameter] public EventCallback Updated { get; set; }
+    [Parameter] public EventCallback Back { get; set; }
+    [Parameter] public bool CanOpen { get; set; }
+    [Parameter] public EventCallback NewTicket { get; set; }
+    private IReadOnlyList<SupportAssigneeResponse> assignees = [];
+    private string status = "Open", priority = "Normal";
+    private int? assignee;
+    private long version;
+    private bool closing, conflict, focus, composing;
+    private int loadedId;
+    private ElementReference heading;
+    private string AssigneeLabel(SupportTicketResponse ticket) => ticket.AssigneeId is null ? T("SupportUnassigned") :
+        ticket.AssigneeAvailable ? ticket.AssigneeName ?? $"#{ticket.AssigneeId}" : UiMessages.Format("SupportAssigneeUnavailable", ticket.AssigneeName ?? $"#{ticket.AssigneeId}");
+    protected override void OnInitialized() { State.Changed += Changed; Live.ConnectionStateChanged += ConnectionChanged; }
+    protected override async Task OnParametersSetAsync()
+    {
+        if (loadedId == TicketId) return; loadedId = TicketId; conflict = false;
+        await RunAsync(async () => { await State.LoadAsync(TicketId, Lifetime.Token); CopyTicket(); if (State.Ticket?.CanManage == true) assignees = await Api.AssigneesAsync(Lifetime.Token); focus = true; });
+    }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focus && State.Ticket is not null) { focus = false; await heading.FocusAsync(); } }
+    private async Task ComposerBusyAsync(bool value) { composing = value; await BusyChanged.InvokeAsync(value || Busy); }
+    private void CopyTicket() { if (State.Ticket is { } t) { status = t.Status; priority = t.Priority; assignee = t.AssigneeId; version = t.RowVersion; } }
+    private void Changed() => _ = InvokeAsync(StateHasChanged);
+    private void ConnectionChanged(SupportConnectionState value) => _ = InvokeAsync(StateHasChanged);
+    private async Task RefreshAsync() { await RunAsync(async () => { if (State.Ticket is null) { await State.LoadAsync(TicketId, Lifetime.Token); CopyTicket(); if (State.Ticket?.CanManage == true) assignees = await Api.AssigneesAsync(Lifetime.Token); focus = true; } else await State.RefreshAsync(Lifetime.Token); }); await Updated.InvokeAsync(); }
+    private Task OlderAsync() => RunAsync(() => State.LoadOlderAsync(Lifetime.Token));
+    private async Task SaveAsync()
+    {
+        await RunAsync(async () => { try { await Api.UpdateAsync(TicketId, new(version, status, priority, assignee), Lifetime.Token); } catch (IdentityApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict) { conflict = true; await State.RefreshAsync(Lifetime.Token); throw; } await State.RefreshAsync(Lifetime.Token); CopyTicket(); await Updated.InvokeAsync(); });
+    }
+    private void AcceptVersion() { version = State.Ticket?.RowVersion ?? version; conflict = false; Error = null; }
+    private async Task ClosedAsync() { closing = false; await RefreshAsync(); CopyTicket(); }
+    private Task DownloadAsync(SupportAttachmentResponse file) => RunAsync(async () =>
+    {
+        await using var result = await Api.DownloadAsync(file.Id, Lifetime.Token);
+        using var stream = new DotNetStreamReference(result.Content, leaveOpen: true);
+        await using var module = await JS.InvokeAsync<IJSObjectReference>("import", Lifetime.Token, "./support-download.js");
+        await module.InvokeVoidAsync("download", Lifetime.Token, result.FileName ?? file.FileName, result.ContentType, stream);
+    });
+    public override void Dispose() { State.Changed -= Changed; Live.ConnectionStateChanged -= ConnectionChanged; base.Dispose(); }
+}

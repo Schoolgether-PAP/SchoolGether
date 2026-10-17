@@ -1,0 +1,19 @@
+@inherits SupportView
+@inject SupportApiClient Api
+<PlatformDialog Title="@T("SupportCloseAction")" Busy="Busy" Cancel="Cancel">
+    <form @onsubmit="CloseAsync" @onsubmit:preventDefault><p>@T("SupportCloseHelp")</p><fieldset disabled="@Busy"><label for="support-close-summary">@T("SupportCloseSummary")</label><textarea id="support-close-summary" rows="4" required maxlength="1000" @bind="summary" @bind:event="oninput"></textarea></fieldset>
+    @if (Error is not null) { <p role="alert">@Error</p> }
+    @if (conflict) { <p>@T("SupportCloseConflict")</p><button type="button" disabled="@Busy" @onclick="ReviewAsync">@T("SupportAcceptVersion")</button> }
+    <div class="dialog-actions"><button type="button" disabled="@Busy" @onclick="Cancel">@T("Cancel")</button><button type="submit" class="platform-primary" disabled="@(Busy || conflict || string.IsNullOrWhiteSpace(summary))">@T("SupportConfirmClose")</button></div></form>
+</PlatformDialog>
+@code {
+    [Parameter] public SupportTicketResponse Ticket { get; set; } = default!;
+    [Parameter] public EventCallback Closed { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    private string summary = "";
+    private bool conflict;
+    private long version;
+    protected override void OnInitialized() => version = Ticket.RowVersion;
+    private Task CloseAsync() => RunAsync(async () => { if (conflict || string.IsNullOrWhiteSpace(summary)) return; try { await Api.CloseAsync(Ticket.Id, new(version, summary), Lifetime.Token); } catch (IdentityApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict) { conflict = true; throw; } await Closed.InvokeAsync(); });
+    private Task ReviewAsync() => RunAsync(async () => { var latest = await Api.GetAsync(Ticket.Id, Lifetime.Token); version = latest.RowVersion; if (latest.Status == "Closed") await Closed.InvokeAsync(); else conflict = false; });
+}

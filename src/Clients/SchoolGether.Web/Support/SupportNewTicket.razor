@@ -1,0 +1,66 @@
+@inherits SupportView
+@inject SupportApiClient Api
+<form class="support-new" @onsubmit="CreateAsync" @onsubmit:preventDefault aria-busy="@(Busy ? "true" : "false")">
+    <h2 tabindex="-1" @ref="heading">@T("SupportNew")</h2><p>@T("SupportNewHelp")</p>
+    <fieldset disabled="@(Busy || uncertain)">
+        <label for="support-subject">@T("SupportSubject")</label><input id="support-subject" maxlength="150" required @bind="subject" @bind:event="oninput" @bind:after="DraftChangedAsync" />
+        <div class="support-filter-pair"><div><label for="support-category">@T("SupportCategory")</label><select id="support-category" @bind="category"><option value="Access">@Label("Access")</option><option value="Academic">@Label("Academic")</option><option value="Technical">@Label("Technical")</option><option value="Other">@Label("Other")</option></select></div><div><label for="support-new-priority">@T("SupportPriority")</label><select id="support-new-priority" @bind="priority"><option value="Low">@Label("Low")</option><option value="Normal">@Label("Normal")</option><option value="High">@Label("High")</option></select></div></div>
+        <label for="support-description">@T("SupportDescription")</label><textarea id="support-description" rows="7" required maxlength="4000" @bind="description" @bind:event="oninput" @bind:after="DraftChangedAsync"></textarea><p>@description.Length / 4000</p>
+        <label for="support-new-files">@T("SupportAttach")</label><InputFile id="support-new-files" @key="fileKey" multiple OnChange="FilesAsync" accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.docx,.xlsx,.pptx" /><p>@T("SupportFileHelp")</p>
+        @foreach (var file in files) { <div class="support-pending">@file.FileName <button type="button" @onclick="() => RemoveAsync(file)">@T("SupportRemove")</button></div> }
+    </fieldset>
+    @if (Error is not null) { <p role="alert" class="support-feedback">@Error</p> }
+    @if (uncertain) { <p role="alert">@T("SupportNewUncertain")</p><button type="button" disabled="@Busy" @onclick="RetryAsync">@T("SupportRetryDelivery")</button><button type="button" disabled="@Busy" @onclick="() => replacing = true">@T("SupportReplaceDraft")</button> }
+    else { <button type="submit" class="support-primary" disabled="@(Busy || string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(description))">@T("SupportCreate")</button> }
+    <button type="button" disabled="@Busy" @onclick="Cancel">@T("SupportBack")</button>
+</form>
+@if (replacing) { <PlatformDialog Title="@T("SupportReplaceDraft")" Cancel="() => replacing = false"><p>@T("SupportNewReplaceHelp")</p><button type="button" @onclick="Replace">@T("SupportConfirmReplace")</button></PlatformDialog> }
+@code {
+    [Parameter] public EventCallback<int> Created { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    [Parameter] public EventCallback<bool> DraftChanged { get; set; }
+    private string subject = "", description = "", category = "Access", priority = "Normal";
+    private readonly List<SupportUpload> files = [];
+    private CreateSupportTicketRequest? pending;
+    private bool uncertain, replacing;
+    private int fileKey;
+    private ElementReference heading;
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender) await heading.FocusAsync(); }
+    private Task DraftChangedAsync() => DraftChanged.InvokeAsync(!string.IsNullOrWhiteSpace(subject) || !string.IsNullOrWhiteSpace(description) || files.Count > 0);
+    private async Task FilesAsync(InputFileChangeEventArgs e)
+    {
+        await RunAsync(async () =>
+        {
+            // InputFile substitui a seleção anterior; nunca conservar fábricas de ficheiros já invalidados.
+            files.Clear(); await DraftChangedAsync();
+            if (e.FileCount > 3) throw new ArgumentException();
+            var selected = e.GetMultipleFiles(3);
+            var extensions = new[] { ".jpg", ".jpeg", ".png", ".webp", ".pdf", ".txt", ".docx", ".xlsx", ".pptx" };
+            if (selected.Any(f => f.Size is <= 0 or > SupportApiClient.MaximumFileSize || !extensions.Contains(System.IO.Path.GetExtension(f.Name).ToLowerInvariant()))) throw new ArgumentException();
+            foreach (var file in selected) files.Add(new(file.Name, file.Size, ct => Task.FromResult<Stream>(file.OpenReadStream(SupportApiClient.MaximumFileSize, ct))));
+            await DraftChangedAsync();
+        });
+    }
+    private async Task RemoveAsync(SupportUpload file) { files.Remove(file); await DraftChangedAsync(); }
+    private Task CreateAsync() => RunAsync(async () =>
+    {
+        if (uncertain || string.IsNullOrWhiteSpace(subject) || string.IsNullOrWhiteSpace(description)) return;
+        pending = new(Guid.NewGuid(), subject.Trim(), category, priority, description.Trim());
+        await DeliverAsync();
+    });
+    private Task RetryAsync() => RunAsync(DeliverAsync);
+    private async Task DeliverAsync()
+    {
+        try
+        {
+            var ticket = await Api.CreateAsync(pending ?? throw new InvalidOperationException(), files, Lifetime.Token);
+            if (Disposed) return;
+            pending = null; uncertain = false; subject = description = ""; files.Clear(); fileKey++;
+            await DraftChanged.InvokeAsync(false); await Created.InvokeAsync(ticket.Id);
+        }
+        catch (Exception ex) when (ex is HttpRequestException or OperationCanceledException && ex is not IdentityApiException)
+        { if (!Lifetime.IsCancellationRequested) uncertain = true; throw; }
+    }
+    private void Replace() { pending = null; uncertain = false; replacing = false; Error = null; }
+    public override void Dispose() { files.Clear(); pending = null; subject = description = ""; base.Dispose(); }
+}
