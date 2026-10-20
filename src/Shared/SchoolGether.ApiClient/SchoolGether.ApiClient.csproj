@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.SignalR.Client" Version="10.0.13" />
     <ProjectReference Include="..\SchoolGether.Contracts\SchoolGether.Contracts.csproj" />
   </ItemGroup>
 

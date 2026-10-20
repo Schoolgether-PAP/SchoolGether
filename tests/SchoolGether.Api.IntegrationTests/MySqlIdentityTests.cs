@@ -213,7 +213,7 @@ public sealed class MySqlIdentityTests
             await db.Database.MigrateAsync();
             Assert.Equal("MySql.EntityFrameworkCore", db.Database.ProviderName);
             Assert.Empty(await db.Database.GetPendingMigrationsAsync());
-            Assert.Equal("20261014210542_InstitutionSetupCompletion", (await db.Database.GetAppliedMigrationsAsync()).Last());
+            Assert.Equal(db.Database.GetMigrations().Last(), (await db.Database.GetAppliedMigrationsAsync()).Last());
             Assert.Equal(legacyUsers, await db.Users.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
             Assert.Equal(legacyMembers, await db.Members.IgnoreQueryFilters().OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());
             Assert.Equal(legacyAudits, await db.AuditEntries.OrderBy(x => x.Id).Select(x => x.Id).ToArrayAsync());

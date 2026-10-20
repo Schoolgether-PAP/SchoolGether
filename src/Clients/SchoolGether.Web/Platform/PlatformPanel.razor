@@ -35,6 +35,7 @@
             else if (area == "Institutions") { <PlatformInstitutions Context="context" PermissionsChanged="LoadContextAsync" InitialSuspended="institutionFilter" /> }
             else if (area == "Administrators" && context.IsMaster) { <PlatformAdministrators Context="context" PermissionsChanged="LoadContextAsync" /> }
             else if (area == "Audit" && Can(PlatformPermissions.AuditRead)) { <PlatformAudit Context="context" PermissionsChanged="LoadContextAsync" /> }
+            else if (area == "Support" && Can(PlatformPermissions.SupportRead)) { <SchoolGether.Web.Support.SupportWorkspace /> }
             else if (area == "PlatformProfile")
             {
                 <PlatformHeading>@T("ProfileTitle")</PlatformHeading><p class="platform-intro">@T("ProfileIntroduction")</p>
@@ -62,7 +63,7 @@
     private async Task FilterInstitutionsAsync(bool? suspended) { institutionFilter = suspended; await NavigateAsync("Institutions", true); }
     private readonly HashSet<string> favorites = [];
     private readonly List<string> recent = [];
-    private List<string> Areas => ["Overview", ..(context is not null && (Can(PlatformPermissions.InstitutionsRead) || Can(PlatformPermissions.InstitutionsWrite)) ? new[] { "Institutions" } : []), ..(context?.IsMaster == true ? new[] { "Administrators" } : []), ..(context is not null && Can(PlatformPermissions.AuditRead) ? new[] { "Audit" } : []), "PlatformProfile"];
+    private List<string> Areas => ["Overview", ..(context is not null && (Can(PlatformPermissions.InstitutionsRead) || Can(PlatformPermissions.InstitutionsWrite)) ? new[] { "Institutions" } : []), ..(context?.IsMaster == true ? new[] { "Administrators" } : []), ..(context is not null && Can(PlatformPermissions.AuditRead) ? new[] { "Audit" } : []), ..(context is not null && Can(PlatformPermissions.SupportRead) ? new[] { "Support" } : []), "PlatformProfile"];
     private IEnumerable<string> FilteredAreas => Areas.Where(x => string.IsNullOrWhiteSpace(search) || T(x).Contains(search, StringComparison.CurrentCultureIgnoreCase));
     protected override Task OnInitializedAsync() => LoadContextAsync();
     private Task LoadContextAsync() => RunAsync(Api.GetContextAsync, value => { context = value; Context = value; });

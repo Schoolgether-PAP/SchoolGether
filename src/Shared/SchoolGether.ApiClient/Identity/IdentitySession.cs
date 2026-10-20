@@ -14,6 +14,7 @@ public sealed class IdentitySession(IdentityApiClient api, IRefreshTokenStore st
     private AccountResponse? account;
 
     public AccountResponse? Account => Volatile.Read(ref account);
+    public long Generation => Interlocked.Read(ref generation);
     public event Action? Changed;
 
     public async Task<AccountResponse> SignInAsync(LoginRequest request, CancellationToken cancellationToken = default)

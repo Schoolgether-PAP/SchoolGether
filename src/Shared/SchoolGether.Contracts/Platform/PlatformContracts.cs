@@ -9,8 +9,10 @@ public static class PlatformPermissions
     public const string InstitutionsWrite = "institutions.write";
     public const string InstitutionsSuspend = "institutions.suspend";
     public const string AuditRead = "audit.read";
+    public const string SupportRead = "support.read";
+    public const string SupportManage = "support.manage";
     public static IReadOnlyList<string> All { get; } = Array.AsReadOnly(new[] {
-        InstitutionsRead, InstitutionsWrite, InstitutionsSuspend, AuditRead });
+        InstitutionsRead, InstitutionsWrite, InstitutionsSuspend, AuditRead, SupportRead, SupportManage });
 }
 
 public sealed record PagedResponse<T>(IReadOnlyList<T> Items, int Total, int Page, int PageSize);
@@ -21,13 +23,13 @@ public sealed class CreatePlatformAdminRequest
     [Required, EmailAddress, StringLength(256)] public string Email { get; set; } = string.Empty;
     [Required, StringLength(128, MinimumLength = 12)] public string Password { get; set; } = string.Empty;
     [Required, StringLength(150)] public string Name { get; set; } = string.Empty;
-    [Required, MaxLength(4)] public string[] Permissions { get; set; } = [];
+    [Required, MaxLength(6)] public string[] Permissions { get; set; } = [];
 }
 public sealed class UpdatePlatformAdminRequest
 {
     [Required, StringLength(150)] public string Name { get; set; } = string.Empty;
     public bool IsActive { get; set; }
-    [Required, MaxLength(4)] public string[] Permissions { get; set; } = [];
+    [Required, MaxLength(6)] public string[] Permissions { get; set; } = [];
     [Range(1, long.MaxValue)] public long RowVersion { get; set; }
     [Required, StringLength(500)] public string Reason { get; set; } = string.Empty;
 }

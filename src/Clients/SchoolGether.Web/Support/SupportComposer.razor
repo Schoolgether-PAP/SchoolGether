@@ -1,0 +1,55 @@
+@inherits SupportView
+<form class="support-compose @(internalNote ? "internal" : "")" @onsubmit="SendAsync" @onsubmit:preventDefault aria-busy="@Busy">
+    <fieldset disabled="@(Busy || State.DeliveryUncertain)">
+        <div class="support-tabs"><button type="button" aria-pressed="@(internalNote ? "false" : "true")" @onclick="() => ModeAsync(false)">@T("SupportPublic")</button>@if (CanManage) { <button type="button" aria-pressed="@(internalNote ? "true" : "false")" @onclick="() => ModeAsync(true)">@T("SupportInternal")</button> }</div>
+        <label for="support-message">@T(internalNote ? "SupportInternalText" : "SupportPublicText")</label><textarea id="support-message" rows="3" maxlength="4000" value="@text" @oninput="TextAsync" aria-describedby="support-compose-help"></textarea>
+        <p id="support-compose-help">@T(internalNote ? "SupportInternalHelp" : "SupportPublicHelp")</p>
+        <label for="support-files">@T("SupportAttach")</label><InputFile id="support-files" @key="fileKey" OnChange="FilesAsync" multiple accept=".jpg,.jpeg,.png,.webp,.pdf,.txt,.docx,.xlsx,.pptx" /><p>@T("SupportFileHelp")</p>
+        @foreach (var file in files) { <div class="support-pending">@file.FileName <button type="button" @onclick="() => RemoveAsync(file)">@T("SupportRemove")</button></div> }
+    </fieldset>
+    @if (Error is not null) { <p role="alert" class="support-feedback">@Error</p> }
+    @if (conflict) { <p role="alert">@T("SupportConflict")</p><button type="button" disabled="@Busy" @onclick="() => conflict = false">@T("SupportReviewed")</button> }
+    @if (State.DeliveryUncertain)
+    { <p role="alert">@T("SupportUncertain")</p><button type="button" disabled="@Busy" @onclick="RetryAsync">@T("SupportRetryDelivery")</button><button type="button" disabled="@Busy" @onclick="() => replacing = true">@T("SupportReplaceDraft")</button> }
+    else { <div class="support-compose-bottom"><span>@text.Length / 4000</span><button type="submit" class="support-primary" disabled="@(Busy || conflict || string.IsNullOrWhiteSpace(text) && files.Count == 0)">@T(internalNote ? "SupportSaveNote" : "SupportSend")</button></div> }
+</form>
+@if (replacing)
+{
+    <PlatformDialog Title="@T("SupportReplaceDraft")" Cancel="() => replacing = false"><p>@T("SupportReplaceHelp")</p><button type="button" @onclick="ReplaceAsync">@T("SupportConfirmReplace")</button></PlatformDialog>
+}
+@code {
+    [Parameter] public SupportConversationState State { get; set; } = default!;
+    [Parameter] public bool CanManage { get; set; }
+    [Parameter] public EventCallback Sent { get; set; }
+    private string text = "";
+    private bool internalNote, conflict, replacing;
+    private int fileKey;
+    private readonly List<SupportUpload> files = [];
+    private Task DraftAsync(bool replace = false) => State.SetDraftAsync(text, internalNote, files, replace, Lifetime.Token);
+    private async Task TextAsync(ChangeEventArgs e) { text = e.Value?.ToString() ?? ""; await RunAsync(() => DraftAsync()); }
+    private async Task ModeAsync(bool value) { internalNote = value; await RunAsync(() => DraftAsync()); }
+    private async Task FilesAsync(InputFileChangeEventArgs e)
+    {
+        await RunAsync(async () => { files.Clear(); await DraftAsync(); if (e.FileCount > 3) throw new ArgumentException(); var selected = e.GetMultipleFiles(3); if (selected.Any(f => f.Size is <= 0 or > SupportApiClient.MaximumFileSize)) throw new ArgumentException(); foreach (var file in selected) files.Add(new(file.Name, file.Size, ct => Task.FromResult<Stream>(file.OpenReadStream(SupportApiClient.MaximumFileSize, ct)))); await DraftAsync(); });
+    }
+    private async Task RemoveAsync(SupportUpload file) { files.Remove(file); await RunAsync(() => DraftAsync()); }
+    private async Task SendAsync() { if (conflict || State.DeliveryUncertain) return; await RunAsync(async () => { await DraftAsync(); await DeliverAsync(); }); }
+    private Task RetryAsync() => RunAsync(DeliverAsync);
+    private async Task DeliverAsync()
+    {
+        try { await State.SendDraftAsync(Lifetime.Token); }
+        catch (IdentityApiException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict) { conflict = true; throw; }
+        finally { if (State.Draft is null) { text = ""; files.Clear(); fileKey++; } }
+        await Sent.InvokeAsync();
+    }
+    private async Task ReplaceAsync()
+    {
+        await RunAsync(async () =>
+        {
+            // A confirmação cria uma nova chave mesmo quando o texto é conservado.
+            await State.SetDraftAsync("", internalNote, [], true, Lifetime.Token);
+            await DraftAsync();
+        });
+        replacing = false;
+    }
+}

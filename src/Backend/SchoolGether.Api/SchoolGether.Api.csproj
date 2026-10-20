@@ -18,6 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <InternalsVisibleTo Include="SchoolGether.Api.IntegrationTests" />
     <ProjectReference Include="..\SchoolGether.Application\SchoolGether.Application.csproj" />
     <ProjectReference Include="..\SchoolGether.Infrastructure\SchoolGether.Infrastructure.csproj" />
     <ProjectReference Include="..\..\Shared\SchoolGether.Contracts\SchoolGether.Contracts.csproj" />
