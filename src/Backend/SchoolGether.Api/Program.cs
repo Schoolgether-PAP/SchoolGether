@@ -11,6 +11,8 @@ using SchoolGether.Infrastructure.Persistence;
 using SchoolGether.Infrastructure.Billing;
 using SchoolGether.Api.Onboarding;
 using SchoolGether.Api.Support;
+using SchoolGether.Api.Academic;
+using SchoolGether.Infrastructure.Academic;
 
 var bootstrap = args.Contains("--bootstrap-admin");
 var setupKey = args.Contains("--setup-identity-key");
@@ -18,7 +20,7 @@ var promoteMaster = args.Contains("--promote-master");
 var builder = WebApplication.CreateBuilder(args.Where(arg => arg is not ("--bootstrap-admin" or "--setup-identity-key" or "--promote-master")).ToArray());
 
 builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
-builder.Services.AddControllers(options => options.Filters.Add<AdministrativeValidationAuditFilter>()).ConfigureApiBehaviorOptions(options =>
+builder.Services.AddControllers(options => { options.Filters.Add<AdministrativeValidationAuditFilter>(); options.Filters.Add<AcademicValidationAuditFilter>(); }).ConfigureApiBehaviorOptions(options =>
 {
     options.InvalidModelStateResponseFactory = context =>
     {
@@ -48,6 +50,9 @@ builder.Services.AddApiIdentity();
 builder.Services.AddBillingModule();
 builder.Services.AddApiOnboarding();
 builder.Services.AddApiSupport();
+builder.Services.AddAcademicModule();
+builder.Services.AddScoped<AcademicRefusalAudit>();
+builder.Services.AddExceptionHandler<AcademicExceptionHandler>();
 builder.Services.AddProblemDetails(options =>
 {
     options.CustomizeProblemDetails = context =>

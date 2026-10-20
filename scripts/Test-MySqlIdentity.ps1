@@ -5,7 +5,7 @@ param(
     [string]$ArtifactsPath = '',
     [string]$EvidencePath = '',
     [string]$BackupPath = '',
-    [ValidateSet('Identity', 'Onboarding', 'InstitutionCapacity', 'InstitutionSetup', 'Support')][string]$Scenario = 'Identity',
+    [ValidateSet('Identity', 'Onboarding', 'InstitutionCapacity', 'InstitutionSetup', 'Support', 'Academic')][string]$Scenario = 'Identity',
     [ValidateRange(1, 100)][int]$ExpectedTestCount = 1
 )
 
@@ -47,7 +47,7 @@ try {
 ALTER USER 'root'@'localhost' IDENTIFIED BY '$testPassword';
 CREATE DATABASE schoolgether_test_identity CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE USER 'schoolgether_test'@'localhost' IDENTIFIED BY '$testPassword';
-GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON schoolgether_test_identity.* TO 'schoolgether_test'@'localhost';
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES, TRIGGER ON schoolgether_test_identity.* TO 'schoolgether_test'@'localhost';
 "@
     [IO.File]::WriteAllText($initPath, $initSql, (New-Object Text.UTF8Encoding($false)))
     Write-Host 'A preparar uma instância MySQL temporária, separada do serviço instalado...'
@@ -62,6 +62,9 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON 
     $serverArguments = @('--no-defaults', "--datadir=`"$dataPath`"", '--bind-address=127.0.0.1',
         "--port=$testPort", '--mysqlx=OFF', "--init-file=`"$initPath`"", "--log-error=`"$errorLog`"",
         "--pid-file=`"$(Join-Path $runPath 'mysql.pid')`"")
+    # Academic injeta falhas de auditoria por trigger; nesta instância descartável
+    # o binlog é dispensável e a conta de testes não precisa de SUPER.
+    if ($Scenario -eq 'Academic') { $serverArguments += '--skip-log-bin' }
     $serverProcess = Start-Process -FilePath $serverPath -ArgumentList $serverArguments -WindowStyle Hidden -PassThru
     $env:MYSQL_PWD = $testPassword
     for ($attempt = 0; $attempt -lt 60; $attempt++) {
@@ -99,7 +102,7 @@ GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, ALTER, DROP, INDEX, REFERENCES ON 
     Write-Host 'A testar migrações, contas, permissões, isolamento entre instituições e sessões...'
     $artifactArguments = @()
     if ($ArtifactsPath) { $artifactArguments = @('--artifacts-path', $ArtifactsPath) }
-    $testFilter = if ($Scenario -eq 'Support') { 'FullyQualifiedName~MySqlSupportTests' } elseif ($Scenario -eq 'Onboarding') { 'FullyQualifiedName~MySqlOnboardingTests' } elseif ($Scenario -eq 'InstitutionCapacity') { 'FullyQualifiedName~InstitutionCapacityTests.One_remaining_seat_allows_only_one_concurrent_creation' } elseif ($Scenario -eq 'InstitutionSetup') { 'FullyQualifiedName~MySqlIdentityTests.Setup_upgrade_preserves_legacy_data_and_serializes_concurrent_edits' } else { 'FullyQualifiedName~MySqlIdentityTests.Identity_WithMySqlMigrations_IsolatesInstitutionsAndRevokesSessions' }
+    $testFilter = if ($Scenario -eq 'Academic') { 'FullyQualifiedName~MySqlAcademicTests' } elseif ($Scenario -eq 'Support') { 'FullyQualifiedName~MySqlSupportTests' } elseif ($Scenario -eq 'Onboarding') { 'FullyQualifiedName~MySqlOnboardingTests' } elseif ($Scenario -eq 'InstitutionCapacity') { 'FullyQualifiedName~InstitutionCapacityTests.One_remaining_seat_allows_only_one_concurrent_creation' } elseif ($Scenario -eq 'InstitutionSetup') { 'FullyQualifiedName~MySqlIdentityTests.Setup_upgrade_preserves_legacy_data_and_serializes_concurrent_edits' } else { 'FullyQualifiedName~MySqlIdentityTests.Identity_WithMySqlMigrations_IsolatesInstitutionsAndRevokesSessions' }
     $runtimeArguments = @()
     if ($env:SCHOOLGETHER_TEST_DOTNET_HOST) { $runtimeArguments = @('--', "RunConfiguration.DotNetHostPath=$env:SCHOOLGETHER_TEST_DOTNET_HOST") }
     & dotnet test $testProject @artifactArguments --configuration Release --filter $testFilter --logger 'trx;LogFileName=mysql-identity.trx' --results-directory $runPath @runtimeArguments
