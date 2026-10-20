@@ -38,20 +38,26 @@ internal sealed class CourseUnitWriteScope(SchoolGetherDbContext db, AuthorizedC
     private Guid clientId;
     private int createdBy;
     private string? fingerprint;
+    private int unitId;
+    private int? studyYear;
     private static InvalidOperationException Denied() => new("CourseUnitWriteDenied");
     internal void Bind(AuthorizedCourseUnitScope scope, Course parent, CourseUnit value)
     {
         if (!ReferenceEquals(scope, authorized) || db.Database.CurrentTransaction?.TransactionId != transaction || scope.Operation == "read" ||
             parent.InstitutionId != scope.InstitutionId || parent.Id != scope.CourseId || value.InstitutionId != scope.InstitutionId || value.CourseId != scope.CourseId ||
             (scope.UnitId.HasValue && value.Id != scope.UnitId) || (course is not null && !ReferenceEquals(course, parent)) || (unit is not null && !ReferenceEquals(unit, value))) throw Denied();
-        if (unit is null) { clientId = value.ClientId; createdBy = value.CreatedBy; fingerprint = value.CreationFingerprint; }
+        if (unit is null)
+        {
+            clientId = value.ClientId; createdBy = value.CreatedBy; fingerprint = value.CreationFingerprint; unitId = value.Id; studyYear = value.StudyYear;
+        }
         course = parent; unit = value;
     }
     internal bool Allows(EntityEntry entry)
     {
         if (course is null || unit is null || db.Database.CurrentTransaction?.TransactionId != transaction ||
-            unit.ClientId != clientId || unit.CreatedBy != createdBy || unit.CreationFingerprint != fingerprint || course.InstitutionId != authorized.InstitutionId || course.Id != authorized.CourseId || unit.InstitutionId != authorized.InstitutionId || unit.CourseId != authorized.CourseId ||
+            unit.Id != unitId || unit.ClientId != clientId || unit.CreatedBy != createdBy || unit.CreationFingerprint != fingerprint || course.InstitutionId != authorized.InstitutionId || course.Id != authorized.CourseId || unit.InstitutionId != authorized.InstitutionId || unit.CourseId != authorized.CourseId ||
             (authorized.UnitId.HasValue && unit.Id != authorized.UnitId)) return false;
+        if (unit.StudyYear != studyYear && db.ClassUnits.Any(x => x.InstitutionId == authorized.InstitutionId && x.CourseId == authorized.CourseId && x.UnitId == unitId)) return false;
         if (entry.Entity is AuditEntry a) return entry.State == EntityState.Added && a.ActorId == authorized.ActorId && a.InstitutionId == authorized.InstitutionId &&
             a.Action == "academic.unit." + authorized.Operation && a.Target == "academic.unit:" + unit.ClientId.ToString("D") && a.Result == "success";
         if (ReferenceEquals(entry.Entity, course))
@@ -66,7 +72,8 @@ internal sealed class CourseUnitWriteScope(SchoolGetherDbContext db, AuthorizedC
         if (entry.State != EntityState.Modified || authorized.Operation is not ("update" or "archive" or "restore") ||
             (int)entry.Property("InstitutionId").OriginalValue! != authorized.InstitutionId || (int)entry.Property("CourseId").OriginalValue! != authorized.CourseId ||
             (long)entry.Property("RowVersion").OriginalValue! + 1 != unit.RowVersion || unit.UpdatedAt?.Kind != DateTimeKind.Utc) return false;
-        var allowed = authorized.Operation == "update" ? new[] { "Code", "Name", "Syllabus", "RowVersion", "UpdatedAt" } : new[] { "IsActive", "DeletedAt", "RowVersion", "UpdatedAt" };
+        if (unit.StudyYear is < 1 or > 20 || studyYear.HasValue && unit.StudyYear is null) return false;
+        var allowed = authorized.Operation == "update" ? new[] { "Code", "Name", "Syllabus", "StudyYear", "RowVersion", "UpdatedAt" } : new[] { "IsActive", "DeletedAt", "RowVersion", "UpdatedAt" };
         if (authorized.Operation == "update" && (!(bool)entry.Property("IsActive").OriginalValue! || !unit.IsActive)) return false;
         if (authorized.Operation == "archive" && (!(bool)entry.Property("IsActive").OriginalValue! || unit.IsActive || unit.DeletedAt is null)) return false;
         if (authorized.Operation == "restore" && ((bool)entry.Property("IsActive").OriginalValue! || !unit.IsActive || unit.DeletedAt is not null)) return false;
@@ -79,9 +86,11 @@ internal sealed class AcademicCourseUnitStore(SchoolGetherDbContext db) : IAcade
     public Task<Course?> FindCourseAsync(AuthorizedCourseUnitScope scope, CancellationToken ct) => db.Courses.SingleOrDefaultAsync(x => x.Id == scope.CourseId && x.InstitutionId == scope.InstitutionId, ct);
     public Task<CourseUnit?> FindAsync(AuthorizedCourseUnitScope scope, int id, CancellationToken ct) => Query(scope).SingleOrDefaultAsync(x => x.Id == id && x.CourseId == scope.CourseId, ct);
     public Task<CourseUnit?> FindByClientIdAsync(AuthorizedCourseUnitScope scope, Guid clientId, CancellationToken ct) => Query(scope).SingleOrDefaultAsync(x => x.ClientId == clientId, ct);
+    public Task<bool> HasClassHistoryAsync(AuthorizedCourseUnitScope scope, CourseUnit unit, CancellationToken ct) => db.ClassUnits.AnyAsync(x => x.InstitutionId == scope.InstitutionId && x.CourseId == scope.CourseId && x.UnitId == unit.Id, ct);
     public async Task<CourseUnitPage> ListAsync(AuthorizedCourseUnitScope scope, CourseUnitQuery query, CancellationToken ct)
     {
         var rows = Query(scope).AsNoTracking().Where(x => x.CourseId == scope.CourseId && x.IsActive == (query.Status == "Active"));
+        if (query.StudyYear.HasValue) rows = rows.Where(x => x.StudyYear == query.StudyYear);
         if (!string.IsNullOrWhiteSpace(query.Search)) { var search = query.Search.Trim().ToUpperInvariant(); rows = rows.Where(x => x.Code.Contains(search) || x.Name.ToUpper().Contains(search)); }
         var total = await rows.CountAsync(ct); var items = await rows.OrderByDescending(x => x.Id).Skip((query.Page - 1) * query.PageSize).Take(query.PageSize).ToListAsync(ct);
         return new(items.Select(x => CourseUnitResult.From(x)).ToArray(), total, query.Page, query.PageSize);
@@ -93,7 +102,7 @@ internal sealed class CourseUnitOfWork(SchoolGetherDbContext db) : ICourseUnitOf
 {
     public async Task<T> ExecuteAsync<T>(AuthorizedCourseUnitScope scope, Func<CancellationToken, Task<T>> operation, CancellationToken ct)
     {
-        if (db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null) throw new InvalidOperationException("CourseUnitWriteDenied");
+        if (db.ClassScope is not null || db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null) throw new InvalidOperationException("CourseUnitWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(ct); db.CourseUnitScope = new(db, scope);
         try { var result = await operation(ct); await db.SaveChangesAsync(ct); await transaction.CommitAsync(ct); return result; }
         catch (DbUpdateConcurrencyException) { await transaction.RollbackAsync(CancellationToken.None); db.ChangeTracker.Clear(); throw new AcademicException("VersionConflict"); }

@@ -51,6 +51,7 @@ public sealed class Course
         if (!IsActive) throw new CourseRuleException("CourseArchived");
         Advance(now);
     }
+    public void TouchClasses(long version, DateTime now) => TouchUnits(version, now);
     public void Archive(long version, DateTime now)
     {
         RequireVersion(version, now);

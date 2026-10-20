@@ -12,13 +12,13 @@ public sealed class AuthorizedCourseUnitScope
     public int CourseId { get; }
     public int? UnitId { get; }
 }
-public sealed record CourseUnitQuery(int Page = 1, int PageSize = 20, string? Search = null, string Status = "Active");
-public sealed record CreateCourseUnit(Guid ClientId, string Code, string Name, string? Syllabus);
-public sealed record UpdateCourseUnit(long RowVersion, string Code, string Name, string? Syllabus);
+public sealed record CourseUnitQuery(int Page = 1, int PageSize = 20, string? Search = null, string Status = "Active", int? StudyYear = null);
+public sealed record CreateCourseUnit(Guid ClientId, string Code, string Name, string? Syllabus, int? StudyYear = null);
+public sealed record UpdateCourseUnit(long RowVersion, string Code, string Name, string? Syllabus, int? StudyYear = null);
 public sealed record CourseUnitResult(int Id, int InstitutionId, int CourseId, Guid ClientId, string Code, string Name, string? Syllabus,
-    bool IsActive, long RowVersion, DateTime CreatedAt, DateTime? UpdatedAt, bool Replay = false)
+    bool IsActive, long RowVersion, DateTime CreatedAt, DateTime? UpdatedAt, bool Replay = false, int? StudyYear = null)
 {
-    public static CourseUnitResult From(CourseUnit x, bool replay = false) => new(x.Id, x.InstitutionId, x.CourseId, x.ClientId, x.Code, x.Name, x.Syllabus, x.IsActive, x.RowVersion, x.CreatedAt, x.UpdatedAt, replay);
+    public static CourseUnitResult From(CourseUnit x, bool replay = false) => new(x.Id, x.InstitutionId, x.CourseId, x.ClientId, x.Code, x.Name, x.Syllabus, x.IsActive, x.RowVersion, x.CreatedAt, x.UpdatedAt, replay, x.StudyYear);
 }
 public sealed record CourseUnitPage(IReadOnlyList<CourseUnitResult> Items, int Total, int Page, int PageSize);
 public interface IAcademicCourseUnitStore
@@ -27,6 +27,7 @@ public interface IAcademicCourseUnitStore
     Task<CourseUnitPage> ListAsync(AuthorizedCourseUnitScope scope, CourseUnitQuery query, CancellationToken ct);
     Task<CourseUnit?> FindAsync(AuthorizedCourseUnitScope scope, int id, CancellationToken ct);
     Task<CourseUnit?> FindByClientIdAsync(AuthorizedCourseUnitScope scope, Guid clientId, CancellationToken ct);
+    Task<bool> HasClassHistoryAsync(AuthorizedCourseUnitScope scope, CourseUnit unit, CancellationToken ct);
     void Bind(AuthorizedCourseUnitScope scope, Course course, CourseUnit unit);
     void Add(AuthorizedCourseUnitScope scope, Course course, CourseUnit unit);
 }

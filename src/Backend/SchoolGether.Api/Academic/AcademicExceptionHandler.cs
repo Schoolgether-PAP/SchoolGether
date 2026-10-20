@@ -15,7 +15,8 @@ public sealed class AcademicExceptionHandler(IProblemDetailsService problems, IS
         var code = exception switch { AcademicException x => x.Code, CourseRuleException x => x.Code, _ => null };
         if (code is null) return false;
         await context.RequestServices.GetRequiredService<AcademicRefusalAudit>().RecordAsync(context, code, ct);
-        var status = code switch { "InvalidSession" => 401, "Forbidden" => 403, "CourseNotFound" or "CourseUnitNotFound" => 404,
+        var status = code switch { "InvalidSession" => 401, "Forbidden" => 403, "CourseNotFound" or "CourseUnitNotFound" or "ClassNotFound" => 404,
+            "ClassConflict" or "ClassReplayConflict" or "ClassArchived" or "ClassAlreadyActive" or "ClassUnitArchived" or "UnitYearInUse" => 409,
             "CourseUnitConflict" or "CourseUnitReplayConflict" or "CourseUnitArchived" or "CourseUnitAlreadyActive" or "VersionConflict" or "CourseConflict" or "CourseReplayConflict" or "CourseArchived" or "CourseAlreadyActive" => 409, _ => 400 };
         context.Response.StatusCode = status;
         if (status == 401) context.Response.Headers.WWWAuthenticate = "Bearer";

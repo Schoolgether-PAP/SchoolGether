@@ -87,4 +87,13 @@
   <data name="CourseUnitReplayConflict" xml:space="preserve"><value>A chave já pertence a outro pedido de criação.</value></data>
   <data name="CourseUnitArchived" xml:space="preserve"><value>A unidade curricular está arquivada.</value></data>
   <data name="CourseUnitAlreadyActive" xml:space="preserve"><value>A unidade curricular já está ativa.</value></data>
+  <data name="ClassArchived" xml:space="preserve"><value>A turma está arquivada.</value></data>
+  <data name="InvalidClassInput" xml:space="preserve"><value>Verifique os dados da turma, o ano e as disciplinas selecionadas.</value></data>
+  <data name="ClassAlreadyActive" xml:space="preserve"><value>A turma já está ativa.</value></data>
+  <data name="InvalidClassSelection" xml:space="preserve"><value>Selecione apenas disciplinas do curso e do ano da turma.</value></data>
+  <data name="UnitYearInUse" xml:space="preserve"><value>O ano desta disciplina não pode ser alterado porque já foi utilizada numa turma. Crie outra disciplina para o novo ano.</value></data>
+  <data name="ClassUnitArchived" xml:space="preserve"><value>Não pode acrescentar uma disciplina arquivada à turma.</value></data>
+  <data name="ClassReplayConflict" xml:space="preserve"><value>Esta chave de criação já foi utilizada com outros dados.</value></data>
+  <data name="ClassConflict" xml:space="preserve"><value>O código ou a versão da turma já foi utilizado. Atualize os dados e tente novamente.</value></data>
+  <data name="ClassNotFound" xml:space="preserve"><value>Turma não encontrada.</value></data>
 </root>
