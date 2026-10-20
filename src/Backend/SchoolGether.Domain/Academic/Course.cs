@@ -45,6 +45,12 @@ public sealed class Course
         var fields = Normalize(code, name, description);
         Code = fields.Code; Name = fields.Name; Description = fields.Description; Advance(now);
     }
+    public void TouchUnits(long version, DateTime now)
+    {
+        RequireVersion(version, now);
+        if (!IsActive) throw new CourseRuleException("CourseArchived");
+        Advance(now);
+    }
     public void Archive(long version, DateTime now)
     {
         RequireVersion(version, now);
