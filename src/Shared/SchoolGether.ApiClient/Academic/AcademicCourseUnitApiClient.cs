@@ -10,6 +10,10 @@ public sealed class AcademicCourseUnitApiClient(HttpClient http, IdentitySession
     private static string Path(int courseId) => $"api/v1/academic/courses/{courseId}/units";
     public Task<CourseUnitPageResponse> ListAsync(int courseId, int page, string search, bool archived, CancellationToken ct = default)
         => SendAsync<CourseUnitPageResponse>(HttpMethod.Get, $"{Path(courseId)}?page={page}&pageSize=20&search={Uri.EscapeDataString(search)}&status={(archived ? "Archived" : "Active")}", null, ct);
+    public Task<CourseUnitPageResponse> ListForYearAsync(int courseId, int studyYear, int page = 1, string? search = null, CancellationToken ct = default)
+        => ListWithYearAsync(courseId, page, search ?? "", false, studyYear, ct);
+    public Task<CourseUnitPageResponse> ListWithYearAsync(int courseId, int page, string search, bool archived, int? studyYear, CancellationToken ct = default)
+        => SendAsync<CourseUnitPageResponse>(HttpMethod.Get, $"{Path(courseId)}?page={page}&pageSize=20&search={Uri.EscapeDataString(search)}&status={(archived ? "Archived" : "Active")}{(studyYear.HasValue ? $"&studyYear={studyYear.Value}" : "")}", null, ct);
     public Task<CourseUnitResponse> GetAsync(int courseId, int id, CancellationToken ct = default) => SendAsync<CourseUnitResponse>(HttpMethod.Get, $"{Path(courseId)}/{id}", null, ct);
     public Task<CourseUnitResponse> CreateAsync(int courseId, CreateCourseUnitRequest body, CancellationToken ct = default) => SendAsync<CourseUnitResponse>(HttpMethod.Post, Path(courseId), body, ct);
     public Task<CourseUnitResponse> UpdateAsync(int courseId, int id, UpdateCourseUnitRequest body, CancellationToken ct = default) => SendAsync<CourseUnitResponse>(HttpMethod.Put, $"{Path(courseId)}/{id}", body, ct);

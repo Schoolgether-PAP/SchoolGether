@@ -14,3 +14,4 @@
 .unit-detail dd { margin:5px 0 0; white-space:pre-wrap; overflow-wrap:anywhere; }
 
 .unit-context { color:#6e625a; font-size:14px; overflow-wrap:anywhere; margin:0 0 20px; }
+select { width:100%; min-height:44px; padding:8px 12px; font:inherit; border:1px solid #8f8176; border-radius:6px; }

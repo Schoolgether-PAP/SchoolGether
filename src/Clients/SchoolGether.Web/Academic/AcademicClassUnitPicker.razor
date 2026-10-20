@@ -1,0 +1,47 @@
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@inherits AcademicView
+@inject AcademicCourseUnitApiClient Api
+
+<section class="class-picker" aria-busy="@(Busy ? "true" : "false")" aria-label="@T("ClassPickUnits")">
+    <h3>@UiMessages.Format("ClassPickerYear", StudyYear)</h3><p>@T("ClassPickerHelp")</p>
+    <div class="picker-search"><label for="picker-search">@T("CourseSearch")</label><div><input id="picker-search" maxlength="150" @bind="search" disabled="@(Busy || Disabled)" @onkeydown="SearchKeyAsync" /><button type="button" disabled="@(Busy || Disabled)" @onclick="SearchAsync">@T("CourseSearchAction")</button></div></div>
+    @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@(Busy || Disabled)" @onclick="() => LoadAsync(retryPage)">@T("Retry")</button> }
+    @if (Busy) { <p role="status">@T("Loading")</p> }
+    else if (units is not null) {
+        @if (units.Items.Count == 0) { <p>@T("ClassPickerEmpty")</p> }
+        @foreach (var unit in units.Items) {
+            <div class="picker-unit" @key="unit.Id"><label><input type="checkbox" checked="@SelectedIds.Contains(unit.Id)" disabled="@(Disabled || (!SelectedIds.Contains(unit.Id) && SelectedIds.Count >= 100))" @onchange="() => ToggleAsync(unit)" /><span><strong>@unit.Code · @unit.Name</strong><span>@UiMessages.Format("StudyYearValue", unit.StudyYear.GetValueOrDefault())</span></span></label>@if (!string.IsNullOrWhiteSpace(unit.Syllabus)) { <details><summary>@T("UnitSyllabus")</summary><p>@unit.Syllabus</p></details> }</div>
+        }
+        <div class="picker-pagination"><span>@UiMessages.Format("UnitPage", units.Page, Math.Max(1, (int)Math.Ceiling(units.Total / 20d)), units.Total)</span><button type="button" disabled="@(Disabled || page <= 1)" @onclick="() => LoadAsync(page - 1)">@T("InstitutionPrevious")</button><button type="button" disabled="@(Disabled || page * 20 >= units.Total)" @onclick="() => LoadAsync(page + 1)">@T("InstitutionNext")</button></div>
+    }
+</section>
+
+@code {
+    [Parameter] public int CourseId { get; set; }
+    [Parameter] public int StudyYear { get; set; }
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter, EditorRequired] public IReadOnlySet<int> SelectedIds { get; set; } = new HashSet<int>();
+    [Parameter] public EventCallback<AcademicClassUnitResponse> Toggle { get; set; }
+    protected override string EntityPrefix => "Unit";
+    private CourseUnitPageResponse? units;
+    private string search = "", appliedSearch = "";
+    private int page = 1, retryPage = 1;
+    protected override Task OnInitializedAsync() => LoadAsync(1);
+    private async Task LoadAsync(int requestedPage) {
+        if (Busy || !Active || Disabled) return; Busy = true; Error = null; retryPage = requestedPage;
+        try {
+            var value = await Api.ListForYearAsync(CourseId, StudyYear, requestedPage, appliedSearch, Lifetime.Token);
+            if (Active) {
+                // Defensively exclude malformed or stale entries even if a server/proxy returns them.
+                units = value with { Items = value.Items.Where(x => x.CourseId == CourseId && x.StudyYear == StudyYear && x.IsActive).ToArray() };
+                page = value.Page;
+            }
+        }
+        catch (Exception e) { if (Active) units = null; RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private Task SearchAsync() { if (Busy || Disabled || !Active) return Task.CompletedTask; appliedSearch = search.Trim(); return LoadAsync(1); }
+    private Task SearchKeyAsync(KeyboardEventArgs args) => args.Key == "Enter" ? SearchAsync() : Task.CompletedTask;
+    private Task ToggleAsync(CourseUnitResponse unit) => !Active || Busy || Disabled || unit.CourseId != CourseId || unit.StudyYear != StudyYear || !unit.IsActive ? Task.CompletedTask : Toggle.InvokeAsync(new AcademicClassUnitResponse(unit.Id, unit.Code, unit.Name, StudyYear, true));
+}
