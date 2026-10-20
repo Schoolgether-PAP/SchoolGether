@@ -1,1 +1,79 @@
-.institution-shell{width:100%;background:#fbf8f3;color:#2e231e}.institution-header{padding:18px 28px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ded1c3;gap:16px}.institution-header>div{display:flex;align-items:center;gap:16px}.institution-header img{width:85px;height:58px;object-fit:contain}.institution-header strong{font-size:20px}nav{display:flex;flex-wrap:wrap;gap:8px;padding:14px 28px;background:#f1e5d5;border-bottom:1px solid #ded1c3}button{min-height:44px;min-width:44px;padding:10px 18px;background:white;border:1px solid #8f8176;border-radius:5px;color:#512f1f;font-weight:600}button[aria-current=page]{background:#512f1f;color:white;border-color:#512f1f}button:focus-visible{outline:3px solid #c86521;outline-offset:3px}.institution-content{padding:32px;max-width:900px;min-height:480px}.institution-content ::deep h1{font:600 32px Georgia,serif;margin:0 0 18px}.institution-content ::deep h1:focus{outline:none}.institution-content ::deep p{max-width:70ch;line-height:1.6}.institution-content ::deep [role=alert]{color:#922f25;border-left:3px solid;padding:12px;background:white;overflow-wrap:anywhere}.institution-intro{font-size:22px}.institution-note{background:#f1e5d5;padding:14px 18px}dl>div{display:grid;grid-template-columns:180px 1fr;border-bottom:1px solid #ded1c3;padding:14px 0;gap:12px}dt{font-weight:600}dd{margin:0;overflow-wrap:anywhere}@media(max-width:600px){.institution-header{padding:14px 18px}.institution-header strong{font-size:17px}.institution-header img{width:60px}nav{padding:12px 18px;gap:8px}nav button{flex:1 1 40%;padding:10px}.institution-content{padding:26px 20px}dl>div{grid-template-columns:1fr;gap:4px}.institution-content ::deep h1{font-size:28px}}.institution-content.institution-support{max-width:1600px}
+.institution-shell { display:grid; grid-template-columns:240px minmax(0,1fr); grid-template-rows:auto 1fr; width:100%; min-height:100dvh; background:#f5f6f7; color:#36281f; font-family:"Segoe UI",system-ui,sans-serif; }
+.institution-header { grid-column:1/-1; display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 28px; background:#fff; border-bottom:1px solid #e4e1dd; }
+.institution-brand { display:flex; align-items:center; gap:24px; min-width:0; }
+.institution-brand img { width:100px; height:64px; object-fit:contain; }
+.institution-brand span { border-left:1px solid #e4e1dd; padding-left:24px; font-size:16px; font-weight:600; }
+.institution-sidebar { display:flex; flex-direction:column; gap:24px; padding:28px 16px 20px; background:#fff; border-right:1px solid #e4e1dd; min-width:0; }
+.sidebar-institution { font-size:14px; font-weight:650; line-height:1.5; overflow-wrap:anywhere; margin:0; padding:0 14px; }
+nav { display:flex; flex-direction:column; gap:6px; }
+button { min-height:44px; min-width:44px; padding:10px 16px; background:#fff; border:1px solid #8f8176; border-radius:6px; color:#663a20; font:600 15px/1.5 "Segoe UI",system-ui,sans-serif; }
+button:hover:enabled { background:#f5f6f7; }
+button:focus-visible { outline:3px solid #663a20; outline-offset:3px; }
+nav button { text-align:left; border:1px solid transparent; padding:12px 14px; }
+nav button[aria-current=page] { background:#663a20; color:#fff; border-color:#663a20; }
+nav button[aria-current=page]:hover { background:#512d19; }
+nav button:disabled { cursor:default; }
+.sidebar-account { margin-top:auto; padding:20px 14px 0; border-top:1px solid #e4e1dd; display:grid; gap:12px; }
+.sidebar-account span { color:#6e625a; font-size:14px; overflow-wrap:anywhere; }
+.sidebar-account button { text-align:left; }
+.menu-toggle { display:none; }
+.institution-content { padding:36px 40px 52px; min-width:0; width:100%; max-width:1260px; }
+.institution-content ::deep h1 { font:650 30px/1.25 "Segoe UI",system-ui,sans-serif; letter-spacing:-.6px; margin:0 0 10px; }
+.institution-content ::deep h1:focus { outline:none; }
+.institution-content ::deep h2 { font-family:"Segoe UI",system-ui,sans-serif; font-weight:650; }
+.institution-content ::deep p { max-width:70ch; line-height:1.6; }
+.institution-content ::deep [role=alert] { color:#922f25; border-left:3px solid; padding:12px 16px; background:#fff; overflow-wrap:anywhere; }
+.page-introduction { color:#6e625a; margin:0 0 30px; }
+.institution-overview { background:#fff; border:1px solid #e4e1dd; border-radius:10px; display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); overflow:hidden; }
+.overview-details { padding:28px; }
+.overview-details h2 { font-size:24px; line-height:1.35; margin:0 0 24px; overflow-wrap:anywhere; }
+.institution-facts { display:grid; gap:20px; margin:0; }
+.institution-facts dt, .capacity-metrics dt, .profile-details dt { color:#6e625a; font-size:14px; font-weight:400; margin-bottom:5px; }
+dd { margin:0; overflow-wrap:anywhere; }
+.institution-facts dd { font-size:16px; font-weight:600; }
+.setup-state { display:inline-block; background:#f3f4ed; color:#41532c; border-radius:4px; padding:3px 10px; font-size:14px; }
+.overview-capacity { padding:28px; border-left:1px solid #e4e1dd; }
+.overview-capacity h3 { font-size:14px; color:#6e625a; font-weight:400; margin:0 0 5px; }
+.plan-name { font-size:20px; font-weight:650; margin:0 0 24px; }
+.capacity-metrics { display:grid; grid-template-columns:1fr 1fr; gap:18px; margin:0; }
+.capacity-metrics dd { font-size:32px; font-weight:650; line-height:1.2; font-variant-numeric:tabular-nums; }
+.capacity-help { color:#6e625a; font-size:14px; margin:16px 0 0; }
+.capacity-warning { color:#922f25; font-size:14px; margin:10px 0 0; }
+.demonstration-note { grid-column:1/-1; border-top:1px solid #e4e1dd; padding:13px 28px; margin:0; max-width:none !important; font-size:13px; color:#6e625a; }
+.institution-shortcuts { margin-top:32px; }
+.institution-shortcuts h2 { font-size:20px; margin:0 0 14px; }
+.shortcut-list { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:16px; }
+.shortcut-list button { text-align:left; display:flex; flex-direction:column; gap:8px; padding:20px; border:1px solid #e4e1dd; border-top:3px solid #c87532; border-radius:6px; }
+.shortcut-list strong { font-size:16px; font-weight:650; }
+.shortcut-list span { color:#6e625a; font-size:14px; font-weight:400; }
+.profile-details { max-width:680px; background:#fff; border:1px solid #e4e1dd; border-radius:8px; padding:4px 24px; margin:24px 0; }
+.profile-details > div { display:grid; grid-template-columns:150px minmax(0,1fr); gap:16px; padding:16px 0; border-bottom:1px solid #e4e1dd; }
+.profile-details > div:last-child { border:0; }
+.profile-details dt { margin:0; }
+.institution-note { padding:14px 18px; border-left:3px solid #c87532; background:#fff; margin:0 0 24px; }
+.institution-error { margin-bottom:24px; }
+.loading-state-panel { color:#6e625a; padding:20px 0; }
+.institution-content.institution-support { max-width:1680px; padding:28px; }
+@media (max-width:1100px) { .institution-shell { grid-template-columns:216px minmax(0,1fr); } .institution-content { padding:30px 28px; } .shortcut-list { grid-template-columns:1fr; } .shortcut-list button { padding:18px 20px; } }
+@media (max-width:760px) {
+    .institution-shell { grid-template-columns:minmax(0,1fr); grid-template-rows:auto auto 1fr; }
+    .institution-header { padding:10px 18px; }
+    .institution-brand { gap:0; }
+    .institution-brand img { width:86px; height:54px; }
+    .institution-brand span { display:none; }
+    .menu-toggle { display:block; }
+    .institution-sidebar { display:none; border-right:0; border-bottom:1px solid #e4e1dd; padding:20px 18px; gap:18px; }
+    .institution-sidebar.menu-open { display:flex; }
+    .sidebar-account { margin:0; padding:16px 14px 0; }
+    .institution-content, .institution-content.institution-support { padding:26px 20px 36px; }
+    .institution-content ::deep h1 { font-size:27px; }
+    .page-introduction { font-size:15px; margin-bottom:24px; }
+    .institution-overview { grid-template-columns:minmax(0,1fr); }
+    .overview-details, .overview-capacity { padding:22px; }
+    .overview-capacity { border-left:0; border-top:1px solid #e4e1dd; }
+    .overview-details h2 { font-size:22px; margin-bottom:20px; }
+    .institution-facts { grid-template-columns:1fr 1fr; gap:12px; }
+    .demonstration-note { padding:14px 22px; }
+    .profile-details { padding:4px 18px; }
+    .profile-details > div { grid-template-columns:1fr; gap:4px; }
+}
