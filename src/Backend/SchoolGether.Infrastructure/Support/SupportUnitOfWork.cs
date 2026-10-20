@@ -9,6 +9,7 @@ internal sealed class SupportUnitOfWork(SchoolGetherDbContext db) : ISupportUnit
 {
     public async Task<T> ExecuteAsync<T>(AuthorizedSupportScope scope, Func<CancellationToken, Task<T>> operation, CancellationToken ct)
     {
+        if (db.ClassScope is not null) throw new InvalidOperationException("ClassWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         db.SupportScope = new SupportWriteScope(db, scope);
         try

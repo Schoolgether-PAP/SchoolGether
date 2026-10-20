@@ -22,6 +22,9 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     internal SupportWriteScope? SupportScope { get; set; }
     internal AcademicWriteScope? AcademicScope { get; set; }
     internal CourseUnitWriteScope? CourseUnitScope { get; set; }
+    internal ClassWriteScope? ClassScope { get; set; }
+    public DbSet<AcademicClass> AcademicClasses => Set<AcademicClass>();
+    public DbSet<AcademicClassUnit> ClassUnits => Set<AcademicClassUnit>();
     public DbSet<CourseUnit> CourseUnits => Set<CourseUnit>();
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<SupportTicket> SupportTickets => Set<SupportTicket>();
@@ -48,6 +51,8 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         IdentityModel.Configure(modelBuilder);
         // Inclui arquivados para consulta/restauro e reserva permanente dos códigos.
         modelBuilder.Entity<CourseUnit>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
+        modelBuilder.Entity<AcademicClass>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
+        modelBuilder.Entity<AcademicClassUnit>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
         modelBuilder.Entity<Course>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
         modelBuilder.Entity<SupportAttachment>().HasQueryFilter(x => x.DeletedAt == null && InstitutionId != null &&
             x.InstitutionId == InstitutionId && SupportMessages.Any(m => m.Id == x.MessageId));
@@ -67,6 +72,14 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         if (ChangeTracker.Entries<AuditEntry>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("AuditAppendOnly");
         // A exclusividade antecede todos os retornos dos escopos existentes.
+        if (ClassScope is not null)
+        {
+            if (CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("ClassWriteDenied");
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!ClassScope.Allows(change)) throw new InvalidOperationException("ClassWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries().Any(x => x.Entity is AcademicClass or AcademicClassUnit && x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)) throw new InvalidOperationException("ClassWriteDenied");
         if (CourseUnitScope is not null)
         {
             if (AcademicScope is not null || SupportScope is not null || OnboardingScope is not null)

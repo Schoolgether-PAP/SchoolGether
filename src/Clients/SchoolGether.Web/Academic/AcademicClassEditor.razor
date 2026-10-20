@@ -1,0 +1,121 @@
+@using System.Net
+@using System.Text.RegularExpressions
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@using SchoolGether.Web.Platform
+@inherits AcademicView
+@inject AcademicClassApiClient Api
+@inject AcademicCourseApiClient CoursesApi
+
+<PlatformDialog Title="@T(Value is null ? "ClassNew" : editing ? "ClassEdit" : "ClassDetails")" Busy="@(Busy || uncertain)" Cancel="CancelAsync">
+<div class="unit-editor">
+    <p class="unit-context">@Course.Code · @Course.Name</p>
+    @if (ReadOnly) { <p class="unit-review" role="status">@T("ClassParentArchived")</p> }
+    @if (Error is not null) { <p role="alert" id="class-error">@Error</p> }
+    @if (conflict) {
+        <section class="unit-review"><h3>@T("ClassConflict")</h3><p>@T("ClassConflictHelp")</p>
+        @if (latest is null) { <button type="button" disabled="@Busy" @onclick="ReviewAsync">@T("UnitReview")</button> }
+        else { <h4>@T("UnitServerVersion")</h4><dl><dt>@T("CourseCode")</dt><dd>@latest.Code</dd><dt>@T("Name")</dt><dd>@latest.Name</dd><dt>@T("StudyYear")</dt><dd>@UiMessages.Format("StudyYearValue", latest.StudyYear)</dd><dt>@T("AcademicYear")</dt><dd>@latest.AcademicYear</dd><dt>@T("Units")</dt><dd>@string.Join(", ", latest.Units.Select(x => x.Name + (x.IsActive ? "" : " (" + T("UnitArchivedSingle") + ")")))</dd><dt>@T("CourseStatus")</dt><dd>@T(latest.IsActive ? "ClassActiveSingle" : "ClassArchivedSingle")</dd></dl><p>@T("UnitKeepDraft")</p><button type="button" disabled="@Busy" @onclick="AcceptVersion">@T("UnitUseVersion")</button> }
+        </section>
+    }
+    @if (uncertain) { <section class="unit-review" role="status"><h3>@T("UnitUncertain")</h3><p>@T("ClassUncertainHelp")</p><button type="button" disabled="@Busy" @onclick="SaveAsync">@T("ClassRetryIdentical")</button><button type="button" disabled="@Busy" @onclick="AbandonAttempt">@T("UnitChangeAttempt")</button></section> }
+    @if (Value is null || editing) {
+        <form id="class-form" @onsubmit="SaveAsync" @onsubmit:preventDefault novalidate aria-busy="@(Busy ? "true" : "false")"><fieldset disabled="@(Busy || uncertain || ReadOnly)">
+            <div class="field"><label for="class-code">@T("CourseCode")</label><input id="class-code" maxlength="30" @bind="code" @bind:event="oninput" aria-describedby="class-code-help class-error" /><p id="class-code-help">@T("CourseCodeHelp")</p></div>
+            <div class="field"><label for="class-name">@T("Name")</label><input id="class-name" maxlength="200" @bind="name" @bind:event="oninput" aria-describedby="class-error" /></div>
+            <div class="class-years"><div class="field"><label for="class-year">@T("StudyYear")</label><select id="class-year" @key="yearSelectorVersion" value="@studyYear" @onchange="ChangeYear" disabled="@(current is not null)"><option value="" disabled>@T("ClassChooseYear")</option>@for (var year = 1; year <= 20; year++) { <option value="@year">@UiMessages.Format("StudyYearValue", year)</option> }</select></div><div class="field"><label for="class-academic">@T("AcademicYear")</label><input id="class-academic" maxlength="9" placeholder="2026/2027" @bind="academicYear" @bind:event="oninput" disabled="@(current is not null)" /></div></div>
+            <p class="class-help">@T(current is null ? "ClassYearsHelp" : "ClassYearsLocked")</p>
+        </fieldset></form>
+        @if (pendingYear is int nextYear) { <section class="unit-review" role="status"><h3>@T("ClassChangeYear")</h3><p>@UiMessages.Format("ClassChangeYearHelp", nextYear)</p><button type="button" disabled="@Busy" @onclick="ConfirmYear">@T("ClassConfirmYear")</button><button type="button" disabled="@Busy" @onclick="KeepYear">@T("ClassKeepYear")</button></section> }
+        <section class="class-selected" aria-label="@T("ClassSelected")"><h3>@UiMessages.Format("ClassSelectionCount", selected.Count)</h3><p>@T("ClassSelectionHelp")</p>
+        @foreach (var unit in selected.Values.OrderBy(x => x.Code)) { <div @key="unit.UnitId"><span>@unit.Code · @unit.Name @if (!unit.IsActive) { <strong class="class-archived">@T("UnitArchivedSingle")</strong> }</span><button type="button" disabled="@(Busy || uncertain || ReadOnly || pendingYear.HasValue)" aria-label="@UiMessages.Format("ClassRemoveNamed", unit.Name)" @onclick="() => Remove(unit.UnitId)">@T("ClassRemove")</button></div> }</section>
+        @if (studyYear is int pickerYear) { <AcademicClassUnitPicker @key="(Course.Id, pickerYear)" CourseId="Course.Id" StudyYear="pickerYear" SelectedIds="selected.Keys.ToHashSet()" Disabled="@(Busy || uncertain || ReadOnly || pendingYear.HasValue)" Toggle="ToggleUnit" /> }
+        else { <p class="class-help">@T("ClassChooseYearHelp")</p> }
+        <div class="dialog-actions"><button type="button" disabled="@(Busy || uncertain)" @onclick="CancelAsync">@T("Cancel")</button><button type="submit" form="class-form" class="platform-primary" disabled="@(Busy || uncertain || ReadOnly || conflict || pendingYear.HasValue || (current is not null && !current.IsActive))">@T(Busy ? "Saving" : Value is null ? "ClassCreate" : "Save")</button></div>
+    }
+    else if (current is not null) {
+        <dl class="unit-detail"><div><dt>@T("CourseCode")</dt><dd>@current.Code</dd></div><div><dt>@T("Name")</dt><dd>@current.Name</dd></div><div><dt>@T("StudyYear")</dt><dd>@UiMessages.Format("StudyYearValue", current.StudyYear)</dd></div><div><dt>@T("AcademicYear")</dt><dd>@current.AcademicYear</dd></div><div><dt>@T("Units")</dt><dd><ul>@foreach (var unit in current.Units) { <li>@unit.Code · @unit.Name @if (!unit.IsActive) { <strong class="class-archived">@T("UnitArchivedSingle")</strong> }</li> }</ul></dd></div><div><dt>@T("CourseStatus")</dt><dd>@T(current.IsActive ? "ClassActiveSingle" : "ClassArchivedSingle")</dd></div></dl>
+        @if (confirmArchive) { <p>@T("ClassArchiveHelp")</p><div class="dialog-actions"><button disabled="@Busy" @onclick="() => confirmArchive = false">@T("Cancel")</button><button disabled="@(Busy || conflict)" class="platform-primary" @onclick="() => ChangeStateAsync(true)">@T("UnitConfirmArchive")</button></div> }
+        else if (!ReadOnly) { <div class="dialog-actions">@if (current.IsActive) { <button disabled="@(Busy || conflict)" @onclick="BeginEdit">@T("ClassEdit")</button><button disabled="@(Busy || conflict)" @onclick="() => confirmArchive = true">@T("ClassArchive")</button> } else { <p>@T("ClassRestoreHelp")</p><button disabled="@(Busy || conflict)" class="platform-primary" @onclick="() => ChangeStateAsync(false)">@T("ClassRestore")</button> }</div> }
+    }
+</div>
+</PlatformDialog>
+
+@code {
+    [Parameter] public AcademicClassResponse? Value { get; set; }
+    [Parameter, EditorRequired] public CourseResponse Course { get; set; } = default!;
+    [Parameter] public EventCallback Saved { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    protected override string EntityPrefix => "Class";
+    private bool ReadOnly => !Course.IsActive;
+    private AcademicClassResponse? current, latest;
+    private CreateAcademicClassRequest? frozen;
+    private string code = "", name = "", academicYear = "";
+    private int? studyYear, pendingYear;
+    private int yearSelectorVersion;
+    private readonly Dictionary<int, AcademicClassUnitResponse> selected = new();
+    private bool editing, conflict, uncertain, confirmArchive;
+    protected override void OnInitialized() {
+        base.OnInitialized(); current = Value;
+        if (current is null) return;
+        code = current.Code; name = current.Name; studyYear = current.StudyYear; academicYear = current.AcademicYear;
+        foreach (var unit in current.Units) selected.Add(unit.UnitId, unit);
+    }
+    private void BeginEdit() { if (Busy || ReadOnly || !Active) return; editing = true; Error = null; }
+    private Task CancelAsync() => Busy || uncertain || !Active ? Task.CompletedTask : Cancel.InvokeAsync();
+    private void ChangeYear(ChangeEventArgs args) {
+        if (Busy || uncertain || ReadOnly || !Active || current is not null || !int.TryParse(args.Value?.ToString(), out var year) || year is < 1 or > 20) return;
+        yearSelectorVersion++;
+        if (year == studyYear) return;
+        if (selected.Count > 0) pendingYear = year;
+        else { studyYear = year; pendingYear = null; }
+    }
+    private void ConfirmYear() { if (Busy || uncertain || !Active || pendingYear is null || current is not null || ReadOnly) return; selected.Clear(); studyYear = pendingYear; pendingYear = null; Error = null; }
+    private void KeepYear() { if (!Busy && !uncertain && Active) pendingYear = null; }
+    private void Remove(int id) { if (!Busy && !uncertain && !ReadOnly && !pendingYear.HasValue && Active) selected.Remove(id); }
+    private void ToggleUnit(AcademicClassUnitResponse unit) {
+        if (Busy || uncertain || ReadOnly || pendingYear.HasValue || !Active || unit.StudyYear != studyYear || !unit.IsActive) return;
+        if (selected.ContainsKey(unit.UnitId)) selected.Remove(unit.UnitId);
+        else if (selected.Count < 100) selected.Add(unit.UnitId, unit);
+    }
+    private void AbandonAttempt() { if (Busy || !Active) return; uncertain = false; frozen = null; Error = T("UnitAttemptAbandoned"); }
+    private bool ValidDraft() => Regex.IsMatch(code.Trim(), "^[A-Za-z0-9][A-Za-z0-9._-]{0,29}$") && !string.IsNullOrWhiteSpace(name) && name.Trim().Length <= 200 && studyYear is >= 1 and <= 20 && ValidAcademicYear(academicYear.Trim()) && selected.Count is >= 1 and <= 100 && selected.Values.All(x => x.StudyYear == studyYear);
+    private static bool ValidAcademicYear(string value) => Regex.IsMatch(value, "^[0-9]{4}/[0-9]{4}$") && int.TryParse(value[..4], out var start) && int.TryParse(value[5..], out var end) && start >= 1900 && end <= 2199 && end == start + 1;
+    private async Task SaveAsync() {
+        if (Busy || conflict || !Active || pendingYear.HasValue || (!uncertain && (ReadOnly || (current is not null && !current.IsActive)))) return;
+        Error = null;
+        if (!uncertain && !ValidDraft()) { Error = T("ClassInvalid"); return; }
+        Busy = true;
+        try {
+            if (current is null) { frozen ??= new(Guid.NewGuid(), code.Trim(), name.Trim(), studyYear!.Value, academicYear.Trim(), selected.Keys.Order().ToArray()); await Api.CreateAsync(Course.Id, frozen, Lifetime.Token); }
+            else await Api.UpdateAsync(Course.Id, current.Id, new(current.RowVersion, code.Trim(), name.Trim(), selected.Keys.Order().ToArray()), Lifetime.Token);
+            if (Active) { uncertain = false; frozen = null; await Saved.InvokeAsync(); }
+        }
+        catch (Exception e) {
+            if (!Active) return;
+            if (e is IdentityApiException { StatusCode: HttpStatusCode.Conflict } && current is not null) { conflict = true; latest = null; }
+            else if (current is null && (e is HttpRequestException and not IdentityApiException or OperationCanceledException || e is IdentityApiException { StatusCode: >= HttpStatusCode.InternalServerError })) uncertain = true;
+            else if (current is null && !uncertain) frozen = null;
+            RequestFailed(e); if (conflict) Error = null;
+        }
+        finally { Busy = false; }
+    }
+    private async Task ReviewAsync() {
+        if (Busy || !Active || current is null) return; Busy = true; Error = null;
+        try { var parent = await CoursesApi.GetAsync(Course.Id, Lifetime.Token); var value = await Api.GetAsync(Course.Id, current.Id, Lifetime.Token); if (Active) { Course = parent; latest = value; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private void AcceptVersion() { if (Busy || !Active || latest is null) return; current = latest; latest = null; conflict = false; Error = null; confirmArchive = false; }
+    private async Task ChangeStateAsync(bool archive) {
+        if (Busy || conflict || !Active || ReadOnly || current is null) return; Busy = true; Error = null;
+        try {
+            if (archive) await Api.ArchiveAsync(Course.Id, current.Id, current.RowVersion, Lifetime.Token);
+            else await Api.RestoreAsync(Course.Id, current.Id, current.RowVersion, Lifetime.Token);
+            if (Active) await Saved.InvokeAsync();
+        }
+        catch (Exception e) { if (Active && e is IdentityApiException { StatusCode: HttpStatusCode.Conflict }) { conflict = true; latest = null; } RequestFailed(e); if (conflict) Error = null; }
+        finally { Busy = false; }
+    }
+    public override void Dispose() { code = name = academicYear = ""; frozen = null; selected.Clear(); current = latest = null; base.Dispose(); }
+}

@@ -92,7 +92,7 @@ internal sealed class AcademicUnitOfWork(SchoolGetherDbContext db) : IAcademicUn
 {
     public async Task<T> ExecuteAsync<T>(AuthorizedAcademicScope scope, Func<CancellationToken, Task<T>> operation, CancellationToken ct)
     {
-        if (db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null)
+        if (db.ClassScope is not null || db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null)
             throw new InvalidOperationException("AcademicWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(ct);
         db.AcademicScope = new(db, scope);

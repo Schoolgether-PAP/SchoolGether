@@ -1,0 +1,73 @@
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@inherits AcademicView
+@inject AcademicClassApiClient Api
+@inject AcademicCourseApiClient CoursesApi
+
+<section class="units" aria-busy="@(Busy ? "true" : "false")">
+    <button class="unit-back" @onclick="BackAsync">@T("UnitBack")</button>
+    <header class="unit-heading"><div>
+        @if (course is not null) { <p class="unit-context">@course.Code · @course.Name</p> }
+        <h1 tabindex="-1" @ref="heading">@T("Classes")</h1><p>@T("ClassIntroduction")</p>
+    </div>@if (course?.IsActive == true) { <button class="unit-primary" disabled="@Busy" @onclick="NewClass">@T("ClassNew")</button> }</header>
+    @if (course?.IsActive == false) { <p class="unit-readonly" role="status">@T("ClassParentArchived")</p> }
+    <div class="unit-filters">
+        <div class="unit-tabs" role="group" aria-label="@T("CourseStatus")"><button aria-pressed="@(!archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(false)">@T("ClassActive")</button><button aria-pressed="@(archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(true)">@T("ClassArchived")</button></div>
+        <form class="unit-search" @onsubmit="SearchAsync" @onsubmit:preventDefault>
+            <div class="class-year-filters"><div><label for="class-year-filter">@T("StudyYear")</label><select id="class-year-filter" @bind="studyYear" disabled="@Busy"><option value="">@T("StudyYearAll")</option>@for (var year = 1; year <= 20; year++) { <option value="@year">@UiMessages.Format("StudyYearValue", year)</option> }</select></div><div><label for="class-academic-filter">@T("AcademicYear")</label><input id="class-academic-filter" maxlength="9" placeholder="2026/2027" @bind="academicYear" disabled="@Busy" /></div></div>
+            <label for="class-search">@T("CourseSearch")</label><div><input id="class-search" maxlength="150" @bind="search" disabled="@Busy" /><button type="submit" disabled="@Busy">@T("CourseSearchAction")</button></div>
+        </form>
+    </div>
+    @if (Error is not null) { <div><p role="alert">@Error</p><button disabled="@Busy" @onclick="RetryAsync">@T("Retry")</button></div> }
+    @if (Busy) { <p role="status">@T("Loading")</p> }
+    else if (classes is not null) {
+        @if (classes.Items.Count == 0) { <div class="unit-empty"><h2>@T("ClassEmpty")</h2><p>@T("ClassEmptyHelp")</p></div> }
+        else { <div class="unit-list">@foreach (var item in classes.Items) { <article @key="item.Id"><div><span class="unit-code">@item.Code</span><h2><button class="unit-link" @onclick="() => OpenAsync(item.Id)">@item.Name</button></h2><p>@UiMessages.Format("ClassContext", item.StudyYear, item.AcademicYear, item.UnitCount)</p></div><button disabled="@Busy" aria-label="@UiMessages.Format("ClassOpenNamed", item.Name)" @onclick="() => OpenAsync(item.Id)">@T("ClassDetails")</button></article> }</div> }
+        <div class="unit-pagination"><span>@UiMessages.Format("ClassPage", classes.Page, Math.Max(1, (int)Math.Ceiling(classes.Total / 20d)), classes.Total)</span><button disabled="@(Busy || page <= 1)" @onclick="() => LoadAsync(page - 1)">@T("InstitutionPrevious")</button><button disabled="@(Busy || page * 20 >= classes.Total)" @onclick="() => LoadAsync(page + 1)">@T("InstitutionNext")</button></div>
+    }
+    @if (editorOpen && course is not null) { <AcademicClassEditor @key="(CourseId, selected?.Id)" Course="course" Value="selected" Saved="SavedAsync" Cancel="CloseEditor" /> }
+</section>
+
+@code {
+    [Parameter] public int CourseId { get; set; }
+    [Parameter] public EventCallback Back { get; set; }
+    protected override string EntityPrefix => "Class";
+    private CourseResponse? course;
+    private AcademicClassPageResponse? classes;
+    private AcademicClassResponse? selected;
+    private bool archived, editorOpen;
+    private string search = "", appliedSearch = "", academicYear = "", appliedAcademicYear = "";
+    private int? studyYear, appliedStudyYear;
+    private int page = 1, retryPage = 1;
+    private ElementReference heading;
+    protected override async Task OnInitializedAsync() => await LoadAsync(1);
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
+    private async Task LoadAsync(int requestedPage) {
+        if (Busy || !Active) return;
+        Busy = true; Error = null; retryPage = requestedPage;
+        try {
+            var parent = await CoursesApi.GetAsync(CourseId, Lifetime.Token);
+            var value = await Api.ListAsync(CourseId, requestedPage, appliedSearch, archived, appliedStudyYear, appliedAcademicYear, Lifetime.Token);
+            if (Active) { course = parent; classes = value; page = value.Page; }
+        }
+        catch (Exception e) { if (Active) course = null; RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private Task BackAsync() => Active ? Back.InvokeAsync() : Task.CompletedTask;
+    private Task RetryAsync() => LoadAsync(retryPage);
+    private Task SearchAsync() { if (Busy || !Active) return Task.CompletedTask; appliedSearch = search.Trim(); appliedStudyYear = studyYear; appliedAcademicYear = academicYear.Trim(); return LoadAsync(1); }
+    private Task ChangeStatusAsync(bool value) { if (Busy || !Active) return Task.CompletedTask; archived = value; classes = null; return LoadAsync(1); }
+    private void NewClass() { if (!Active || Busy || course?.IsActive != true) return; selected = null; editorOpen = true; }
+    private async Task OpenAsync(int id) {
+        if (!Active || Busy) return; Busy = true; Error = null;
+        try {
+            var parent = await CoursesApi.GetAsync(CourseId, Lifetime.Token);
+            var value = await Api.GetAsync(CourseId, id, Lifetime.Token);
+            if (Active) { course = parent; selected = value; editorOpen = true; }
+        }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private void CloseEditor() { if (!Active || Busy) return; editorOpen = false; selected = null; }
+    private async Task SavedAsync() { if (!Active) return; editorOpen = false; selected = null; await LoadAsync(1); }
+}

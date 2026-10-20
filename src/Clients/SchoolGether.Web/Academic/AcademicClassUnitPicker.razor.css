@@ -1,0 +1,13 @@
+.class-picker { margin-top:24px; border-top:1px solid #e4e1dd; padding-top:20px; }
+h3 { margin:0 0 8px; font-size:18px; } p { color:#6e625a; font-size:14px; }
+button { min-height:44px; padding:9px 14px; border:1px solid #8f8176; border-radius:6px; background:#fff; color:#663a20; font:600 14px/1.4 "Segoe UI",system-ui,sans-serif; }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline:3px solid #663a20; outline-offset:3px; }
+.picker-search { margin:16px 0; } .picker-search>div { display:flex; gap:8px; }
+.picker-search input { min-width:0; flex:1; min-height:44px; padding:8px 12px; font:inherit; border:1px solid #8f8176; border-radius:6px; }
+.picker-search label { font-size:14px; display:block; margin-bottom:6px; }
+.picker-unit { border-bottom:1px solid #e4e1dd; padding:12px 0; }
+.picker-unit label { display:flex; gap:12px; min-height:44px; align-items:center; cursor:pointer; }
+.picker-unit input { width:22px; height:22px; flex-shrink:0; accent-color:#663a20; }
+.picker-unit label span { min-width:0; overflow-wrap:anywhere; } .picker-unit label span span { display:block; color:#6e625a; font-size:13px; margin-top:4px; }
+.picker-unit strong { font-size:15px; } details { margin:6px 0 0 34px; } summary { padding:8px 0; color:#663a20; cursor:pointer; font-size:14px; } details p { white-space:pre-wrap; overflow-wrap:anywhere; }
+.picker-pagination { display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:16px 0; font-size:13px; color:#6e625a; } .picker-pagination span { flex-basis:100%; }

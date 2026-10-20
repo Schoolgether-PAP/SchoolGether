@@ -21,6 +21,7 @@
             <button aria-pressed="@(archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(true)">@T("UnitArchived")</button>
         </div>
         <form class="unit-search" @onsubmit="SearchAsync" @onsubmit:preventDefault>
+            <label for="unit-year-filter">@T("StudyYear")</label><select id="unit-year-filter" @bind="studyYear" disabled="@Busy"><option value="">@T("StudyYearAll")</option>@for (var year = 1; year <= 20; year++) { <option value="@year">@UiMessages.Format("StudyYearValue", year)</option> }</select>
             <label for="unit-search">@T("CourseSearch")</label>
             <div><input id="unit-search" maxlength="150" @bind="search" disabled="@Busy" /><button type="submit" disabled="@Busy">@T("CourseSearchAction")</button></div>
         </form>
@@ -39,7 +40,7 @@
             <div class="unit-list">
                 @foreach (var unit in units.Items) {
                     <article @key="unit.Id">
-                        <div><span class="unit-code">@unit.Code</span><h2><button class="unit-link" @onclick="() => OpenAsync(unit.Id)">@unit.Name</button></h2></div>
+                        <div><span class="unit-code">@unit.Code</span><h2><button class="unit-link" @onclick="() => OpenAsync(unit.Id)">@unit.Name</button></h2><p>@(unit.StudyYear is int year ? UiMessages.Format("StudyYearValue", year) : T("UnitUnassigned"))</p></div>
                         <button aria-label="@UiMessages.Format("UnitOpenNamed", unit.Name)" @onclick="() => OpenAsync(unit.Id)">@T("UnitDetails")</button>
                     </article>
                 }
@@ -64,6 +65,7 @@
     private bool archived, editorOpen;
     private string search = "", appliedSearch = "";
     private int page = 1, retryPage = 1;
+    private int? studyYear, appliedStudyYear;
     private ElementReference heading;
 
     protected override async Task OnInitializedAsync() => await LoadAsync(1);
@@ -75,7 +77,7 @@
         try {
             // O contexto é recarregado do servidor, incluindo após cada alteração.
             var parent = await CoursesApi.GetAsync(CourseId, Lifetime.Token);
-            var value = await Api.ListAsync(CourseId, requestedPage, appliedSearch, archived, Lifetime.Token);
+            var value = await Api.ListWithYearAsync(CourseId, requestedPage, appliedSearch, archived, appliedStudyYear, Lifetime.Token);
             if (Active) { course = parent; units = value; page = value.Page; }
         }
         catch (Exception e) { if (Active) course = null; RequestFailed(e); }
@@ -83,7 +85,7 @@
     }
     private Task BackAsync() => Active ? Back.InvokeAsync() : Task.CompletedTask;
     private Task RetryAsync() => LoadAsync(retryPage);
-    private Task SearchAsync() { if (Busy || !Active) return Task.CompletedTask; appliedSearch = search.Trim(); return LoadAsync(1); }
+    private Task SearchAsync() { if (Busy || !Active) return Task.CompletedTask; appliedSearch = search.Trim(); appliedStudyYear = studyYear; return LoadAsync(1); }
     private Task ChangeStatusAsync(bool value) { if (Busy || !Active) return Task.CompletedTask; archived = value; units = null; page = 1; return LoadAsync(1); }
     private void NewUnit() { if (!Active || Busy || course?.IsActive != true) return; selected = null; editorOpen = true; }
     private async Task OpenAsync(int id) {

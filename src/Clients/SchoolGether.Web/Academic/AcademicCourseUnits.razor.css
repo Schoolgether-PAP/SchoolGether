@@ -33,3 +33,4 @@ button:hover:enabled { background:#f3f0eb; }
 .unit-context { overflow-wrap:anywhere; font-weight:600; }
 .unit-heading .unit-context { color:#663a20; margin-bottom:8px; }
 .unit-readonly { padding:16px; border-left:3px solid #c87532; background:#fff; color:#514237; margin-bottom:24px; }
+select { width:100%; min-height:44px; padding:8px 12px; font:inherit; margin-bottom:12px; }

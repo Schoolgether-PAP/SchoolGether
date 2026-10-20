@@ -1,6 +1,6 @@
 # Unidades curriculares por curso
 
-Entrega local de 2026-10-20, após o catálogo de cursos do PR #10 integrado em `develop`. Em **Cursos**, a ação **Unidades curriculares** abre o catálogo desse curso; **Voltar aos cursos** regressa à lista anterior. O código e o nome do curso mantêm o contexto visível, sem um novo menu global.
+Unidades curriculares do PR #11 integrado em `develop` (`8fe24bf`). Em **Cursos**, a ação **Unidades curriculares** abre o catálogo desse curso; **Voltar aos cursos** regressa à lista anterior. O código e o nome do curso mantêm o contexto visível, sem um novo menu global. O incremento local de 2026-10-21 acrescenta ano curricular e turmas; ver [Disciplinas por ano e turmas](academic-classes.md).
 
 Cada disciplina pertence a um único curso e tem código, nome e programa próprios. A lista tem pesquisa por código/nome, separadores Ativas/Arquivadas e páginas de 20 resultados. Permite criar, consultar o programa, editar, arquivar com confirmação e restaurar. Não inclui ECTS, semestres, docentes, turmas, inscrições, contagens fictícias ou dados de exemplo.
 

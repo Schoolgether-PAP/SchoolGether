@@ -14,6 +14,11 @@ public sealed class AuthorizedAcademicScope
 }
 public sealed class AcademicAuthorization(ICurrentAccount current, IIdentityStore identities)
 {
+    public async Task<AuthorizedClassScope> RequireClassAsync(string operation, int courseId, int? classId = null, CancellationToken ct = default)
+    {
+        var scope = await RequireAsync(operation, courseId, ct);
+        return new(scope.ActorId, scope.ActorName, scope.InstitutionId, operation, courseId, classId);
+    }
     public async Task<AuthorizedCourseUnitScope> RequireUnitAsync(string operation, int courseId, int? unitId = null, CancellationToken ct = default)
     {
         var scope = await RequireAsync(operation, courseId, ct);

@@ -801,7 +801,7 @@
   <data name="UnitEmptyHelp" xml:space="preserve"><value>Adicione o código, o nome e o programa de uma disciplina deste curso.</value></data>
   <data name="UnitDetails" xml:space="preserve"><value>Detalhes da unidade curricular</value></data>
   <data name="UnitOpenNamed" xml:space="preserve"><value>Consultar {0}</value></data>
-  <data name="UnitPage" xml:space="preserve"><value>Página {0} de {1} · {2} unidades curriculares</value></data>
+  <data name="UnitPage" xml:space="preserve"><value>Página {0} de {1} · Unidades curriculares: {2}</value></data>
   <data name="UnitEdit" xml:space="preserve"><value>Editar unidade curricular</value></data>
   <data name="UnitSyllabus" xml:space="preserve"><value>Programa (opcional)</value></data>
   <data name="UnitNoSyllabus" xml:space="preserve"><value>Sem programa definido.</value></data>
@@ -827,4 +827,59 @@
   <data name="UnitNotFound" xml:space="preserve"><value>Este curso ou unidade curricular já não está disponível. Volte aos cursos e atualize a lista.</value></data>
   <data name="UnitInvalid" xml:space="preserve"><value>Verifique o código (1 a 30 caracteres permitidos), o nome (1 a 200) e o programa (até 5000).</value></data>
   <data name="UnitDuplicate" xml:space="preserve"><value>Não foi possível guardar: o código já está reservado neste curso, o curso foi arquivado ou existe um conflito com esta tentativa. Confirme os dados antes de continuar.</value></data>
+  <data name="StudyYear" xml:space="preserve"><value>Ano curricular / escolaridade</value></data>
+  <data name="AcademicYear" xml:space="preserve"><value>Ano letivo</value></data>
+  <data name="StudyYearValue" xml:space="preserve"><value>{0}.º ano</value></data>
+  <data name="StudyYearAll" xml:space="preserve"><value>Todos os anos</value></data>
+  <data name="UnitUnassigned" xml:space="preserve"><value>Por organizar</value></data>
+  <data name="UnitYearHelp" xml:space="preserve"><value>Atribua um ano para usar esta disciplina numa turma. Depois da primeira utilização em turma, o ano fica fixo; o nome e o programa continuam editáveis. Um ano atribuído não pode ser apagado.</value></data>
+  <data name="UnitYearInUse" xml:space="preserve"><value>O ano da disciplina já está em uso</value></data>
+  <data name="UnitYearInUsePublic" xml:space="preserve"><value>O ano desta disciplina não pode ser alterado porque já foi utilizada numa turma. Crie outra disciplina para o novo ano.</value></data>
+  <data name="UnitYearInUseHelp" xml:space="preserve"><value>O rascunho foi conservado. Reveja o ano atual e volte a selecioná-lo para guardar o nome ou o programa. Para outro ano, crie outra disciplina.</value></data>
+  <data name="Classes" xml:space="preserve"><value>Turmas</value></data>
+  <data name="ClassIntroduction" xml:space="preserve"><value>Organize cada turma por ano curricular, ano letivo e disciplinas.</value></data>
+  <data name="ClassOpenCourseNamed" xml:space="preserve"><value>Turmas de {0}</value></data>
+  <data name="ClassNew" xml:space="preserve"><value>Nova turma</value></data>
+  <data name="ClassCreate" xml:space="preserve"><value>Criar turma</value></data>
+  <data name="ClassEdit" xml:space="preserve"><value>Editar turma</value></data>
+  <data name="ClassDetails" xml:space="preserve"><value>Detalhes da turma</value></data>
+  <data name="ClassOpenNamed" xml:space="preserve"><value>Abrir turma {0}</value></data>
+  <data name="ClassActive" xml:space="preserve"><value>Ativas</value></data>
+  <data name="ClassArchived" xml:space="preserve"><value>Arquivadas</value></data>
+  <data name="ClassActiveSingle" xml:space="preserve"><value>Ativa</value></data>
+  <data name="ClassArchivedSingle" xml:space="preserve"><value>Arquivada</value></data>
+  <data name="ClassEmpty" xml:space="preserve"><value>Nenhuma turma nesta lista</value></data>
+  <data name="ClassEmptyHelp" xml:space="preserve"><value>Crie uma turma ou ajuste a pesquisa e os filtros.</value></data>
+  <data name="ClassContext" xml:space="preserve"><value>{0}.º ano · {1} · Disciplinas: {2}</value></data>
+  <data name="ClassPage" xml:space="preserve"><value>Página {0} de {1} · Turmas: {2}</value></data>
+  <data name="ClassParentArchived" xml:space="preserve"><value>Curso arquivado: pode consultar as turmas e as disciplinas. Restaure o curso para voltar a fazer alterações.</value></data>
+  <data name="ClassChooseYear" xml:space="preserve"><value>Escolha o ano</value></data>
+  <data name="ClassChooseYearHelp" xml:space="preserve"><value>Escolha o ano curricular para consultar as disciplinas disponíveis.</value></data>
+  <data name="ClassYearsHelp" xml:space="preserve"><value>O ano curricular identifica as matérias (por exemplo, 10.º ou 11.º). O ano letivo identifica o período, como 2026/2027. Curso e anos ficam fixos depois de criar a turma.</value></data>
+  <data name="ClassYearsLocked" xml:space="preserve"><value>O curso, o ano curricular e o ano letivo ficam fixos. Pode alterar o código, o nome e a seleção de disciplinas.</value></data>
+  <data name="ClassChangeYear" xml:space="preserve"><value>Mudar o ano da turma?</value></data>
+  <data name="ClassChangeYearHelp" xml:space="preserve"><value>Para passar ao {0}.º ano, é necessário limpar as disciplinas selecionadas e escolher as matérias desse ano.</value></data>
+  <data name="ClassConfirmYear" xml:space="preserve"><value>Limpar seleção e mudar ano</value></data>
+  <data name="ClassKeepYear" xml:space="preserve"><value>Manter ano e seleção</value></data>
+  <data name="ClassPickUnits" xml:space="preserve"><value>Escolher disciplinas</value></data>
+  <data name="ClassPickerYear" xml:space="preserve"><value>Disciplinas do {0}.º ano</value></data>
+  <data name="ClassPickerHelp" xml:space="preserve"><value>Apenas disciplinas ativas deste curso e deste ano. As disciplinas por organizar não podem ser escolhidas.</value></data>
+  <data name="ClassPickerEmpty" xml:space="preserve"><value>Nenhuma disciplina disponível. Ajuste a pesquisa ou atribua este ano às disciplinas do curso.</value></data>
+  <data name="ClassSelected" xml:space="preserve"><value>Disciplinas selecionadas</value></data>
+  <data name="ClassSelectionCount" xml:space="preserve"><value>Disciplinas selecionadas: {0} de 100</value></data>
+  <data name="ClassSelectionHelp" xml:space="preserve"><value>Selecione entre 1 e 100 disciplinas. A seleção mantém-se ao pesquisar ou mudar de página. Disciplinas já selecionadas que foram arquivadas podem ser mantidas ou removidas.</value></data>
+  <data name="ClassRemove" xml:space="preserve"><value>Remover</value></data>
+  <data name="ClassRemoveNamed" xml:space="preserve"><value>Remover {0}</value></data>
+  <data name="ClassConflict" xml:space="preserve"><value>A turma ou as disciplinas foram alteradas</value></data>
+  <data name="ClassConflictHelp" xml:space="preserve"><value>O rascunho e a seleção foram conservados. Reveja a versão atual antes de guardar, arquivar ou restaurar novamente. Confirme também se as disciplinas continuam disponíveis.</value></data>
+  <data name="ClassUncertainHelp" xml:space="preserve"><value>A ligação falhou e a turma pode ter sido criada. Repita a mesma criação para recuperar o resultado, ou abandone explicitamente a tentativa antes de alterar os dados.</value></data>
+  <data name="ClassRetryIdentical" xml:space="preserve"><value>Repetir a mesma criação de turma</value></data>
+  <data name="ClassArchive" xml:space="preserve"><value>Arquivar turma</value></data>
+  <data name="ClassArchiveHelp" xml:space="preserve"><value>A turma ficará arquivada, mantendo as disciplinas e o histórico. Confirma o arquivo?</value></data>
+  <data name="ClassRestore" xml:space="preserve"><value>Restaurar turma</value></data>
+  <data name="ClassRestoreHelp" xml:space="preserve"><value>Restaurar a turma mantém a seleção. As disciplinas arquivadas continuam arquivadas.</value></data>
+  <data name="ClassInvalid" xml:space="preserve"><value>Verifique o código (1 a 30 caracteres permitidos), o nome (1 a 200), o ano curricular (1 a 20), o ano letivo (anos consecutivos, como 2026/2027) e a seleção de 1 a 100 disciplinas.</value></data>
+  <data name="ClassDuplicate" xml:space="preserve"><value>Não foi possível guardar. Verifique se o código já existe neste ano e reveja a disponibilidade das disciplinas.</value></data>
+  <data name="ClassForbidden" xml:space="preserve"><value>Não tem permissão para gerir as turmas desta instituição.</value></data>
+  <data name="ClassNotFound" xml:space="preserve"><value>A turma ou o curso já não está disponível.</value></data>
 </root>

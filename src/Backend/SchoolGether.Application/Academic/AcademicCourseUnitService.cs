@@ -7,7 +7,7 @@ public sealed class AcademicCourseUnitService(AcademicAuthorization authorizatio
     public async Task<CourseUnitPage> ListAsync(int courseId, CourseUnitQuery query, CancellationToken ct)
     {
         var scope = await authorization.RequireUnitAsync("read", courseId, ct: ct);
-        if (query.Page < 1 || query.PageSize is < 1 or > 100 || (long)(query.Page - 1) * query.PageSize > int.MaxValue || query.Search?.Length > 150 || query.Status is not ("Active" or "Archived")) throw new AcademicException("InvalidCourseUnitInput");
+        if (query.Page < 1 || query.PageSize is < 1 or > 100 || (long)(query.Page - 1) * query.PageSize > int.MaxValue || query.Search?.Length > 150 || query.Status is not ("Active" or "Archived") || query.StudyYear is < 1 or > 20) throw new AcademicException("InvalidCourseUnitInput");
         await Parent(scope, ct); return await store.ListAsync(scope, query, ct);
     }
     public async Task<CourseUnitResult> GetAsync(int courseId, int unitId, CancellationToken ct)
@@ -18,7 +18,7 @@ public sealed class AcademicCourseUnitService(AcademicAuthorization authorizatio
     public async Task<CourseUnitResult> CreateAsync(int courseId, CreateCourseUnit request, CancellationToken ct)
     {
         var scope = await authorization.RequireUnitAsync("create", courseId, ct: ct);
-        var initial = CourseUnit.Create(scope.InstitutionId, courseId, scope.ActorId, request.ClientId, request.Code, request.Name, request.Syllabus, clock.GetUtcNow().UtcDateTime);
+        var initial = CourseUnit.Create(scope.InstitutionId, courseId, scope.ActorId, request.ClientId, request.Code, request.Name, request.Syllabus, clock.GetUtcNow().UtcDateTime, request.StudyYear);
         try
         {
             var saved = await work.ExecuteAsync(scope, async token =>
@@ -39,15 +39,16 @@ public sealed class AcademicCourseUnitService(AcademicAuthorization authorizatio
             var replay = Replay(existing, initial); return CourseUnitResult.From(replay.Unit, replay.Replay);
         }
     }
-    public Task<CourseUnitResult> UpdateAsync(int courseId, int unitId, UpdateCourseUnit request, CancellationToken ct) => Change(courseId, unitId, "update", u => u.Update(request.RowVersion, request.Code, request.Name, request.Syllabus, clock.GetUtcNow().UtcDateTime), ct);
+    public Task<CourseUnitResult> UpdateAsync(int courseId, int unitId, UpdateCourseUnit request, CancellationToken ct) => Change(courseId, unitId, "update", u => u.Update(request.RowVersion, request.Code, request.Name, request.Syllabus, clock.GetUtcNow().UtcDateTime, request.StudyYear), ct, request.StudyYear);
     public Task<CourseUnitResult> ArchiveAsync(int courseId, int unitId, long rowVersion, CancellationToken ct) => Change(courseId, unitId, "archive", u => u.Archive(rowVersion, clock.GetUtcNow().UtcDateTime), ct);
     public Task<CourseUnitResult> RestoreAsync(int courseId, int unitId, long rowVersion, CancellationToken ct) => Change(courseId, unitId, "restore", u => u.Restore(rowVersion, clock.GetUtcNow().UtcDateTime), ct);
-    private async Task<CourseUnitResult> Change(int courseId, int unitId, string operation, Action<CourseUnit> change, CancellationToken ct)
+    private async Task<CourseUnitResult> Change(int courseId, int unitId, string operation, Action<CourseUnit> change, CancellationToken ct, int? studyYear = null)
     {
         var scope = await authorization.RequireUnitAsync(operation, courseId, unitId, ct);
         var unit = await work.ExecuteAsync(scope, async token =>
         {
             var parent = await Parent(scope, token); var value = await Unit(scope, unitId, token);
+            if (studyYear.HasValue && studyYear != value.StudyYear && await store.HasClassHistoryAsync(scope, value, token)) throw new AcademicException("UnitYearInUse");
             store.Bind(scope, parent, value); parent.TouchUnits(parent.RowVersion, clock.GetUtcNow().UtcDateTime); change(value); Append(scope, value); return value;
         }, ct);
         return CourseUnitResult.From(unit);
