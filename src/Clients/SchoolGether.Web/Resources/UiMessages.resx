@@ -742,4 +742,48 @@
 <data name="InstitutionSupportHelp" xml:space="preserve"><value>Envia um pedido e acompanha o atendimento da instituição.</value></data>
 <data name="InstitutionEditData" xml:space="preserve"><value>Editar dados</value></data>
 <data name="InstitutionEditDataHelp" xml:space="preserve"><value>Atualiza os dados da instituição e o ano letivo.</value></data>
+  <data name="Courses" xml:space="preserve"><value>Cursos</value></data>
+  <data name="CourseIntroduction" xml:space="preserve"><value>Organize os cursos da instituição num catálogo único, independente do ano letivo.</value></data>
+  <data name="CourseNew" xml:space="preserve"><value>Novo curso</value></data>
+  <data name="CourseStatus" xml:space="preserve"><value>Estado</value></data>
+  <data name="CourseActive" xml:space="preserve"><value>Ativos</value></data>
+  <data name="CourseArchived" xml:space="preserve"><value>Arquivados</value></data>
+  <data name="CourseSearch" xml:space="preserve"><value>Pesquisar por código ou nome</value></data>
+  <data name="CourseSearchAction" xml:space="preserve"><value>Pesquisar</value></data>
+  <data name="CourseNoResults" xml:space="preserve"><value>Nenhum curso encontrado</value></data>
+  <data name="CourseSearchHelp" xml:space="preserve"><value>Experimente outro código ou nome.</value></data>
+  <data name="CourseNoArchived" xml:space="preserve"><value>Sem cursos arquivados</value></data>
+  <data name="CourseArchivedHelp" xml:space="preserve"><value>Os cursos arquivados ficam disponíveis aqui para consulta e restauro.</value></data>
+  <data name="CourseEmpty" xml:space="preserve"><value>Comece pelo primeiro curso</value></data>
+  <data name="CourseEmptyHelp" xml:space="preserve"><value>Adicione o código e o nome do curso. Poderá completar a descrição e editar os dados mais tarde.</value></data>
+  <data name="CourseDetails" xml:space="preserve"><value>Detalhes do curso</value></data>
+  <data name="CourseOpenNamed" xml:space="preserve"><value>Consultar {0}</value></data>
+  <data name="CoursePage" xml:space="preserve"><value>Página {0} de {1} · {2} cursos</value></data>
+  <data name="CourseEdit" xml:space="preserve"><value>Editar curso</value></data>
+  <data name="CourseCode" xml:space="preserve"><value>Código</value></data>
+  <data name="CourseDescription" xml:space="preserve"><value>Descrição (opcional)</value></data>
+  <data name="CourseNoDescription" xml:space="preserve"><value>Sem descrição.</value></data>
+  <data name="CourseCodeHelp" xml:space="preserve"><value>Até 30 letras, números, pontos, hífen ou underscore. Comece por uma letra ou número. O código fica reservado mesmo após arquivar.</value></data>
+  <data name="CourseCreate" xml:space="preserve"><value>Criar curso</value></data>
+  <data name="CourseActiveSingle" xml:space="preserve"><value>Ativo</value></data>
+  <data name="CourseArchivedSingle" xml:space="preserve"><value>Arquivado</value></data>
+  <data name="CourseArchive" xml:space="preserve"><value>Arquivar curso</value></data>
+  <data name="CourseRestore" xml:space="preserve"><value>Restaurar curso</value></data>
+  <data name="CourseConfirmArchive" xml:space="preserve"><value>Confirmar arquivo</value></data>
+  <data name="CourseArchiveHelp" xml:space="preserve"><value>Arquivar este curso? O histórico e o código serão conservados. Pode restaurá-lo em Arquivados.</value></data>
+  <data name="CourseConflict" xml:space="preserve"><value>O curso foi alterado</value></data>
+  <data name="CourseConflictHelp" xml:space="preserve"><value>O seu rascunho foi conservado. Reveja os dados atuais antes de tentar guardar, arquivar ou restaurar novamente.</value></data>
+  <data name="CourseReview" xml:space="preserve"><value>Rever versão atual</value></data>
+  <data name="CourseServerVersion" xml:space="preserve"><value>Dados atuais na instituição</value></data>
+  <data name="CourseKeepDraft" xml:space="preserve"><value>Compare estes dados com o seu rascunho. Ao usar esta versão, conserva o texto que escreveu e confirma que reviu as alterações. Um curso arquivado precisa de ser restaurado antes de editar.</value></data>
+  <data name="CourseUseVersion" xml:space="preserve"><value>Usar versão revista</value></data>
+  <data name="CourseUncertain" xml:space="preserve"><value>A criação pode ter sido concluída</value></data>
+  <data name="CourseUncertainHelp" xml:space="preserve"><value>Não recebemos confirmação. Os campos estão bloqueados. Repita exatamente a mesma tentativa para recuperar o resultado. Abandonar e iniciar outra tentativa pode criar outro curso se alterar o código.</value></data>
+  <data name="CourseRetryIdentical" xml:space="preserve"><value>Repetir a mesma criação</value></data>
+  <data name="CourseChangeAttempt" xml:space="preserve"><value>Abandonar tentativa e alterar conteúdo</value></data>
+  <data name="CourseAttemptAbandoned" xml:space="preserve"><value>A tentativa anterior foi abandonada. Confirme na lista se o curso já existe antes de criar com outro código.</value></data>
+  <data name="CourseForbidden" xml:space="preserve"><value>A sua conta não tem acesso ao catálogo de cursos.</value></data>
+  <data name="CourseNotFound" xml:space="preserve"><value>Este curso já não está disponível. Feche os detalhes e atualize a lista.</value></data>
+  <data name="CourseInvalid" xml:space="preserve"><value>Verifique o código (1 a 30 caracteres permitidos), o nome (1 a 200) e a descrição (até 1000).</value></data>
+  <data name="CourseDuplicate" xml:space="preserve"><value>Não foi possível guardar: o código já está reservado ou existe um conflito com esta tentativa. Confirme os dados antes de continuar.</value></data>
 </root>

@@ -75,4 +75,10 @@
   <data name="SupportFileUnavailable" xml:space="preserve"><value>O ficheiro está temporariamente indisponível. Tente novamente mais tarde.</value></data>
   <data name="SupportStorageQuotaExceeded" xml:space="preserve"><value>A instituição atingiu o limite de armazenamento de anexos do suporte.</value></data>
   <data name="SupportRequestTooLarge" xml:space="preserve"><value>O envio excede o tamanho máximo permitido de 16 MiB.</value></data>
+  <data name="InvalidCourseInput" xml:space="preserve"><value>Verifique os campos do curso.</value></data>
+  <data name="CourseNotFound" xml:space="preserve"><value>O curso não foi encontrado.</value></data>
+  <data name="CourseConflict" xml:space="preserve"><value>O código ou a chave de criação já estão em uso. Reveja os dados.</value></data>
+  <data name="CourseReplayConflict" xml:space="preserve"><value>Esta chave de criação já foi usada com outros dados ou por outra conta.</value></data>
+  <data name="CourseArchived" xml:space="preserve"><value>O curso está arquivado. Restaure-o antes de editar.</value></data>
+  <data name="CourseAlreadyActive" xml:space="preserve"><value>O curso já está ativo.</value></data>
 </root>
