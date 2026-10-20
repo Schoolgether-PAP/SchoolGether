@@ -36,6 +36,7 @@
                 <InstitutionSetupForm @key="setup" Value="setup" Saved="SetupSavedAsync" />
             }
             else if (area == "InstitutionMembers") { <InstitutionMembers OccupancyChanged="RefreshSubscriptionAsync" /> }
+            else if (area == "Courses") { <SchoolGether.Web.Academic.AcademicCourses /> }
             else if (area == "InstitutionProfile")
             {
                 <h1 tabindex="-1" @ref="heading">@T("InstitutionProfile")</h1>
@@ -92,7 +93,7 @@
 </div>
 @code {
     [Parameter] public EventCallback SignOut { get; set; }
-    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "Support", "InstitutionSetup", "InstitutionProfile"];
+    private static readonly string[] Areas = ["InstitutionSummary", "Courses", "InstitutionMembers", "Support", "InstitutionSetup", "InstitutionProfile"];
     private InstitutionSetupResponse? setup;
     private InstitutionSubscriptionResponse? subscription;
     private string area = "InstitutionSummary";

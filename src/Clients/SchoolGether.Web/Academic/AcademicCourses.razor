@@ -1,0 +1,46 @@
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@inherits AcademicView
+@inject AcademicCourseApiClient Api
+<section class="courses" aria-busy="@(Busy ? "true" : "false")">
+    <header class="course-heading"><div><h1 tabindex="-1" @ref="heading">@T("Courses")</h1><p>@T("CourseIntroduction")</p></div><button class="course-primary" disabled="@Busy" @onclick="NewCourse">@T("CourseNew")</button></header>
+    <div class="course-filters"><div class="course-tabs" role="group" aria-label="@T("CourseStatus")"><button aria-pressed="@(!archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(false)">@T("CourseActive")</button><button aria-pressed="@(archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(true)">@T("CourseArchived")</button></div>
+    <form class="course-search" @onsubmit="SearchAsync" @onsubmit:preventDefault><label for="course-search">@T("CourseSearch")</label><div><input id="course-search" maxlength="150" @bind="search" disabled="@Busy" /><button type="submit" disabled="@Busy">@T("CourseSearchAction")</button></div></form></div>
+    @if (Error is not null) { <div><p role="alert">@Error</p><button disabled="@Busy" @onclick="RetryAsync">@T("Retry")</button></div> }
+    @if (Busy) { <p role="status">@T("Loading")</p> }
+    else if (courses is not null) {
+        @if (courses.Items.Count == 0) { <div class="course-empty"><h2>@T(appliedSearch.Length > 0 ? "CourseNoResults" : archived ? "CourseNoArchived" : "CourseEmpty")</h2><p>@T(appliedSearch.Length > 0 ? "CourseSearchHelp" : archived ? "CourseArchivedHelp" : "CourseEmptyHelp")</p>@if (!archived && appliedSearch.Length == 0) { <button @onclick="NewCourse">@T("CourseNew")</button> }</div> }
+        else { <div class="course-list">@foreach (var course in courses.Items) { <article @key="course.Id"><div><span class="course-code">@course.Code</span><h2><button class="course-link" @onclick="() => OpenAsync(course.Id)">@course.Name</button></h2>@if (course.Description is not null) { <p>@course.Description</p> }</div><button aria-label="@UiMessages.Format("CourseOpenNamed", course.Name)" @onclick="() => OpenAsync(course.Id)">@T("CourseDetails")</button></article> }</div> }
+        <div class="course-pagination"><span>@UiMessages.Format("CoursePage", courses.Page, Math.Max(1, (int)Math.Ceiling(courses.Total / 20d)), courses.Total)</span><button disabled="@(Busy || page <= 1)" @onclick="() => LoadAsync(page - 1)">@T("InstitutionPrevious")</button><button disabled="@(Busy || page * 20 >= courses.Total)" @onclick="() => LoadAsync(page + 1)">@T("InstitutionNext")</button></div>
+    }
+    @if (editorOpen) { <CourseEditor Value="selected" Saved="SavedAsync" Cancel="CloseEditor" /> }
+</section>
+@code {
+    private CoursePageResponse? courses;
+    private CourseResponse? selected;
+    private bool archived, editorOpen;
+    private string search = "", appliedSearch = "";
+    private int page = 1;
+    private ElementReference heading;
+    protected override async Task OnInitializedAsync() => await LoadAsync(1);
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
+    private async Task LoadAsync(int requestedPage) {
+        if (Busy || !Active) return;
+        Busy = true; Error = null;
+        try { var value = await Api.ListAsync(requestedPage, appliedSearch, archived, Lifetime.Token); if (Active) { courses = value; page = value.Page; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private Task RetryAsync() => LoadAsync(page);
+    private Task SearchAsync() { appliedSearch = search.Trim(); return LoadAsync(1); }
+    private Task ChangeStatusAsync(bool value) { archived = value; courses = null; page = 1; return LoadAsync(1); }
+    private void NewCourse() { if (!Active || Busy) return; selected = null; editorOpen = true; }
+    private async Task OpenAsync(int id) {
+        if (!Active || Busy) return; Busy = true; Error = null;
+        try { var value = await Api.GetAsync(id, Lifetime.Token); if (Active) { selected = value; editorOpen = true; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private void CloseEditor() { editorOpen = false; selected = null; }
+    private async Task SavedAsync() { if (!Active) return; CloseEditor(); await LoadAsync(1); }
+}
