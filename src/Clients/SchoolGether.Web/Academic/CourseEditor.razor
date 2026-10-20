@@ -57,7 +57,8 @@
             if (!Active) return;
             if (e is IdentityApiException { StatusCode: HttpStatusCode.Conflict } && current is not null) { conflict = true; latest = null; }
             else if (current is null && (e is HttpRequestException and not IdentityApiException or OperationCanceledException || e is IdentityApiException { StatusCode: >= HttpStatusCode.InternalServerError })) uncertain = true;
-            else if (current is null) { uncertain = false; frozen = null; }
+            // A recusa do retry não esclarece se a criação anterior foi gravada.
+            else if (current is null && !uncertain) frozen = null;
             RequestFailed(e);
             if (conflict) Error = null;
         }

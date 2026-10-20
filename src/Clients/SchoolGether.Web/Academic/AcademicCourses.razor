@@ -21,17 +21,18 @@
     private bool archived, editorOpen;
     private string search = "", appliedSearch = "";
     private int page = 1;
+    private int retryPage = 1;
     private ElementReference heading;
     protected override async Task OnInitializedAsync() => await LoadAsync(1);
     protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
     private async Task LoadAsync(int requestedPage) {
         if (Busy || !Active) return;
-        Busy = true; Error = null;
+        Busy = true; Error = null; retryPage = requestedPage;
         try { var value = await Api.ListAsync(requestedPage, appliedSearch, archived, Lifetime.Token); if (Active) { courses = value; page = value.Page; } }
         catch (Exception e) { RequestFailed(e); }
         finally { Busy = false; }
     }
-    private Task RetryAsync() => LoadAsync(page);
+    private Task RetryAsync() => LoadAsync(retryPage);
     private Task SearchAsync() { appliedSearch = search.Trim(); return LoadAsync(1); }
     private Task ChangeStatusAsync(bool value) { archived = value; courses = null; page = 1; return LoadAsync(1); }
     private void NewCourse() { if (!Active || Busy) return; selected = null; editorOpen = true; }
