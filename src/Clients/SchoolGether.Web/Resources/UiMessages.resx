@@ -801,7 +801,7 @@
   <data name="UnitEmptyHelp" xml:space="preserve"><value>Adicione o código, o nome e o programa de uma disciplina deste curso.</value></data>
   <data name="UnitDetails" xml:space="preserve"><value>Detalhes da unidade curricular</value></data>
   <data name="UnitOpenNamed" xml:space="preserve"><value>Consultar {0}</value></data>
-  <data name="UnitPage" xml:space="preserve"><value>Página {0} de {1} · {2} unidades curriculares</value></data>
+  <data name="UnitPage" xml:space="preserve"><value>Página {0} de {1} · Unidades curriculares: {2}</value></data>
   <data name="UnitEdit" xml:space="preserve"><value>Editar unidade curricular</value></data>
   <data name="UnitSyllabus" xml:space="preserve"><value>Programa (opcional)</value></data>
   <data name="UnitNoSyllabus" xml:space="preserve"><value>Sem programa definido.</value></data>
@@ -850,8 +850,8 @@
   <data name="ClassArchivedSingle" xml:space="preserve"><value>Arquivada</value></data>
   <data name="ClassEmpty" xml:space="preserve"><value>Nenhuma turma nesta lista</value></data>
   <data name="ClassEmptyHelp" xml:space="preserve"><value>Crie uma turma ou ajuste a pesquisa e os filtros.</value></data>
-  <data name="ClassContext" xml:space="preserve"><value>{0}.º ano · {1} · {2} disciplinas</value></data>
-  <data name="ClassPage" xml:space="preserve"><value>Página {0} de {1} · {2} turmas</value></data>
+  <data name="ClassContext" xml:space="preserve"><value>{0}.º ano · {1} · Disciplinas: {2}</value></data>
+  <data name="ClassPage" xml:space="preserve"><value>Página {0} de {1} · Turmas: {2}</value></data>
   <data name="ClassParentArchived" xml:space="preserve"><value>Curso arquivado: pode consultar as turmas e as disciplinas. Restaure o curso para voltar a fazer alterações.</value></data>
   <data name="ClassChooseYear" xml:space="preserve"><value>Escolha o ano</value></data>
   <data name="ClassChooseYearHelp" xml:space="preserve"><value>Escolha o ano curricular para consultar as disciplinas disponíveis.</value></data>
@@ -866,7 +866,7 @@
   <data name="ClassPickerHelp" xml:space="preserve"><value>Apenas disciplinas ativas deste curso e deste ano. As disciplinas por organizar não podem ser escolhidas.</value></data>
   <data name="ClassPickerEmpty" xml:space="preserve"><value>Nenhuma disciplina disponível. Ajuste a pesquisa ou atribua este ano às disciplinas do curso.</value></data>
   <data name="ClassSelected" xml:space="preserve"><value>Disciplinas selecionadas</value></data>
-  <data name="ClassSelectionCount" xml:space="preserve"><value>{0} de 100 disciplinas selecionadas</value></data>
+  <data name="ClassSelectionCount" xml:space="preserve"><value>Disciplinas selecionadas: {0} de 100</value></data>
   <data name="ClassSelectionHelp" xml:space="preserve"><value>Selecione entre 1 e 100 disciplinas. A seleção mantém-se ao pesquisar ou mudar de página. Disciplinas já selecionadas que foram arquivadas podem ser mantidas ou removidas.</value></data>
   <data name="ClassRemove" xml:space="preserve"><value>Remover</value></data>
   <data name="ClassRemoveNamed" xml:space="preserve"><value>Remover {0}</value></data>
