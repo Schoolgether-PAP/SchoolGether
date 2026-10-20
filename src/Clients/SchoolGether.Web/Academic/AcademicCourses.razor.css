@@ -28,3 +28,6 @@ button:hover:enabled { background:#f3f0eb; }
 .course-empty h2 { font-size:21px; margin:0; }
 .course-empty p { color:#6e625a; font-size:15px; }
 @media(max-width:760px) { .course-heading { flex-direction:column; gap:18px; } .course-filters { flex-direction:column; align-items:stretch; gap:20px; } .course-tabs { align-self:flex-start; } .course-list article { align-items:flex-start; flex-direction:column; gap:12px; padding:18px; } .course-empty { padding:24px; } .course-pagination span { width:100%; } }
+
+.course-actions { display:flex; flex-wrap:wrap; gap:8px; flex-shrink:0; }
+@media(max-width:760px) { .course-actions { flex-shrink:1; } }

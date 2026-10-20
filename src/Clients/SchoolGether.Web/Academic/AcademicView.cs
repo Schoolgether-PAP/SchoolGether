@@ -10,6 +10,7 @@ public abstract class AcademicView : ComponentBase, IDisposable
     protected readonly CancellationTokenSource Lifetime = new();
     private long generation;
     protected bool Active => !Lifetime.IsCancellationRequested && Session.Generation == generation && Session.Account?.Role == "InstitutionAdmin";
+    protected virtual string EntityPrefix => "Course";
     protected bool Busy;
     protected string? Error;
     protected static string T(string key) => UiMessages.Get(key);
@@ -18,10 +19,10 @@ public abstract class AcademicView : ComponentBase, IDisposable
     protected void RequestFailed(Exception e) {
         if (!Active) return;
         Error = T(e switch {
-            IdentityApiException { StatusCode: HttpStatusCode.Forbidden } => "CourseForbidden",
-            IdentityApiException { StatusCode: HttpStatusCode.NotFound } => "CourseNotFound",
-            IdentityApiException { StatusCode: HttpStatusCode.BadRequest } => "CourseInvalid",
-            IdentityApiException { StatusCode: HttpStatusCode.Conflict } => "CourseDuplicate",
+            IdentityApiException { StatusCode: HttpStatusCode.Forbidden } => EntityPrefix + "Forbidden",
+            IdentityApiException { StatusCode: HttpStatusCode.NotFound } => EntityPrefix + "NotFound",
+            IdentityApiException { StatusCode: HttpStatusCode.BadRequest } => EntityPrefix + "Invalid",
+            IdentityApiException { StatusCode: HttpStatusCode.Conflict } => EntityPrefix + "Duplicate",
             IdentityApiException { StatusCode: HttpStatusCode.TooManyRequests } => "RateLimit",
             HttpRequestException or OperationCanceledException => "NetworkError", _ => "ServiceError" });
     }
