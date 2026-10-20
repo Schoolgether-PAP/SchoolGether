@@ -1,0 +1,91 @@
+@using System.Net
+@using System.Text.RegularExpressions
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@using SchoolGether.Web.Platform
+@inherits AcademicView
+@inject AcademicCourseUnitApiClient Api
+@inject AcademicCourseApiClient CoursesApi
+<PlatformDialog Title="@T(Value is null ? "UnitNew" : editing ? "UnitEdit" : "UnitDetails")" Busy="@(Busy || uncertain)" Cancel="CancelAsync">
+<div class="unit-editor">
+    <p class="unit-context">@Course.Code · @Course.Name</p>
+    @if (ReadOnly) { <p class="unit-review" role="status">@T("UnitParentArchived")</p> }
+    @if (Error is not null) { <p role="alert" id="unit-error">@Error</p> }
+    @if (conflict) {
+        <section class="unit-review"><h3>@T("UnitConflict")</h3><p>@T("UnitConflictHelp")</p>
+        @if (latest is null) { <button disabled="@Busy" @onclick="ReviewAsync">@T("UnitReview")</button> }
+        else { <h4>@T("UnitServerVersion")</h4><dl><dt>@T("CourseCode")</dt><dd>@latest.Code</dd><dt>@T("Name")</dt><dd>@latest.Name</dd><dt>@T("UnitSyllabus")</dt><dd>@(latest.Syllabus ?? T("UnitNoSyllabus"))</dd><dt>@T("CourseStatus")</dt><dd>@T(latest.IsActive ? "UnitActiveSingle" : "UnitArchivedSingle")</dd></dl><p>@T("UnitKeepDraft")</p><button disabled="@Busy" @onclick="AcceptVersion">@T("UnitUseVersion")</button> }
+        </section>
+    }
+    @if (uncertain) { <section class="unit-review" role="status"><h3>@T("UnitUncertain")</h3><p>@T("UnitUncertainHelp")</p><button disabled="@Busy" @onclick="SaveAsync">@T("UnitRetryIdentical")</button><button disabled="@Busy" @onclick="AbandonAttempt">@T("UnitChangeAttempt")</button></section> }
+    @if (Value is null || editing) {
+        <form @onsubmit="SaveAsync" @onsubmit:preventDefault novalidate aria-busy="@(Busy ? "true" : "false")"><fieldset disabled="@(Busy || uncertain || ReadOnly)">
+            <div class="field"><label for="unit-code">@T("CourseCode")</label><input id="unit-code" maxlength="30" @bind="code" @bind:event="oninput" aria-describedby="unit-code-help unit-error" /><p id="unit-code-help">@T("CourseCodeHelp")</p></div>
+            <div class="field"><label for="unit-name">@T("Name")</label><input id="unit-name" maxlength="200" @bind="name" @bind:event="oninput" aria-describedby="unit-error" /></div>
+            <div class="field"><label for="unit-syllabus">@T("UnitSyllabus")</label><textarea id="unit-syllabus" maxlength="5000" rows="4" @bind="syllabus" @bind:event="oninput"></textarea></div>
+            <div class="dialog-actions"><button type="button" @onclick="CancelAsync">@T("Cancel")</button><button type="submit" class="platform-primary" disabled="@(conflict || (current is not null && !current.IsActive))">@T(Busy ? "Saving" : Value is null ? "UnitCreate" : "Save")</button></div>
+        </fieldset></form>
+    }
+    else if (current is not null) {
+        <dl class="unit-detail"><div><dt>@T("CourseCode")</dt><dd>@current.Code</dd></div><div><dt>@T("Name")</dt><dd>@current.Name</dd></div><div><dt>@T("UnitSyllabus")</dt><dd>@(current.Syllabus ?? T("UnitNoSyllabus"))</dd></div><div><dt>@T("CourseStatus")</dt><dd>@T(current.IsActive ? "UnitActiveSingle" : "UnitArchivedSingle")</dd></div></dl>
+        @if (confirmArchive) { <p>@T("UnitArchiveHelp")</p><div class="dialog-actions"><button disabled="@Busy" @onclick="() => confirmArchive = false">@T("Cancel")</button><button disabled="@(Busy || conflict)" class="platform-primary" @onclick="() => ChangeStateAsync(true)">@T("UnitConfirmArchive")</button></div> }
+        else if (!ReadOnly) { <div class="dialog-actions">@if (current.IsActive) { <button disabled="@(Busy || conflict)" @onclick="BeginEdit">@T("UnitEdit")</button><button disabled="@(Busy || conflict)" @onclick="() => confirmArchive = true">@T("UnitArchive")</button> } else { <button disabled="@(Busy || conflict)" class="platform-primary" @onclick="() => ChangeStateAsync(false)">@T("UnitRestore")</button> }</div> }
+    }
+</div>
+</PlatformDialog>
+@code {
+    [Parameter] public CourseUnitResponse? Value { get; set; }
+    [Parameter] public EventCallback Saved { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    [Parameter, EditorRequired] public CourseResponse Course { get; set; } = default!;
+    protected override string EntityPrefix => "Unit";
+    private bool ReadOnly => !Course.IsActive;
+    private CourseUnitResponse? current, latest;
+    private CreateCourseUnitRequest? frozen;
+    private string code = "", name = "", syllabus = "";
+    private bool editing, conflict, uncertain, confirmArchive;
+    protected override void OnInitialized() { base.OnInitialized(); current = Value; if (current is not null) SetDraft(current); }
+    private void SetDraft(CourseUnitResponse value) { code = value.Code; name = value.Name; syllabus = value.Syllabus ?? ""; }
+    private void BeginEdit() { if (Busy || ReadOnly || !Active) return; editing = true; Error = null; }
+    private Task CancelAsync() => Busy || uncertain || !Active ? Task.CompletedTask : Cancel.InvokeAsync();
+    private void AbandonAttempt() { if (Busy || !Active) return; uncertain = false; frozen = null; Error = T("UnitAttemptAbandoned"); }
+    private async Task SaveAsync() {
+        if (Busy || conflict || !Active || (!uncertain && (ReadOnly || (current is not null && !current.IsActive)))) return;
+        Error = null;
+        if (!uncertain && (!Regex.IsMatch(code.Trim(), "^[A-Za-z0-9][A-Za-z0-9._-]{0,29}$") || string.IsNullOrWhiteSpace(name) || name.Trim().Length > 200 || syllabus.Trim().Length > 5000)) { Error = T("UnitInvalid"); return; }
+        Busy = true;
+        try {
+            if (current is null) { frozen ??= new(Guid.NewGuid(), code.Trim(), name.Trim(), syllabus.Trim()); await Api.CreateAsync(Course.Id, frozen, Lifetime.Token); }
+            else await Api.UpdateAsync(Course.Id, current.Id, new(current.RowVersion, code.Trim(), name.Trim(), syllabus.Trim()), Lifetime.Token);
+            if (Active) { uncertain = false; frozen = null; await Saved.InvokeAsync(); }
+        }
+        catch (Exception e) {
+            if (!Active) return;
+            if (e is IdentityApiException { StatusCode: HttpStatusCode.Conflict } && current is not null) { conflict = true; latest = null; }
+            else if (current is null && (e is HttpRequestException and not IdentityApiException or OperationCanceledException || e is IdentityApiException { StatusCode: >= HttpStatusCode.InternalServerError })) uncertain = true;
+            // A recusa do retry não esclarece se a criação anterior foi gravada.
+            else if (current is null && !uncertain) frozen = null;
+            RequestFailed(e);
+            if (conflict) Error = null;
+        }
+        finally { Busy = false; }
+    }
+    private async Task ReviewAsync() {
+        if (Busy || !Active || current is null) return; Busy = true; Error = null;
+        try { var parent = await CoursesApi.GetAsync(Course.Id, Lifetime.Token); var value = await Api.GetAsync(Course.Id, current.Id, Lifetime.Token); if (Active) { Course = parent; latest = value; } }
+        catch (Exception e) { RequestFailed(e); }
+        finally { Busy = false; }
+    }
+    private void AcceptVersion() { if (Busy || !Active || latest is null) return; current = latest; latest = null; conflict = false; Error = null; confirmArchive = false; }
+    private async Task ChangeStateAsync(bool archive) {
+        if (Busy || conflict || !Active || ReadOnly || current is null) return; Busy = true; Error = null;
+        try {
+            if (archive) await Api.ArchiveAsync(Course.Id, current.Id, current.RowVersion, Lifetime.Token);
+            else await Api.RestoreAsync(Course.Id, current.Id, current.RowVersion, Lifetime.Token);
+            if (Active) await Saved.InvokeAsync();
+        }
+        catch (Exception e) { if (Active && e is IdentityApiException { StatusCode: HttpStatusCode.Conflict }) { conflict = true; latest = null; } RequestFailed(e); if (conflict) Error = null; }
+        finally { Busy = false; }
+    }
+    public override void Dispose() { code = name = syllabus = ""; frozen = null; current = latest = null; base.Dispose(); }
+}

@@ -786,4 +786,45 @@
   <data name="CourseNotFound" xml:space="preserve"><value>Este curso já não está disponível. Feche os detalhes e atualize a lista.</value></data>
   <data name="CourseInvalid" xml:space="preserve"><value>Verifique o código (1 a 30 caracteres permitidos), o nome (1 a 200) e a descrição (até 1000).</value></data>
   <data name="CourseDuplicate" xml:space="preserve"><value>Não foi possível guardar: o código já está reservado ou existe um conflito com esta tentativa. Confirme os dados antes de continuar.</value></data>
+  <data name="Units" xml:space="preserve"><value>Unidades curriculares</value></data>
+  <data name="UnitOpenCourseNamed" xml:space="preserve"><value>Unidades curriculares de {0}</value></data>
+  <data name="UnitBack" xml:space="preserve"><value>Voltar aos cursos</value></data>
+  <data name="UnitIntroduction" xml:space="preserve"><value>Defina as disciplinas deste curso e o programa de cada uma.</value></data>
+  <data name="UnitParentArchived" xml:space="preserve"><value>Curso arquivado: pode consultar as unidades e os programas. Restaure o curso para voltar a fazer alterações.</value></data>
+  <data name="UnitNew" xml:space="preserve"><value>Nova unidade curricular</value></data>
+  <data name="UnitActive" xml:space="preserve"><value>Ativas</value></data>
+  <data name="UnitArchived" xml:space="preserve"><value>Arquivadas</value></data>
+  <data name="UnitNoResults" xml:space="preserve"><value>Nenhuma unidade curricular encontrada</value></data>
+  <data name="UnitNoArchived" xml:space="preserve"><value>Sem unidades curriculares arquivadas</value></data>
+  <data name="UnitArchivedHelp" xml:space="preserve"><value>As unidades arquivadas conservam o programa e podem ser restauradas enquanto o curso estiver ativo.</value></data>
+  <data name="UnitEmpty" xml:space="preserve"><value>Comece pela primeira unidade curricular</value></data>
+  <data name="UnitEmptyHelp" xml:space="preserve"><value>Adicione o código, o nome e o programa de uma disciplina deste curso.</value></data>
+  <data name="UnitDetails" xml:space="preserve"><value>Detalhes da unidade curricular</value></data>
+  <data name="UnitOpenNamed" xml:space="preserve"><value>Consultar {0}</value></data>
+  <data name="UnitPage" xml:space="preserve"><value>Página {0} de {1} · {2} unidades curriculares</value></data>
+  <data name="UnitEdit" xml:space="preserve"><value>Editar unidade curricular</value></data>
+  <data name="UnitSyllabus" xml:space="preserve"><value>Programa (opcional)</value></data>
+  <data name="UnitNoSyllabus" xml:space="preserve"><value>Sem programa definido.</value></data>
+  <data name="UnitCreate" xml:space="preserve"><value>Criar unidade curricular</value></data>
+  <data name="UnitActiveSingle" xml:space="preserve"><value>Ativa</value></data>
+  <data name="UnitArchivedSingle" xml:space="preserve"><value>Arquivada</value></data>
+  <data name="UnitArchive" xml:space="preserve"><value>Arquivar unidade curricular</value></data>
+  <data name="UnitRestore" xml:space="preserve"><value>Restaurar unidade curricular</value></data>
+  <data name="UnitConfirmArchive" xml:space="preserve"><value>Confirmar arquivo</value></data>
+  <data name="UnitArchiveHelp" xml:space="preserve"><value>Arquivar esta unidade curricular? O código e o programa serão conservados. Pode restaurá-la em Arquivadas enquanto o curso estiver ativo.</value></data>
+  <data name="UnitConflict" xml:space="preserve"><value>A unidade curricular foi alterada</value></data>
+  <data name="UnitConflictHelp" xml:space="preserve"><value>O seu rascunho foi conservado. Reveja os dados atuais antes de tentar guardar, arquivar ou restaurar novamente.</value></data>
+  <data name="UnitReview" xml:space="preserve"><value>Rever versão atual</value></data>
+  <data name="UnitServerVersion" xml:space="preserve"><value>Dados atuais na instituição</value></data>
+  <data name="UnitKeepDraft" xml:space="preserve"><value>Compare estes dados com o seu rascunho. Ao usar esta versão, conserva o texto que escreveu e confirma que reviu as alterações. A unidade e o curso precisam de estar ativos para editar.</value></data>
+  <data name="UnitUseVersion" xml:space="preserve"><value>Usar versão revista</value></data>
+  <data name="UnitUncertain" xml:space="preserve"><value>A criação pode ter sido concluída</value></data>
+  <data name="UnitUncertainHelp" xml:space="preserve"><value>Não recebemos confirmação. Os campos estão bloqueados. Repita exatamente a mesma tentativa para recuperar o resultado. Abandonar e iniciar outra tentativa pode criar outra unidade se alterar o código.</value></data>
+  <data name="UnitRetryIdentical" xml:space="preserve"><value>Repetir a mesma criação</value></data>
+  <data name="UnitChangeAttempt" xml:space="preserve"><value>Abandonar tentativa e alterar conteúdo</value></data>
+  <data name="UnitAttemptAbandoned" xml:space="preserve"><value>A tentativa anterior foi abandonada. Confirme na lista se a unidade já existe antes de criar com outro código.</value></data>
+  <data name="UnitForbidden" xml:space="preserve"><value>A sua conta não tem acesso às unidades curriculares.</value></data>
+  <data name="UnitNotFound" xml:space="preserve"><value>Este curso ou unidade curricular já não está disponível. Volte aos cursos e atualize a lista.</value></data>
+  <data name="UnitInvalid" xml:space="preserve"><value>Verifique o código (1 a 30 caracteres permitidos), o nome (1 a 200) e o programa (até 5000).</value></data>
+  <data name="UnitDuplicate" xml:space="preserve"><value>Não foi possível guardar: o código já está reservado neste curso, o curso foi arquivado ou existe um conflito com esta tentativa. Confirme os dados antes de continuar.</value></data>
 </root>

@@ -81,4 +81,10 @@
   <data name="CourseReplayConflict" xml:space="preserve"><value>Esta chave de criação já foi usada com outros dados ou por outra conta.</value></data>
   <data name="CourseArchived" xml:space="preserve"><value>O curso está arquivado. Restaure-o antes de editar.</value></data>
   <data name="CourseAlreadyActive" xml:space="preserve"><value>O curso já está ativo.</value></data>
+  <data name="InvalidCourseUnitInput" xml:space="preserve"><value>Verifique os dados da unidade curricular.</value></data>
+  <data name="CourseUnitNotFound" xml:space="preserve"><value>Unidade curricular não encontrada.</value></data>
+  <data name="CourseUnitConflict" xml:space="preserve"><value>O código já está ocupado neste curso ou ocorreu uma alteração concorrente. Reveja os dados.</value></data>
+  <data name="CourseUnitReplayConflict" xml:space="preserve"><value>A chave já pertence a outro pedido de criação.</value></data>
+  <data name="CourseUnitArchived" xml:space="preserve"><value>A unidade curricular está arquivada.</value></data>
+  <data name="CourseUnitAlreadyActive" xml:space="preserve"><value>A unidade curricular já está ativa.</value></data>
 </root>

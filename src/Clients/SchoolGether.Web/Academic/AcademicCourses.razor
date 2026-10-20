@@ -2,6 +2,10 @@
 @using SchoolGether.Contracts.Academic
 @inherits AcademicView
 @inject AcademicCourseApiClient Api
+@if (unitsCourseId is int contextId) {
+    <AcademicCourseUnits @key="contextId" CourseId="contextId" Back="BackToCoursesAsync" />
+}
+else {
 <section class="courses" aria-busy="@(Busy ? "true" : "false")">
     <header class="course-heading"><div><h1 tabindex="-1" @ref="heading">@T("Courses")</h1><p>@T("CourseIntroduction")</p></div><button class="course-primary" disabled="@Busy" @onclick="NewCourse">@T("CourseNew")</button></header>
     <div class="course-filters"><div class="course-tabs" role="group" aria-label="@T("CourseStatus")"><button aria-pressed="@(!archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(false)">@T("CourseActive")</button><button aria-pressed="@(archived ? "true" : "false")" disabled="@Busy" @onclick="() => ChangeStatusAsync(true)">@T("CourseArchived")</button></div>
@@ -10,12 +14,15 @@
     @if (Busy) { <p role="status">@T("Loading")</p> }
     else if (courses is not null) {
         @if (courses.Items.Count == 0) { <div class="course-empty"><h2>@T(appliedSearch.Length > 0 ? "CourseNoResults" : archived ? "CourseNoArchived" : "CourseEmpty")</h2><p>@T(appliedSearch.Length > 0 ? "CourseSearchHelp" : archived ? "CourseArchivedHelp" : "CourseEmptyHelp")</p>@if (!archived && appliedSearch.Length == 0) { <button @onclick="NewCourse">@T("CourseNew")</button> }</div> }
-        else { <div class="course-list">@foreach (var course in courses.Items) { <article @key="course.Id"><div><span class="course-code">@course.Code</span><h2><button class="course-link" @onclick="() => OpenAsync(course.Id)">@course.Name</button></h2>@if (course.Description is not null) { <p>@course.Description</p> }</div><button aria-label="@UiMessages.Format("CourseOpenNamed", course.Name)" @onclick="() => OpenAsync(course.Id)">@T("CourseDetails")</button></article> }</div> }
+        else { <div class="course-list">@foreach (var course in courses.Items) { <article @key="course.Id"><div><span class="course-code">@course.Code</span><h2><button class="course-link" @onclick="() => OpenAsync(course.Id)">@course.Name</button></h2>@if (course.Description is not null) { <p>@course.Description</p> }</div><div class="course-actions"><button disabled="@Busy" aria-label="@UiMessages.Format("UnitOpenCourseNamed", course.Name)" @onclick="() => OpenUnits(course.Id)">@T("Units")</button><button aria-label="@UiMessages.Format("CourseOpenNamed", course.Name)" @onclick="() => OpenAsync(course.Id)">@T("CourseDetails")</button></div></article> }</div> }
         <div class="course-pagination"><span>@UiMessages.Format("CoursePage", courses.Page, Math.Max(1, (int)Math.Ceiling(courses.Total / 20d)), courses.Total)</span><button disabled="@(Busy || page <= 1)" @onclick="() => LoadAsync(page - 1)">@T("InstitutionPrevious")</button><button disabled="@(Busy || page * 20 >= courses.Total)" @onclick="() => LoadAsync(page + 1)">@T("InstitutionNext")</button></div>
     }
     @if (editorOpen) { <CourseEditor Value="selected" Saved="SavedAsync" Cancel="CloseEditor" /> }
 </section>
+}
 @code {
+    private int? unitsCourseId;
+    private bool focusHeading;
     private CoursePageResponse? courses;
     private CourseResponse? selected;
     private bool archived, editorOpen;
@@ -24,7 +31,7 @@
     private int retryPage = 1;
     private ElementReference heading;
     protected override async Task OnInitializedAsync() => await LoadAsync(1);
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if ((firstRender || focusHeading) && Active && unitsCourseId is null) { focusHeading = false; await heading.FocusAsync(); } }
     private async Task LoadAsync(int requestedPage) {
         if (Busy || !Active) return;
         Busy = true; Error = null; retryPage = requestedPage;
@@ -32,6 +39,8 @@
         catch (Exception e) { RequestFailed(e); }
         finally { Busy = false; }
     }
+    private void OpenUnits(int id) { if (Busy || !Active) return; unitsCourseId = id; }
+    private async Task BackToCoursesAsync() { if (!Active) return; unitsCourseId = null; focusHeading = true; await LoadAsync(page); }
     private Task RetryAsync() => LoadAsync(retryPage);
     private Task SearchAsync() { appliedSearch = search.Trim(); return LoadAsync(1); }
     private Task ChangeStatusAsync(bool value) { archived = value; courses = null; page = 1; return LoadAsync(1); }
