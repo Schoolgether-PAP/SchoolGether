@@ -3,49 +3,111 @@
 @using SchoolGether.Contracts.Billing
 @inherits InstitutionView
 @inject InstitutionApiClient Api
-<div class="institution-shell">
-    <header class="institution-header"><div><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><strong>@T("InstitutionArea")</strong></div><button type="button" @onclick="LeaveAsync">@T("SignOut")</button></header>
+<div class="institution-shell" @onkeydown="HandleKeyAsync">
+    <header class="institution-header">
+        <div class="institution-brand"><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><span>@T("InstitutionArea")</span></div>
+        <button class="menu-toggle" type="button" aria-expanded="@(menuOpen ? "true" : "false")" aria-controls="institution-navigation" @ref="menuToggle" @onclick="() => menuOpen = !menuOpen">@T(menuOpen ? "InstitutionCloseMenu" : "InstitutionOpenMenu")</button>
+    </header>
     @if (Active)
     {
-        <nav aria-label="@T("InstitutionAreas")">
-            @foreach (var item in Areas) { <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button> }
-        </nav>
+        <aside class="institution-sidebar @(menuOpen ? "menu-open" : "")" id="institution-navigation">
+            @if (setup is not null) { <p class="sidebar-institution">@setup.Name</p> }
+            <nav aria-label="@T("InstitutionAreas")">
+                @foreach (var item in Areas)
+                {
+                    <button type="button" disabled="@(Busy || !CanNavigate(item))" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button>
+                }
+            </nav>
+            <div class="sidebar-account"><span>@Session.Account?.Name</span><button type="button" @onclick="LeaveAsync">@T("SignOut")</button></div>
+        </aside>
         <main class="institution-content @(area == "Support" ? "institution-support" : "")" aria-busy="@(Busy ? "true" : "false")">
-            @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button> }
-            @if (setup is null || subscription is null) { <p role="status">@T("Loading")</p> }
+            @if (Error is not null)
+            {
+                <div class="institution-error"><p role="alert">@Error</p><button type="button" disabled="@Busy" @onclick="LoadAsync">@T("Retry")</button></div>
+            }
+            @if (setup is null || subscription is null || loadingSetup)
+            {
+                @if (Error is null) { <p class="loading-state-panel" role="status">@T("Loading")</p> }
+            }
             else if (area == "Support") { <SchoolGether.Web.Support.SupportWorkspace /> }
-            else if (area == "InstitutionSetup") { <InstitutionSetupForm @key="setup" Value="setup" Saved="SetupSavedAsync" /> }
+            else if (area == "InstitutionSetup")
+            {
+                @if (!setup.IsComplete) { <p class="institution-note">@T("InstitutionSetupFirst")</p> }
+                <InstitutionSetupForm @key="setup" Value="setup" Saved="SetupSavedAsync" />
+            }
             else if (area == "InstitutionMembers") { <InstitutionMembers OccupancyChanged="RefreshSubscriptionAsync" /> }
             else if (area == "InstitutionProfile")
             {
                 <h1 tabindex="-1" @ref="heading">@T("InstitutionProfile")</h1>
-                @if (Session.Account is { } account) { <dl><div><dt>@T("Name")</dt><dd>@account.Name</dd></div><div><dt>@T("Email")</dt><dd>@account.Email</dd></div><div><dt>@T("Role")</dt><dd>@T("RoleInstitutionAdmin")</dd></div><div><dt>@T("Institution")</dt><dd>@setup.Name</dd></div></dl> }
+                <p class="page-introduction">@T("InstitutionProfileHelp")</p>
+                @if (Session.Account is { } account)
+                {
+                    <dl class="profile-details"><div><dt>@T("Name")</dt><dd>@account.Name</dd></div><div><dt>@T("Email")</dt><dd>@account.Email</dd></div><div><dt>@T("Role")</dt><dd>@T("RoleInstitutionAdmin")</dd></div><div><dt>@T("Institution")</dt><dd>@setup.Name</dd></div></dl>
+                }
                 <button type="button" disabled="@Busy" @onclick="RefreshProfileAsync">@T("RefreshProfile")</button>
                 @if (notice is not null) { <p role="status">@notice</p> }
             }
             else
             {
-                <h1 tabindex="-1" @ref="heading">@T("InstitutionSummary")</h1><p class="institution-intro">@setup.Name</p>
-                <dl><div><dt>@T("InstitutionSetupState")</dt><dd>@T(setup.IsComplete ? "InstitutionComplete" : "InstitutionPending")</dd></div><div><dt>@T("InstitutionYear")</dt><dd>@setup.AcademicYear</dd></div><div><dt>@T("InstitutionPlan")</dt><dd>@(subscription.Plan?.Name ?? T("InstitutionNoSubscription"))</dd></div><div><dt>@T("InstitutionCapacity")</dt><dd>@(subscription.Plan is { } plan ? UiMessages.Format("InstitutionOccupancy", subscription.UsedAccounts, plan.AccountLimit) : UiMessages.Format("InstitutionLegacyOccupancy", subscription.UsedAccounts))</dd></div></dl>
-                @if (subscription.Status == "Demonstration") { <p class="institution-note">@T("InstitutionDemonstration")</p> }
-                <p class="institution-note">@T("InstitutionFuture")</p>
+                <h1 tabindex="-1" @ref="heading">@T("InstitutionSummary")</h1>
+                <p class="page-introduction">@T("InstitutionOverviewHelp")</p>
+                <section class="institution-overview" aria-labelledby="institution-name">
+                    <div class="overview-details">
+                        <h2 id="institution-name">@setup.Name</h2>
+                        <dl class="institution-facts">
+                            <div><dt>@T("InstitutionYear")</dt><dd>@(setup.AcademicYear ?? T("InstitutionPending"))</dd></div>
+                            <div><dt>@T("InstitutionSetupState")</dt><dd><span class="setup-state">@T(setup.IsComplete ? "InstitutionComplete" : "InstitutionPending")</span></dd></div>
+                        </dl>
+                    </div>
+                    <div class="overview-capacity">
+                        <h3>@T("InstitutionPlan")</h3>
+                        <p class="plan-name">@(subscription.Plan?.Name ?? T("InstitutionNoSubscription"))</p>
+                        <dl class="capacity-metrics">
+                            <div><dt>@T("InstitutionUsedAccounts")</dt><dd>@subscription.UsedAccounts</dd></div>
+                            @if (subscription.Plan is { } plan)
+                            {
+                                <div><dt>@T("InstitutionAvailableAccounts")</dt><dd>@Math.Max(0, plan.AccountLimit - subscription.UsedAccounts)</dd></div>
+                            }
+                        </dl>
+                        @if (subscription.Plan is { } currentPlan)
+                        {
+                            <p class="capacity-help">@UiMessages.Format("InstitutionAccountLimit", currentPlan.AccountLimit)</p>
+                            @if (subscription.UsedAccounts > currentPlan.AccountLimit) { <p class="capacity-warning">@T("InstitutionOverCapacity")</p> }
+                        }
+                        else { <p class="capacity-help">@T("InstitutionNoCapacity")</p> }
+                    </div>
+                    @if (subscription.Status == "Demonstration") { <p class="demonstration-note">@T("InstitutionDemonstration")</p> }
+                </section>
+                <section class="institution-shortcuts" aria-labelledby="shortcut-title">
+                    <h2 id="shortcut-title">@T("InstitutionQuickAccess")</h2>
+                    <div class="shortcut-list">
+                        <button type="button" @onclick='() => NavigateAsync("InstitutionMembers")'><strong>@T("InstitutionManageMembers")</strong><span>@T("InstitutionMembersHelp")</span></button>
+                        <button type="button" @onclick='() => NavigateAsync("Support")'><strong>@T("InstitutionOpenSupport")</strong><span>@T("InstitutionSupportHelp")</span></button>
+                        <button type="button" @onclick='() => NavigateAsync("InstitutionSetup")'><strong>@T("InstitutionEditData")</strong><span>@T("InstitutionEditDataHelp")</span></button>
+                    </div>
+                </section>
             }
         </main>
     }
 </div>
 @code {
     [Parameter] public EventCallback SignOut { get; set; }
-    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "InstitutionSetup", "Support", "InstitutionProfile"];
+    private static readonly string[] Areas = ["InstitutionSummary", "InstitutionMembers", "Support", "InstitutionSetup", "InstitutionProfile"];
     private InstitutionSetupResponse? setup;
     private InstitutionSubscriptionResponse? subscription;
     private string area = "InstitutionSummary";
     private string? notice;
-    private ElementReference heading;
-    private bool focusHeading;
+    private ElementReference heading, menuToggle;
+    private bool focusHeading, menuOpen, loadingSetup;
+    private bool CanNavigate(string next) => setup is not null && subscription is not null && (setup.IsComplete || next is "InstitutionSetup" or "InstitutionProfile");
     protected override async Task OnInitializedAsync() => await LoadAsync();
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (focusHeading && Active && setup is not null && subscription is not null && area is "InstitutionSummary" or "InstitutionProfile") { focusHeading = false; await heading.FocusAsync(); }
+    }
+    private async Task HandleKeyAsync(KeyboardEventArgs args)
+    {
+        if (args.Key == "Escape" && menuOpen) { menuOpen = false; await menuToggle.FocusAsync(); }
     }
     private async Task LoadAsync()
     {
@@ -62,17 +124,16 @@
     }
     private async Task NavigateAsync(string next)
     {
-        if (!Active || Busy) return;
-        area = next; Error = null; notice = null; focusHeading = true;
+        if (!Active || Busy || !CanNavigate(next)) return;
+        area = next; menuOpen = false; Error = null; notice = null; focusHeading = true;
         if (next == "InstitutionSetup") {
-            setup = null;
-            Busy = true;
+            loadingSetup = true; Busy = true;
             try { var value = await Api.GetSetupAsync(Lifetime.Token); if (Active) setup = value; }
             catch (Exception e) { RequestFailed(e); }
-            finally { Busy = false; }
+            finally { Busy = false; loadingSetup = false; }
         }
     }
-    private async Task SetupSavedAsync(InstitutionSetupResponse value) { if (!Active) return; setup = value; area = "InstitutionSummary"; focusHeading = true; await RefreshSubscriptionAsync(); }
+    private async Task SetupSavedAsync(InstitutionSetupResponse value) { if (!Active) return; setup = value; area = "InstitutionSummary"; menuOpen = false; focusHeading = true; await RefreshSubscriptionAsync(); }
     private async Task RefreshSubscriptionAsync()
     {
         try { var value = await Api.GetSubscriptionAsync(Lifetime.Token); if (Active) subscription = value; }
@@ -80,10 +141,10 @@
     }
     private async Task RefreshProfileAsync()
     {
-        if (Busy) return; Busy = true;
+        if (Busy || !Active) return; Busy = true;
         try { await Session.GetProfileAsync(Lifetime.Token); if (Active) notice = T("ProfileUpdated"); }
         catch (Exception e) { RequestFailed(e); }
         finally { Busy = false; }
     }
-    private async Task LeaveAsync() { Lifetime.Cancel(); setup = null; subscription = null; Error = null; await SignOut.InvokeAsync(); }
+    private async Task LeaveAsync() { Lifetime.Cancel(); setup = null; subscription = null; Error = null; menuOpen = false; await SignOut.InvokeAsync(); }
 }

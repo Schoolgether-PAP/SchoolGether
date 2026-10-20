@@ -579,9 +579,9 @@
   <data name="RegistrationUnknown" xml:space="preserve"><value>Não foi possível confirmar o resultado. A conta pode ter sido criada. Entra com as credenciais escolhidas para continuar; a adesão não foi reenviada.</value></data>
 <data name="InstitutionArea" xml:space="preserve"><value>Área institucional</value></data>
 <data name="InstitutionAreas" xml:space="preserve"><value>Áreas da instituição</value></data>
-<data name="InstitutionSummary" xml:space="preserve"><value>Resumo</value></data>
+<data name="InstitutionSummary" xml:space="preserve"><value>Visão geral</value></data>
 <data name="InstitutionMembers" xml:space="preserve"><value>Utilizadores</value></data>
-<data name="InstitutionSetup" xml:space="preserve"><value>Configuração</value></data>
+<data name="InstitutionSetup" xml:space="preserve"><value>Definições</value></data>
 <data name="InstitutionProfile" xml:space="preserve"><value>O meu perfil</value></data>
 <data name="InstitutionSetupTitle" xml:space="preserve"><value>Configuração da instituição</value></data>
 <data name="InstitutionSetupHelp" xml:space="preserve"><value>Revê os dados da instituição e confirma o ano letivo. Podes ajustar estes dados mais tarde.</value></data>
@@ -726,4 +726,20 @@
 <data name="SupportCreateAnother" xml:space="preserve">
     <value>Criar novo pedido</value>
   </data>
+<data name="InstitutionOpenMenu" xml:space="preserve"><value>Menu</value></data>
+<data name="InstitutionCloseMenu" xml:space="preserve"><value>Fechar menu</value></data>
+<data name="InstitutionSetupFirst" xml:space="preserve"><value>Confirma os dados da instituição para começar a gerir os utilizadores e aceder ao suporte.</value></data>
+<data name="InstitutionOverviewHelp" xml:space="preserve"><value>Os dados da instituição e os acessos de que precisas no dia a dia.</value></data>
+<data name="InstitutionProfileHelp" xml:space="preserve"><value>Consulta os dados da tua conta de administração.</value></data>
+<data name="InstitutionUsedAccounts" xml:space="preserve"><value>Contas utilizadas</value></data>
+<data name="InstitutionAvailableAccounts" xml:space="preserve"><value>Vagas disponíveis</value></data>
+<data name="InstitutionAccountLimit" xml:space="preserve"><value>Capacidade do plano: {0} contas.</value></data>
+<data name="InstitutionOverCapacity" xml:space="preserve"><value>A utilização atual ultrapassa a capacidade do plano.</value></data>
+<data name="InstitutionNoCapacity" xml:space="preserve"><value>Sem plano associado. A capacidade disponível não está definida.</value></data>
+<data name="InstitutionQuickAccess" xml:space="preserve"><value>Acessos rápidos</value></data>
+<data name="InstitutionManageMembers" xml:space="preserve"><value>Gerir utilizadores</value></data>
+<data name="InstitutionOpenSupport" xml:space="preserve"><value>Abrir suporte</value></data>
+<data name="InstitutionSupportHelp" xml:space="preserve"><value>Envia um pedido e acompanha o atendimento da instituição.</value></data>
+<data name="InstitutionEditData" xml:space="preserve"><value>Editar dados</value></data>
+<data name="InstitutionEditDataHelp" xml:space="preserve"><value>Atualiza os dados da instituição e o ano letivo.</value></data>
 </root>
