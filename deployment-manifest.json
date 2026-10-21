@@ -1,6 +1,6 @@
 {
-  "preparedAt": "2026-10-15T09:11:56.9785482Z",
-  "sourceCommit": "7f9354af6bc8028164dc31d2647dc36b3d8c9c97",
+  "preparedAt": "2026-10-21T09:16:30.4955449Z",
+  "api": "https://schoolgether-api.runasp.net/",
   "basePath": "/SchoolGether/",
-  "api": "https://schoolgether-api.runasp.net/"
+  "sourceCommit": "0def4d45a3d9691432363dd07c1649d5f1bc5373"
 }
