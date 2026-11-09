@@ -39,13 +39,13 @@
         }
         else
         {
-            @if (Selected is { } chosen && step > 0) { <div class="chosen"><strong>@chosen.Name</strong><span>@PublicLanding.Price(chosen) @T("PerMonth") · @UiMessages.Format("PlanAccounts", chosen.AccountLimit)</span></div> }
+            @if (Selected is { } chosen && step > 0) { <div class="chosen"><strong>@chosen.Name</strong><span>@PublicLanding.Price(chosen) @PublicLanding.Period(chosen) · @PublicLanding.Capacity(chosen)</span></div> }
             <form @onsubmit="ContinueAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
                 <fieldset disabled="@busy">
                 @if (step == 0)
                 {
                     <label for="join-plan">@T("JoinStep0")</label>
-                    <select id="join-plan" @bind="planId" aria-invalid="@Invalid("plan")" aria-describedby="join-error" @ref="planInput"><option value="">@T("ChoosePlanPrompt")</option>@foreach (var plan in catalog.Plans) { <option value="@plan.Id">@plan.Name — @PublicLanding.Price(plan) / @T("Month") — @UiMessages.Format("PlanAccounts", plan.AccountLimit)</option> }</select>
+                    <select id="join-plan" @bind="planId" aria-invalid="@Invalid("plan")" aria-describedby="join-error" @ref="planInput"><option value="">@T("ChoosePlanPrompt")</option>@foreach (var plan in catalog.Plans) { <option value="@plan.Id">@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</option> }</select>
                 }
                 else if (step == 1)
                 {
@@ -67,7 +67,7 @@
                 }
                 else if (Selected is { } plan)
                 {
-                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @T("PerMonth") — @UiMessages.Format("PlanAccounts", plan.AccountLimit)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd></dl>
+                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd></dl>
                     <p class="notice">@T("CreationNotice")</p>
                     <label class="consent"><input id="join-consent" type="checkbox" @bind="accepted" aria-invalid="@Invalid("consent")" aria-describedby="join-error" @ref="consentInput" /><span>@T("DemonstrationConsent")</span></label>
                 }

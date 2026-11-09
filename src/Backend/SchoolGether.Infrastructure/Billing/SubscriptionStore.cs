@@ -11,7 +11,7 @@ internal sealed class SubscriptionStore(SchoolGetherDbContext db) : ISubscriptio
     {
         var value = await db.Subscriptions.AsNoTracking().SingleOrDefaultAsync(x => x.InstitutionId == institutionId, cancellationToken);
         return value is null ? null : new InstitutionSubscription(value.Status,
-            new SubscriptionPlan(value.PlanId, value.PlanNameKey, value.MonthlyPrice, value.Currency, value.AccountLimit), value.CatalogVersion, value.UsedAccounts);
+            new SubscriptionPlan(value.PlanId, value.PlanNameKey, value.Price, value.Currency, value.AccountLimit, value.BillingPeriod, value.CapacityUnit), value.CatalogVersion, value.UsedAccounts);
     }
 
     public async Task CreateAsync(int institutionId, SubscriptionPlan plan, string catalogVersion, int ownerId, CancellationToken cancellationToken)

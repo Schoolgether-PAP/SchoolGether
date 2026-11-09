@@ -472,6 +472,22 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnType("int")
                         .HasColumnName("account_limit");
 
+                    b.Property<string>("BillingPeriod")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)")
+                        .HasDefaultValue("Monthly")
+                        .HasColumnName("billing_period");
+
+                    b.Property<string>("CapacityUnit")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(16)
+                        .HasColumnType("varchar(16)")
+                        .HasDefaultValue("Accounts")
+                        .HasColumnName("capacity_unit");
+
                     b.Property<string>("CatalogVersion")
                         .IsRequired()
                         .HasMaxLength(64)
@@ -500,11 +516,6 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnType("int")
                         .HasColumnName("institution_id");
 
-                    b.Property<decimal>("MonthlyPrice")
-                        .HasPrecision(10, 2)
-                        .HasColumnType("decimal(10,2)")
-                        .HasColumnName("monthly_price");
-
                     b.Property<string>("PlanId")
                         .IsRequired()
                         .HasMaxLength(32)
@@ -516,6 +527,11 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)")
                         .HasColumnName("plan_name_key");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)")
+                        .HasColumnName("price");
 
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()

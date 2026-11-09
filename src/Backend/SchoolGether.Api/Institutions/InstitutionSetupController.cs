@@ -25,7 +25,7 @@ public sealed class InstitutionSetupController(InstitutionSetupService setup, IS
         var value = await setup.GetSubscriptionAsync(cancellationToken);
         var plan = value.Plan;
         return new InstitutionSubscriptionResponse(value.Status, plan is null ? null :
-            new PlanResponse(plan.Id, messages[plan.NameKey], plan.MonthlyPrice, plan.Currency, plan.AccountLimit), value.CatalogVersion, value.UsedAccounts);
+            new PlanResponse(plan.Id, messages[plan.NameKey], plan.Price, plan.Currency, plan.AccountLimit, plan.BillingPeriod, plan.CapacityUnit), value.CatalogVersion, value.UsedAccounts);
     }
     private static InstitutionSetupResponse Map(InstitutionSetup value) => new(value.InstitutionId, value.Name, value.InstitutionType,
         value.Locality, value.AcademicYear, value.IsComplete, value.RowVersion, value.SuggestedAcademicYear);

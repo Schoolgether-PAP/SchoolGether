@@ -20,7 +20,7 @@ public sealed class OnboardingTests
 {
     internal static Dictionary<string, object?> Request(string email = "new-owner@example.test") => new()
     {
-        ["planId"] = "essential", ["catalogVersion"] = "2026-10-14-v1",
+        ["planId"] = "essential", ["catalogVersion"] = "2026-11-09-v1",
         ["ownerName"] = "Responsável", ["email"] = email, ["password"] = IdentityFactory.Password,
         ["institutionName"] = "Escola Nova", ["institutionType"] = "School", ["locality"] = "Lisboa",
         ["acceptDemonstration"] = true
@@ -61,11 +61,11 @@ public sealed class OnboardingTests
         Assert.Equal("Demonstration", subscription.Status);
         Assert.Equal("essential", subscription.PlanId);
         Assert.Equal("PlanEssential", subscription.PlanNameKey);
-        Assert.Equal("2026-10-14-v1", subscription.CatalogVersion);
-        Assert.Equal(59m, subscription.MonthlyPrice);
+        Assert.Equal("2026-11-09-v1", subscription.CatalogVersion);
+        Assert.Equal(1000m, subscription.Price);
         Assert.Equal("EUR", subscription.Currency);
-        Assert.Equal(100, subscription.AccountLimit);
-        Assert.Equal(1, subscription.UsedAccounts);
+        Assert.Equal(20, subscription.AccountLimit);
+        Assert.Equal(0, subscription.UsedAccounts);
         Assert.Equal(owner.Id, subscription.CreatedBy);
         var profile = await db.InstitutionProfiles.IgnoreQueryFilters().SingleAsync();
         Assert.Equal(institution.Id, profile.InstitutionId);
@@ -246,7 +246,7 @@ public sealed class OnboardingTests
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         if (entity == "profile") db.InstitutionProfiles.Add(new InstitutionProfile(factory.InstitutionA, "School", null, 1));
         if (entity == "subscription") db.Subscriptions.Add(new DemonstrationSubscription(factory.InstitutionA,
-            new SubscriptionPlan("essential", "PlanEssential", 59m, "EUR", 100), "2026-10-14-v1", 1));
+            new SubscriptionPlan("essential", "PlanEssential", 59m, "EUR", 100), "2026-11-09-v1", 1));
         if (entity == "member") db.Members.Add(new InstitutionMember(1, factory.InstitutionA, "Proibido", AccountRole.InstitutionAdmin, 1));
         await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
     }

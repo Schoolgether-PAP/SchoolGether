@@ -4,7 +4,7 @@ Contexto do projeto para agentes de código (Codex e outros). Ler antes de alter
 
 ## 1. Resumo
 
-**SchoolGether** (antes SchoolTogether) é uma plataforma educativa para instituições de ensino, com foco em faculdades e politécnicos: **app móvel + site + API partilhada**, todos sobre a mesma base de dados.
+**SchoolGether** (antes SchoolTogether) é uma plataforma educativa para instituições de ensino, com foco no apoio ao professor e aos alunos: **app móvel + site + API partilhada**, todos sobre a mesma base de dados.
 
 Identidade confirmada pelo utilizador em 2026-10-13: **SaguiLearn é a empresa que desenvolve e disponibiliza o produto SchoolGether**. Apresentar a empresa nas áreas institucionais/Sobre nós e conservar SchoolGether como nome da aplicação. Isto não confirma constituição jurídica, firma registada, NIF ou CAE oficialmente atribuídos; os textos de objetivo/objeto social e enquadramentos CAE são propostas para o projeto.
 
@@ -12,19 +12,17 @@ Identidade confirmada pelo utilizador em 2026-10-13: **SaguiLearn é a empresa q
 - Sem objetivo comercial por agora: o objetivo é um **produto funcional, demonstrável e bem estruturado**.
 - Prioridades: código claro, simples e bem explicado. Preferir soluções simples a soluções "espertas".
 
-## 2. Funcionalidades (MVP da PAP)
+## 2. Direção atual — aprovada em 2026-11-09
 
-- Login e perfis (administrador da instituição, docente, aluno), com várias instituições.
-- Instituições, cursos, unidades curriculares e inscrições.
-- Biblioteca: materiais próprios e livros de exemplo (editoras parceiras só em demonstração).
-- Testes e atividades. **O docente define a avaliação, as regras e os pontos por atividade**, dentro de limites definidos pela instituição.
-- Competências com níveis de domínio, gamificação (XP, níveis, medalhas, sequências), portefólio e credenciais.
-- Avaliação dos materiais pelos alunos.
-- Stand: partilha gratuita de materiais entre instituições.
-- Modo offline na app (primeiro só leitura de materiais descarregados) e acessibilidade (WCAG 2.2 AA). Requisito de 2026-10-14: materiais protegidos devem permitir leitura autorizada dentro da app, sem disponibilizar um ficheiro comum na pasta Downloads nem exportação/partilha livre. Todos os materiais disponibilizados pela SaguiLearn/SchoolGether são protegidos; nos materiais disponibilizados pelo professor, ele escolhe protegido ou não protegido, respeitando os direitos existentes. Não protegido não significa público nem comercialização autorizada. A referência Netflix exprime a experiência pretendida, não uma equivalência técnica de DRM. Ver `docs/offline-rights.md`; arquitetura, formatos e regras de licença ainda por definir.
-- Site com as mesmas funcionalidades da app.
-
-Fora do âmbito por agora: iOS, tutor com IA, notificações push, LTI/Moodle, acordos reais com editoras, faturação real.
+- Prioridade ao site e às ferramentas docentes: planificação, preparação de aulas, materiais enviados pelos professores, atividades, avaliação, feedback e acompanhamento dos alunos.
+- Não implementar catálogo de livros da SaguiLearn nem seleção de livros na adesão. O catálogo nunca foi implementado; documentos antigos descrevem a proposta anterior.
+- Calendário partilhado: direção e funcionários autorizados publicam; professores propõem eventos para aprovação. Permissões de funcionários serão especificadas antes da implementação.
+- Manutenção é módulo adicional pago: avarias de equipamentos encaminhadas ao departamento da escola. Suporte SaguiLearn é separado.
+- Anuidades de demonstração 1 000/2 500/4 000 EUR; nomes Essencial/Profissional/Institucional. Decisão inicial delegada ao implementador: 20/50/100 lugares docentes, alunos/responsáveis incluídos. Os limites comerciais precisam de validação; armazenamento não é ilimitado.
+- Pacotes de horas para formação/configuração/assistência, sem consumir horas na correção de defeitos do produto. Preços de módulos/horas usados nas projeções são hipóteses, ainda não implementadas como oferta.
+- Sem cobranças reais ou renovação automática na PAP. Subscrições antigas conservam preço, período e quota; nada de conversão ou faturação retroativa.
+- Materiais docentes continuam sujeitos às permissões por instituição e à escolha de proteção; acessibilidade e offline protegido continuam por implementar. Gamificação, stand e portefólio não são prioridades atuais.
+- Requisitos e primeira entrega: docs/superpowers/specs/2026-11-09-teacher-focus.md. Esta direção substitui propostas anteriores de livros e preços mensais.
 
 ## 3. Stack e decisões fixas (não alterar sem discussão)
 
@@ -116,6 +114,9 @@ dotnet run --project src/Backend/SchoolGether.Api
 - O `dotnet new sln` cria `.slnx` (formato novo do .NET 10).
 
 ## 8. Estado atual e continuidade
+
+Atualização de 2026-11-09: retomado o desenvolvimento em feature/teacher-focus, a partir de origin/develop 0def4d4 (PR12). PR13/README integrado em main 42d9621. As inscrições de alunos permanecem separadas no ramo local feature/academic-enrolments, por rever. A entrega corrente altera catálogo, quotas e apresentação local; não publica nem aplica migrações online. Calendário, materiais docentes e manutenção ainda por implementar. As cronologias abaixo são históricas; a direção da secção 2 prevalece.
+
 
 - Empresa: SaguiLearn; produto: SchoolGether. Identidade visual B e paleta da logo aprovadas; referência PHC GO. Dashboard individual por administrador, com dados reais e preferências persistidas.
 - Entregues: Identity (login/refresh/logout/papéis/isolamento), painel global master/permissões/instituições/auditoria e adesão pública com configuração institucional e gestão inicial de Teacher/Student. Perfis atuais não substituem painéis académicos completos.
