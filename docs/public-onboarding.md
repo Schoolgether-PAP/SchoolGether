@@ -1,3 +1,5 @@
+> Atualização local de 2026-11-09: o novo catálogo 2026-11-09-v1 usa anuidades de 1 000/2 500/4 000 EUR e 20/50/100 lugares docentes. Estudantes/responsáveis não consomem esses lugares. Subscrições antigas mantêm Monthly/Accounts e os respetivos valores. A documentação abaixo descreve a entrega anterior; ver billing-annual-plans.md para o contrato atual.
+
 # Adesão pública e área institucional mínima
 
 Implementação de 2026-10-15 integrada pelo PR #6 após revisão e CI. API/site publicados a partir de `7f9354a`; a adesão está ativa na demonstração, após backup, migrações e validação do IP efetivo no alojamento. Ver [deployment.md](deployment.md) para a versão, evidência operacional e procedimento de publicação. O registo continua desativado por omissão em novas instalações.

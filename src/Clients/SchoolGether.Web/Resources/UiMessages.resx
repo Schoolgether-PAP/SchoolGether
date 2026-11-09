@@ -470,39 +470,39 @@
 <data name="PublicNavigationPlatform" xml:space="preserve"><value>Plataforma</value></data>
 <data name="PublicNavigationPlans" xml:space="preserve"><value>Planos</value></data>
 <data name="PublicNavigationAbout" xml:space="preserve"><value>Sobre nós</value></data>
-<data name="PublicHeroTitle" xml:space="preserve"><value>Uma escola ligada. Mais espaço para aprender.</value></data>
-<data name="PublicHeroIntroduction" xml:space="preserve"><value>O SchoolGether aproxima instituições, professores e alunos num só lugar. Organiza a tua comunidade e acompanha cada passo da aprendizagem.</value></data>
+<data name="PublicHeroTitle" xml:space="preserve"><value>Mais tempo para ensinar. Mais clareza para aprender.</value></data>
+<data name="PublicHeroIntroduction" xml:space="preserve"><value>A SchoolGether está a ser desenvolvida para apoiar a planificação de aulas, os materiais dos professores e o acompanhamento dos alunos, com organização partilhada pela escola.</value></data>
 <data name="PublicExplorePlans" xml:space="preserve"><value>Conhecer os planos</value></data>
 <data name="PublicExplorePlatform" xml:space="preserve"><value>Explorar a plataforma</value></data>
-<data name="PublicProductStage" xml:space="preserve"><value>Uma plataforma educativa em desenvolvimento, feita para aprender em conjunto.</value></data>
+<data name="PublicProductStage" xml:space="preserve"><value>Projeto em desenvolvimento: consulta abaixo as funcionalidades disponíveis e as próximas entregas.</value></data>
 <data name="PublicInstitutionPerspective" xml:space="preserve"><value>A tua instituição</value></data>
 <data name="PublicInstitutionPurpose" xml:space="preserve"><value>Organizar e acompanhar</value></data>
 <data name="PublicTeacherPerspective" xml:space="preserve"><value>Os teus professores</value></data>
-<data name="PublicTeacherPurpose" xml:space="preserve"><value>Ensinar e partilhar</value></data>
+<data name="PublicTeacherPurpose" xml:space="preserve"><value>Planificar, avaliar e acompanhar</value></data>
 <data name="PublicStudentPerspective" xml:space="preserve"><value>Os teus alunos</value></data>
 <data name="PublicStudentPurpose" xml:space="preserve"><value>Aprender e crescer</value></data>
-<data name="PublicCompanyMission" xml:space="preserve"><value>Na SaguiLearn, criamos tecnologia para simplificar a educação e tornar o conhecimento mais acessível e colaborativo.</value></data>
+<data name="PublicCompanyMission" xml:space="preserve"><value>Na SaguiLearn, desenvolvemos ferramentas para simplificar o trabalho dos professores e apoiar a aprendizagem dos alunos.</value></data>
 <data name="PublicCompanyMotto" xml:space="preserve"><value>Aprende. Partilha. Cresce.</value></data>
-<data name="PublicCommunityTitleFirst" xml:space="preserve"><value>Uma comunidade.</value></data>
-<data name="PublicCommunityTitleSecond" xml:space="preserve"><value>Três formas de participar.</value></data>
+<data name="PublicCommunityTitleFirst" xml:space="preserve"><value>O professor no centro.</value></data>
+<data name="PublicCommunityTitleSecond" xml:space="preserve"><value>A escola a colaborar.</value></data>
 <data name="PublicCommunityIntroduction" xml:space="preserve"><value>Cada pessoa encontra o seu espaço, com ferramentas e permissões adequadas ao seu papel.</value></data>
 <data name="PublicInstitutionsTitle" xml:space="preserve"><value>Instituições</value></data>
-<data name="PublicInstitutionsDescription" xml:space="preserve"><value>Configurar a escola, organizar a equipa e acompanhar as contas da comunidade.</value></data>
-<data name="PublicInstitutionsStatus" xml:space="preserve"><value>Configuração e gestão inicial de utilizadores disponíveis</value></data>
+<data name="PublicInstitutionsDescription" xml:space="preserve"><value>Organizar cursos, disciplinas, turmas e utilizadores. O calendário partilhado será desenvolvido numa próxima entrega.</value></data>
+<data name="PublicInstitutionsStatus" xml:space="preserve"><value>Gestão institucional e catálogo académico disponíveis</value></data>
 <data name="PublicTeachersTitle" xml:space="preserve"><value>Professores</value></data>
-<data name="PublicTeachersDescription" xml:space="preserve"><value>Partilhar materiais, preparar atividades e acompanhar a aprendizagem dos alunos.</value></data>
+<data name="PublicTeachersDescription" xml:space="preserve"><value>Preparar aulas, partilhar materiais próprios, definir atividades e acompanhar dificuldades. Estes recursos estão em desenvolvimento.</value></data>
 <data name="PublicTeachersStatus" xml:space="preserve"><value>Funcionalidades educativas em desenvolvimento</value></data>
 <data name="PublicStudentsTitle" xml:space="preserve"><value>Alunos</value></data>
-<data name="PublicStudentsDescription" xml:space="preserve"><value>Encontrar materiais, realizar atividades e acompanhar o próprio progresso.</value></data>
+<data name="PublicStudentsDescription" xml:space="preserve"><value>Consultar os materiais dos professores, acompanhar tarefas e receber orientações para melhorar. Área em desenvolvimento.</value></data>
 <data name="PublicStudentsStatus" xml:space="preserve"><value>Área do aluno em desenvolvimento</value></data>
 <data name="PublicPlansTitleFirst" xml:space="preserve"><value>Um plano para</value></data>
 <data name="PublicPlansTitleSecond" xml:space="preserve"><value>a tua comunidade.</value></data>
-<data name="PublicPlansIntroduction" xml:space="preserve"><value>Escolhe a dimensão que faz sentido para a instituição. Todos os valores desta proposta são fictícios, para demonstração.</value></data>
-<data name="PublicPlansNotice" xml:space="preserve"><value>Preços e limites escolhidos para a demonstração. Cada conta institucional ocupa uma vaga, incluindo o responsável. Não existe pagamento real.</value></data>
+<data name="PublicPlansIntroduction" xml:space="preserve"><value>Anuidades de demonstração por instituição, dimensionadas pela equipa docente. Os pagamentos são simulados nesta PAP.</value></data>
+<data name="PublicPlansNotice" xml:space="preserve"><value>Nos planos anuais, só as contas de professores ocupam os lugares indicados; alunos e responsáveis estão incluídos. Os limites de armazenamento serão definidos antes de uma contratação real. Não existe cobrança nem renovação automática.</value></data>
 <data name="PublicJourneyTitleFirst" xml:space="preserve"><value>Da escolha do plano</value></data>
 <data name="PublicJourneyTitleSecond" xml:space="preserve"><value>à tua instituição.</value></data>
 <data name="PublicJourneyPlanTitle" xml:space="preserve"><value>Escolhe o plano</value></data>
-<data name="PublicJourneyPlanDescription" xml:space="preserve"><value>Compara as opções e seleciona a dimensão da comunidade.</value></data>
+<data name="PublicJourneyPlanDescription" xml:space="preserve"><value>Seleciona a anuidade adequada à dimensão da equipa docente.</value></data>
 <data name="PublicJourneyOwnerTitle" xml:space="preserve"><value>Cria a tua conta</value></data>
 <data name="PublicJourneyOwnerDescription" xml:space="preserve"><value>Define as credenciais do primeiro responsável pela instituição.</value></data>
 <data name="PublicJourneyInstitutionTitle" xml:space="preserve"><value>Regista a instituição</value></data>
@@ -512,7 +512,7 @@
 <data name="PublicAboutTitleFirst" xml:space="preserve"><value>Tecnologia com</value></data>
 <data name="PublicAboutTitleSecond" xml:space="preserve"><value>um propósito educativo.</value></data>
 <data name="PublicAboutCompany" xml:space="preserve"><value>A SaguiLearn é a empresa responsável pelo SchoolGether, uma plataforma digital dedicada à comunidade educativa.</value></data>
-<data name="PublicAboutProject" xml:space="preserve"><value>O SchoolGether está a ser desenvolvido por uma equipa de três estudantes no âmbito da Prova de Aptidão Profissional. Concretiza a nossa proposta de unir gestão educativa, partilha de conhecimento e acompanhamento da aprendizagem.</value></data>
+<data name="PublicAboutProject" xml:space="preserve"><value>A SchoolGether é um projeto de PAP de três estudantes. A proposta reúne apoio ao professor, materiais adicionados pelos docentes e acompanhamento dos alunos, com calendário partilhado e módulos adicionais em desenvolvimento.</value></data>
 <data name="PublicStartInstitution" xml:space="preserve"><value>Começar com a minha instituição</value></data>
 <data name="PublicFooterBrand" xml:space="preserve"><value>SchoolGether, uma solução SaguiLearn.</value></data>
 <data name="PublicFooterStage" xml:space="preserve"><value>Projeto de demonstração educativa.</value></data>
@@ -526,7 +526,7 @@
 <data name="PlanAccounts" xml:space="preserve"><value>Até {0} contas</value></data>
 <data name="OneInstitution" xml:space="preserve"><value>Uma instituição</value></data>
 <data name="AccountManagement" xml:space="preserve"><value>Gestão de contas e perfis</value></data>
-<data name="PendingSupport" xml:space="preserve"><value>Suporte integrado em desenvolvimento</value></data>
+<data name="PendingSupport" xml:space="preserve"><value>Suporte personalizado por pacotes de horas em preparação</value></data>
 <data name="RegistrationDisabled" xml:space="preserve"><value>Adesão temporariamente indisponível.</value></data>
 <data name="ChoosePlan" xml:space="preserve"><value>Escolher {0}</value></data>
 <data name="PlanDescription_essential" xml:space="preserve"><value>Para começar com uma equipa pequena.</value></data>
@@ -734,7 +734,7 @@
 <data name="InstitutionUsedAccounts" xml:space="preserve"><value>Contas utilizadas</value></data>
 <data name="InstitutionAvailableAccounts" xml:space="preserve"><value>Vagas disponíveis</value></data>
 <data name="InstitutionAccountLimit" xml:space="preserve"><value>Capacidade do plano: {0} contas.</value></data>
-<data name="InstitutionOverCapacity" xml:space="preserve"><value>A utilização atual ultrapassa a capacidade do plano.</value></data>
+<data name="InstitutionOverCapacity" xml:space="preserve"><value>A ocupação ultrapassa o limite contratado. Contacta o responsável pela plataforma antes de criar novos professores.</value></data>
 <data name="InstitutionNoCapacity" xml:space="preserve"><value>Sem plano associado. A capacidade disponível não está definida.</value></data>
 <data name="InstitutionQuickAccess" xml:space="preserve"><value>Acessos rápidos</value></data>
 <data name="InstitutionManageMembers" xml:space="preserve"><value>Gerir utilizadores</value></data>
@@ -882,4 +882,20 @@
   <data name="ClassDuplicate" xml:space="preserve"><value>Não foi possível guardar. Verifique se o código já existe neste ano e reveja a disponibilidade das disciplinas.</value></data>
   <data name="ClassForbidden" xml:space="preserve"><value>Não tem permissão para gerir as turmas desta instituição.</value></data>
   <data name="ClassNotFound" xml:space="preserve"><value>A turma ou o curso já não está disponível.</value></data>
+<data name="PerYear" xml:space="preserve"><value>/ ano</value></data>
+<data name="PlanTeachers" xml:space="preserve"><value>Até {0} professores</value></data>
+<data name="StudentsIncluded" xml:space="preserve"><value>Acesso dos alunos incluído</value></data>
+<data name="PublicRoadmapTitle" xml:space="preserve"><value>O que estamos a desenvolver</value></data>
+<data name="PublicPlanningTitle" xml:space="preserve"><value>Preparação de aulas e materiais</value></data>
+<data name="PublicPlanningDescription" xml:space="preserve"><value>Planificações reutilizáveis e materiais adicionados pelos professores, organizados por curso, ano e disciplina. Sem catálogo de livros da plataforma.</value></data>
+<data name="PublicCalendarTitle" xml:space="preserve"><value>Calendário da escola</value></data>
+<data name="PublicCalendarDescription" xml:space="preserve"><value>Eventos publicados pela direção e funcionários autorizados. Os professores poderão propor eventos para aprovação.</value></data>
+<data name="PublicMaintenanceTitle" xml:space="preserve"><value>Manutenção como módulo adicional</value></data>
+<data name="PublicMaintenanceDescription" xml:space="preserve"><value>Pedidos de avaria encaminhados à manutenção da escola, com equipamento, localização e acompanhamento. Contratação adicional em preparação; reparações não incluídas.</value></data>
+<data name="PublicHoursNotice" xml:space="preserve"><value>Formação, configuração e assistência personalizada serão disponibilizadas através de pacotes de horas. A correção de falhas da aplicação não consome esses pacotes. Preços e contratação ainda por definir.</value></data>
+<data name="DevelopmentStatus" xml:space="preserve"><value>Em desenvolvimento</value></data>
+<data name="InstitutionUsedTeachers" xml:space="preserve"><value>Lugares docentes utilizados</value></data>
+<data name="InstitutionAvailableTeachers" xml:space="preserve"><value>Lugares docentes disponíveis</value></data>
+<data name="InstitutionTeacherLimit" xml:space="preserve"><value>O plano inclui até {0} professores. Alunos e responsáveis não ocupam lugares docentes; professores desativados continuam a ocupar lugar.</value></data>
+<data name="InstitutionPlanPrice" xml:space="preserve"><value>Valor do plano</value></data>
 </root>

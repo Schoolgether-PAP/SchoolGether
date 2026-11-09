@@ -79,6 +79,17 @@
 </div>
 </div>
 </section>
+<section class="section" aria-labelledby="roadmap-title">
+<div class="wrap">
+<h2 id="roadmap-title">@T("PublicRoadmapTitle")</h2>
+<div class="roles">
+@foreach (var feature in new[] { "Planning", "Calendar", "Maintenance" })
+{
+<article class="role"><h3>@T("Public" + feature + "Title")</h3><p>@T("Public" + feature + "Description")</p><span class="status">@T("DevelopmentStatus")</span></article>
+}
+</div><p class="plans-note">@T("PublicHoursNotice")</p>
+</div>
+</section>
 <section class="section" id="planos">
 <div class="wrap">
 <div class="section-head">
@@ -89,11 +100,12 @@
 else { <div class="plans">@foreach(var plan in catalog.Plans) { <article class="plan @(plan.Id == "evolution" ? "featured" : "")">
 <h3>@plan.Name</h3>
 <p>@T("PlanDescription_" + plan.Id)</p>
-<div class="price">@Price(plan) <span>@T("PerMonth")</span>
+<div class="price">@Price(plan) <span>@Period(plan)</span>
 </div>
 <ul>
-<li>@UiMessages.Format("PlanAccounts", plan.AccountLimit)</li>
+<li>@Capacity(plan)</li>
 <li>@T("OneInstitution")</li>
+@if (plan.CapacityUnit == "Teachers") { <li>@T("StudentsIncluded")</li> }
 <li>@T("AccountManagement")</li>
 <li>@T("PendingSupport")</li>
 </ul>@if(catalog.RegistrationEnabled) { <a class="button @(plan.Id == "evolution" ? "primary" : "")" href="@PublicNavigation.Url(Navigation, Session.Account is null ? "aderir" : "area", plan.Id)">@UiMessages.Format("ChoosePlan", plan.Name)</a> } else { <p>@T("RegistrationDisabled")</p> }
@@ -152,8 +164,11 @@ else { <div class="plans">@foreach(var plan in catalog.Plans) { <article class="
     private static string T(string key) => UiMessages.Get(key);
 
     public static string Price(PlanResponse plan) =>
-        plan.MonthlyPrice.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("pt-PT"))
+        plan.Price.ToString("0.##", System.Globalization.CultureInfo.GetCultureInfo("pt-PT"))
         + " " + (plan.Currency == "EUR" ? "€" : plan.Currency);
+
+    public static string Period(PlanResponse plan) => T(plan.BillingPeriod == "Annual" ? "PerYear" : "PerMonth");
+    public static string Capacity(PlanResponse plan) => UiMessages.Format(plan.CapacityUnit == "Teachers" ? "PlanTeachers" : "PlanAccounts", plan.AccountLimit);
 
     protected override async Task OnInitializedAsync()
     {

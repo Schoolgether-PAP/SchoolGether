@@ -50,7 +50,7 @@ internal sealed class IdentityStore(UserManager<ApplicationUser> users, SchoolGe
     {
         await using var transaction = db.Database.CurrentTransaction is null
             ? await db.Database.BeginTransactionAsync(cancellationToken) : null;
-        try { await capacity.ReserveAsync(account.InstitutionId!.Value, cancellationToken); }
+        try { await capacity.ReserveAsync(account.InstitutionId!.Value, account.Role, cancellationToken); }
         catch (BillingException exception) { throw new IdentityException(exception.Code); }
         var user = new ApplicationUser { UserName = account.Email.Trim(), Email = account.Email.Trim(),
             Name = account.Name.Trim(), CreatedBy = createdBy, LockoutEnabled = true };

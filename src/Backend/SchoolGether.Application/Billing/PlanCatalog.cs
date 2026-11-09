@@ -5,12 +5,12 @@ namespace SchoolGether.Application.Billing;
 public sealed class PlanCatalog
 {
     private static readonly IReadOnlyList<SubscriptionPlan> Plans = Array.AsReadOnly(new[] {
-        new SubscriptionPlan("essential", "PlanEssential", 59m, "EUR", 100),
-        new SubscriptionPlan("evolution", "PlanEvolution", 149m, "EUR", 350),
-        new SubscriptionPlan("campus", "PlanCampus", 299m, "EUR", 1150)
+        new SubscriptionPlan("essential", "PlanEssential", 1000m, "EUR", 20, "Annual", "Teachers"),
+        new SubscriptionPlan("evolution", "PlanProfessional", 2500m, "EUR", 50, "Annual", "Teachers"),
+        new SubscriptionPlan("campus", "PlanInstitutional", 4000m, "EUR", 100, "Annual", "Teachers")
     });
 
-    public string Version => "2026-10-14-v1";
+    public string Version => "2026-11-09-v1";
 
     public IReadOnlyList<SubscriptionPlan> GetPlans() => Plans;
 

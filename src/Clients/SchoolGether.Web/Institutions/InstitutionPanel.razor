@@ -64,15 +64,16 @@
                         <h3>@T("InstitutionPlan")</h3>
                         <p class="plan-name">@(subscription.Plan?.Name ?? T("InstitutionNoSubscription"))</p>
                         <dl class="capacity-metrics">
-                            <div><dt>@T("InstitutionUsedAccounts")</dt><dd>@subscription.UsedAccounts</dd></div>
+                            <div><dt>@T(subscription.Plan?.CapacityUnit == "Teachers" ? "InstitutionUsedTeachers" : "InstitutionUsedAccounts")</dt><dd>@subscription.UsedAccounts</dd></div>
                             @if (subscription.Plan is { } plan)
                             {
-                                <div><dt>@T("InstitutionAvailableAccounts")</dt><dd>@Math.Max(0, plan.AccountLimit - subscription.UsedAccounts)</dd></div>
+                                <div><dt>@T("InstitutionPlanPrice")</dt><dd>@SchoolGether.Web.Public.PublicLanding.Price(plan) @SchoolGether.Web.Public.PublicLanding.Period(plan)</dd></div>
+                                <div><dt>@T(plan.CapacityUnit == "Teachers" ? "InstitutionAvailableTeachers" : "InstitutionAvailableAccounts")</dt><dd>@Math.Max(0, plan.AccountLimit - subscription.UsedAccounts)</dd></div>
                             }
                         </dl>
                         @if (subscription.Plan is { } currentPlan)
                         {
-                            <p class="capacity-help">@UiMessages.Format("InstitutionAccountLimit", currentPlan.AccountLimit)</p>
+                            <p class="capacity-help">@UiMessages.Format(currentPlan.CapacityUnit == "Teachers" ? "InstitutionTeacherLimit" : "InstitutionAccountLimit", currentPlan.AccountLimit)</p>
                             @if (subscription.UsedAccounts > currentPlan.AccountLimit) { <p class="capacity-warning">@T("InstitutionOverCapacity")</p> }
                         }
                         else { <p class="capacity-help">@T("InstitutionNoCapacity")</p> }

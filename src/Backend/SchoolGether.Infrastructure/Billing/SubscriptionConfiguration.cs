@@ -18,7 +18,9 @@ internal sealed class SubscriptionConfiguration : IEntityTypeConfiguration<Demon
         builder.Property(x => x.PlanNameKey).HasMaxLength(100);
         builder.Property(x => x.CatalogVersion).HasMaxLength(64);
         builder.Property(x => x.Currency).HasMaxLength(3);
-        builder.Property(x => x.MonthlyPrice).HasPrecision(10, 2);
+        builder.Property(x => x.Price).HasPrecision(10, 2);
+        builder.Property(x => x.BillingPeriod).HasMaxLength(16).HasDefaultValue("Monthly");
+        builder.Property(x => x.CapacityUnit).HasMaxLength(16).HasDefaultValue("Accounts");
         builder.Property(x => x.RowVersion).IsConcurrencyToken();
         builder.HasOne<Institution>().WithOne().HasForeignKey<DemonstrationSubscription>(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
         builder.ApplyPropertyConventions();

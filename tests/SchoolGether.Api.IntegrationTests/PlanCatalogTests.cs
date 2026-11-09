@@ -16,9 +16,9 @@ public sealed class PlanCatalogTests
         var plans = new PlanCatalog().GetPlans();
 
         Assert.Collection(plans,
-            plan => AssertPlan(plan, "essential", "PlanEssential", 59m, 100),
-            plan => AssertPlan(plan, "evolution", "PlanEvolution", 149m, 350),
-            plan => AssertPlan(plan, "campus", "PlanCampus", 299m, 1150));
+            plan => AssertPlan(plan, "essential", "PlanEssential", 1000m, 20),
+            plan => AssertPlan(plan, "evolution", "PlanProfessional", 2500m, 50),
+            plan => AssertPlan(plan, "campus", "PlanInstitutional", 4000m, 100));
     }
 
     [Theory]
@@ -29,13 +29,14 @@ public sealed class PlanCatalogTests
     public void Unknown_plan_is_rejected(string? planId)
     {
         var exception = Assert.Throws<BillingException>(() =>
-            new PlanCatalog().RequirePlan(planId!, "2026-10-14-v1"));
+            new PlanCatalog().RequirePlan(planId!, "2026-11-09-v1"));
 
         Assert.Equal("UnknownPlan", exception.Code);
     }
 
     [Theory]
     [InlineData("2026-10-13-v1")]
+    [InlineData("2026-10-14-v1")]
     [InlineData("2026-10-14-V1")]
     [InlineData("")]
     [InlineData(null)]
@@ -50,9 +51,9 @@ public sealed class PlanCatalogTests
     [Fact]
     public void Current_plan_returns_server_owned_price_and_capacity()
     {
-        var plan = new PlanCatalog().RequirePlan("evolution", "2026-10-14-v1");
+        var plan = new PlanCatalog().RequirePlan("evolution", "2026-11-09-v1");
 
-        AssertPlan(plan, "evolution", "PlanEvolution", 149m, 350);
+        AssertPlan(plan, "evolution", "PlanProfessional", 2500m, 50);
     }
 
     [Fact]
@@ -63,7 +64,7 @@ public sealed class PlanCatalogTests
 
         Assert.Throws<NotSupportedException>(() => plans.Clear());
         Assert.Equal(3, catalog.GetPlans().Count);
-        Assert.Equal(59m, catalog.RequirePlan("essential", "2026-10-14-v1").MonthlyPrice);
+        Assert.Equal(1000m, catalog.RequirePlan("essential", "2026-11-09-v1").Price);
     }
 
     [Fact]
@@ -77,14 +78,14 @@ public sealed class PlanCatalogTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var catalog = json.RootElement;
-        Assert.Equal("2026-10-14-v1", catalog.GetProperty("version").GetString());
+        Assert.Equal("2026-11-09-v1", catalog.GetProperty("version").GetString());
         Assert.False(catalog.GetProperty("registrationEnabled").GetBoolean());
         Assert.Equal(new[] { "plans", "registrationEnabled", "version" },
             catalog.EnumerateObject().Select(x => x.Name).Order().ToArray());
         Assert.Collection(catalog.GetProperty("plans").EnumerateArray(),
-            plan => AssertPublicPlan(plan, "essential", "Essencial", 59m, 100),
-            plan => AssertPublicPlan(plan, "evolution", "Evolução", 149m, 350),
-            plan => AssertPublicPlan(plan, "campus", "Campus", 299m, 1150));
+            plan => AssertPublicPlan(plan, "essential", "Essencial", 1000m, 20),
+            plan => AssertPublicPlan(plan, "evolution", "Profissional", 2500m, 50),
+            plan => AssertPublicPlan(plan, "campus", "Institucional", 4000m, 100));
     }
 
     [Theory]
@@ -113,7 +114,7 @@ public sealed class PlanCatalogTests
         Assert.NotNull(plan);
         Assert.Equal(id, plan.Id);
         Assert.Equal(nameKey, plan.NameKey);
-        Assert.Equal(price, plan.MonthlyPrice);
+        Assert.Equal(price, plan.Price);
         Assert.Equal("EUR", plan.Currency);
         Assert.Equal(limit, plan.AccountLimit);
     }
@@ -122,10 +123,10 @@ public sealed class PlanCatalogTests
     {
         Assert.Equal(id, plan.GetProperty("id").GetString());
         Assert.Equal(name, plan.GetProperty("name").GetString());
-        Assert.Equal(price, plan.GetProperty("monthlyPrice").GetDecimal());
+        Assert.Equal(price, plan.GetProperty("price").GetDecimal());
         Assert.Equal("EUR", plan.GetProperty("currency").GetString());
         Assert.Equal(limit, plan.GetProperty("accountLimit").GetInt32());
-        Assert.Equal(new[] { "accountLimit", "currency", "id", "monthlyPrice", "name" },
+        Assert.Equal(new[] { "accountLimit", "billingPeriod", "capacityUnit", "currency", "id", "name", "price" },
             plan.EnumerateObject().Select(x => x.Name).Order().ToArray());
     }
 }

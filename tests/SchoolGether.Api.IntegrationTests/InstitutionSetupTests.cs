@@ -47,10 +47,10 @@ public sealed class InstitutionSetupTests
         var subscription = await Get(client, Subscription);
         Assert.Equal("Demonstration", subscription.GetProperty("status").GetString());
         Assert.Equal("essential", subscription.GetProperty("plan").GetProperty("id").GetString());
-        Assert.Equal(100, subscription.GetProperty("plan").GetProperty("accountLimit").GetInt32());
-        Assert.Equal(59m, subscription.GetProperty("plan").GetProperty("monthlyPrice").GetDecimal());
-        Assert.Equal("2026-10-14-v1", subscription.GetProperty("catalogVersion").GetString());
-        Assert.Equal(1, subscription.GetProperty("usedAccounts").GetInt32());
+        Assert.Equal(20, subscription.GetProperty("plan").GetProperty("accountLimit").GetInt32());
+        Assert.Equal(1000m, subscription.GetProperty("plan").GetProperty("price").GetDecimal());
+        Assert.Equal("2026-11-09-v1", subscription.GetProperty("catalogVersion").GetString());
+        Assert.Equal(0, subscription.GetProperty("usedAccounts").GetInt32());
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         var audits = await db.AuditEntries.Where(x => x.Action == "institution.setup.complete").ToListAsync();

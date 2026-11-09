@@ -40,7 +40,7 @@ public sealed class SubscriptionPlanTests
     {
         var plan = new SubscriptionPlan("free", "PlanFree", 0m, "EUR", 1);
 
-        Assert.Equal(0m, plan.MonthlyPrice);
+        Assert.Equal(0m, plan.Price);
         Assert.Equal(1, plan.AccountLimit);
     }
 }
