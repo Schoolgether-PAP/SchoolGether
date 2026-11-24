@@ -1,0 +1,21 @@
+.company-summary .summary-layout{display:grid;grid-template-columns:1fr 1fr;gap:8%;align-items:start}
+.company-summary p{margin:0 0 26px;max-width:60ch}
+.main-nav a[aria-current="page"]{text-decoration:underline;text-underline-offset:8px;text-decoration-thickness:2px}
+.back-link{display:inline-flex;align-items:center;min-height:44px;margin-bottom:28px;font-size:1rem;text-decoration:underline;text-underline-offset:5px}
+.company-page-intro{background:#e6eedf}
+.company-page-grid{display:grid;grid-template-columns:1.6fr .6fr;gap:8%;align-items:center}
+.company-page-grid h1{font-size:clamp(2.8rem,5vw,5.5rem);max-width:18ch;text-wrap:balance}
+.company-page-grid p{max-width:54ch;margin-top:30px;font-size:1.3rem}
+.company-page-grid>img{width:100%;height:auto;max-width:330px;justify-self:center}
+.company-purpose{background:var(--cream)}
+.purpose-layout{display:grid;grid-template-columns:1fr 1fr;gap:8%}
+.purpose-layout p{max-width:62ch;margin:0 0 24px}
+.purpose-layout .button{margin-top:12px}
+.contactos-page .dedicated-contact{min-height:68vh;background:var(--cream)}
+.contactos-page h1{font-size:clamp(2.8rem,5vw,5.5rem);text-wrap:balance;max-width:16ch}
+.contactos-page .contact-intro>p{max-width:43ch}
+.contactos-page .email-link{display:block;width:fit-content;max-width:100%;font-size:clamp(1rem,1.5vw,1.3rem);overflow-wrap:anywhere}
+.contactos-page .contact-email-button{display:inline-flex;margin-top:26px}
+.contactos-page .contact-location{margin-top:30px}
+@media(max-width:900px){.company-summary .summary-layout,.purpose-layout{grid-template-columns:1fr;gap:28px}.company-page-grid{grid-template-columns:1.6fr .6fr;gap:30px}.company-page-grid h1{font-size:clamp(2.6rem,6vw,4rem)}}
+@media(max-width:600px){.company-page-grid{grid-template-columns:1fr}.company-page-grid>img{width:140px;justify-self:start;grid-row:1}.company-page-grid h1 br{display:none}.company-page-grid p{font-size:1.1rem;margin-top:22px}.back-link{margin-bottom:20px}.contactos-page .contact-intro>h1 br{display:none}.company-site .contact-email-button{max-width:100%}}

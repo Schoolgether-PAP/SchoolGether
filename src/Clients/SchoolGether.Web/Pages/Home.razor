@@ -5,9 +5,13 @@
 {
     <IdentityPage />
 }
+else if (View == "aderir")
+{
+    <RegistrationWizard InitialPlanId="@Plan" />
+}
 else
 {
-    <PublicLanding ShowRegistration="@(View == "aderir")" PlanId="@Plan" />
+    <IdentityPage />
 }
 @code {
     [SupplyParameterFromQuery(Name = "view")] public string? RequestedView { get; set; }

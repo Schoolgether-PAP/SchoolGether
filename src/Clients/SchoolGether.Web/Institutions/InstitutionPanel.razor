@@ -5,7 +5,7 @@
 @inject InstitutionApiClient Api
 <div class="institution-shell" @onkeydown="HandleKeyAsync">
     <header class="institution-header">
-        <div class="institution-brand"><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><span>@T("InstitutionArea")</span></div>
+        <div class="institution-brand"><img src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" /><span>@T("InstitutionArea")</span></div>
         <button class="menu-toggle" type="button" aria-expanded="@(menuOpen ? "true" : "false")" aria-controls="institution-navigation" @ref="menuToggle" @onclick="() => menuOpen = !menuOpen">@T(menuOpen ? "InstitutionCloseMenu" : "InstitutionOpenMenu")</button>
     </header>
     @if (Active)

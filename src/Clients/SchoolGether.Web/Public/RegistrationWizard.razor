@@ -10,7 +10,7 @@
 @inject IdentitySession Session
 @inject NavigationManager Navigation
 <section class="wizard" aria-labelledby="join-title">
-    <div class="wizard-head"><strong>@T("Brand")</strong><a href="@Navigation.BaseUri">@T("CancelRegistration")</a></div>
+    <div class="wizard-head"><strong>@T("Brand")</strong><a href="../">@T("CancelRegistration")</a></div>
     @if (Session.Account is not null && !ownLogin)
     {
         <h1 id="join-title">@T("ActiveSessionTitle")</h1><p>@T("ActiveSessionHelp")</p>

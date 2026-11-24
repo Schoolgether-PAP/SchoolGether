@@ -20,7 +20,7 @@ public sealed class OnboardingTests
 {
     internal static Dictionary<string, object?> Request(string email = "new-owner@example.test") => new()
     {
-        ["planId"] = "essential", ["catalogVersion"] = "2026-11-09-v1",
+        ["planId"] = "essential", ["catalogVersion"] = "2026-11-24-v1",
         ["ownerName"] = "Responsável", ["email"] = email, ["password"] = IdentityFactory.Password,
         ["institutionName"] = "Escola Nova", ["institutionType"] = "School", ["locality"] = "Lisboa",
         ["acceptDemonstration"] = true
@@ -61,8 +61,8 @@ public sealed class OnboardingTests
         Assert.Equal("Demonstration", subscription.Status);
         Assert.Equal("essential", subscription.PlanId);
         Assert.Equal("PlanEssential", subscription.PlanNameKey);
-        Assert.Equal("2026-11-09-v1", subscription.CatalogVersion);
-        Assert.Equal(1000m, subscription.Price);
+        Assert.Equal("2026-11-24-v1", subscription.CatalogVersion);
+        Assert.Equal(1750m, subscription.Price);
         Assert.Equal("EUR", subscription.Currency);
         Assert.Equal(20, subscription.AccountLimit);
         Assert.Equal(0, subscription.UsedAccounts);
