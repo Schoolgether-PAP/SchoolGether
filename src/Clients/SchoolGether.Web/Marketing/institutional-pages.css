@@ -19,3 +19,5 @@
 .contactos-page .contact-location{margin-top:30px}
 @media(max-width:900px){.company-summary .summary-layout,.purpose-layout{grid-template-columns:1fr;gap:28px}.company-page-grid{grid-template-columns:1.6fr .6fr;gap:30px}.company-page-grid h1{font-size:clamp(2.6rem,6vw,4rem)}}
 @media(max-width:600px){.company-page-grid{grid-template-columns:1fr}.company-page-grid>img{width:140px;justify-self:start;grid-row:1}.company-page-grid h1 br{display:none}.company-page-grid p{font-size:1.1rem;margin-top:22px}.back-link{margin-bottom:20px}.contactos-page .contact-intro>h1 br{display:none}.company-site .contact-email-button{max-width:100%}}
+
+.company-site{padding-bottom:0}
