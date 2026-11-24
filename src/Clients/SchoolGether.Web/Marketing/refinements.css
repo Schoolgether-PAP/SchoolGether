@@ -1,0 +1,57 @@
+/* Uma escala de leitura mais calma, comum às páginas institucionais. */
+.company-site{font-size:16px}
+.company-site .wrap{width:min(1360px,calc(100% - 80px))}
+.company-site .header-inner{min-height:72px;gap:24px}
+.company-brand,.company-brand img{width:54px;height:54px}
+.company-site .main-nav{gap:28px;font-size:.94rem}
+.company-site .main-nav>a{padding-block:12px}
+.company-site .main-nav>a[href$="#produto"]{font-size:1.12rem;font-weight:700}
+.company-site .button{min-height:44px;padding:11px 19px;font-size:.94rem;line-height:1.35}
+.company-site .text-button{font-size:1rem;min-height:44px}
+.company-site h1{font-size:clamp(2.25rem,4.3vw,4rem);line-height:1.12;letter-spacing:-.035em}
+.company-site h2,.company-site .pricing h2{font-size:clamp(1.8rem,2.7vw,2.65rem);line-height:1.15}
+.company-site h3{font-size:1.2rem}
+.company-site p{font-size:1.05rem;line-height:1.65}
+.company-site .section{padding-block:68px}
+.template-3 .company-hero{padding-block:64px 58px}
+.template-3 .intro-layout{gap:0}
+.template-3 .intro-copy{max-width:1040px}
+.company-site .intro-copy>p{font-size:1.1rem;max-width:64ch;margin-top:24px}
+.company-site .hero-actions{margin-top:26px;gap:24px}
+.intro-copy .hero-actions .text-button{font-size:1.12rem;font-weight:700}
+.template-3 .product-layout{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);gap:56px}
+.company-site .product-identity img{width:138px;height:138px;object-fit:contain;margin-bottom:22px}
+.company-site .product-copy>p{font-size:1.05rem;max-width:48ch;margin-top:22px}
+.company-site .product-copy .demo-note{font-size:.85rem;margin-top:18px}
+.company-site .product-preview{border-radius:12px}
+.company-site .section-heading p{font-size:1.05rem}
+.company-site .workflow h3{font-size:1.1rem}
+.company-site .workflow article>p{font-size:.95rem}
+.company-site .pricing{background:#f3f6f3;color:#20362d}
+.template-3 .pricing-copy{display:block;text-align:center;max-width:680px;margin:0 auto 32px}
+.company-site .pricing h2{color:#193f30}
+.template-3 .pricing-copy p{font-size:1rem;margin-top:16px;color:#53645c}
+.template-3 .pricing-copy .pricing-note{font-size:.85rem;margin-top:12px}
+.template-3 .plan-list{gap:20px;max-width:1080px;margin:auto}
+.template-3 .plan-row{border:1px solid #d7dfd9;border-radius:12px;background:white;color:#20362d;display:flex;flex-direction:column;align-items:stretch;gap:20px;padding:26px}
+.template-3 .plan-row:nth-child(2){border-color:#193f30}
+.template-3 .plan-row h3{font-size:1.15rem;color:#193f30;margin:0}
+.template-3 .plan-row>p{margin:0;display:flex;flex-direction:column;gap:4px}
+.template-3 .plan-row p strong{font-size:2rem;line-height:1.2;color:#20362d}
+.template-3 .plan-row p span{font-size:.8rem;color:#53645c}
+.plan-features{list-style:none;padding:0;margin:0 0 4px;display:grid;gap:12px;font-size:.9rem;line-height:1.5}
+.plan-features li{padding-top:12px;border-top:1px solid #e7ece8}
+.template-3 .plan-row .button{margin-top:auto;background:#193f30;color:white;min-height:44px;border:1px solid #193f30;text-align:center}
+.template-3 .plan-row .button:hover{background:#28583b}
+.company-site .demo-prices{font-size:.8rem;color:#53645c;text-align:center;border:0;padding:0;margin:0}
+.company-site .modules-layout{padding-block:34px}
+.faq-layout{grid-template-columns:minmax(0,.7fr) minmax(0,1.3fr);gap:64px;max-width:1100px}
+.faq-layout>div>p{margin-top:18px;font-size:1rem}
+.company-site .faq h3{font-size:1.1rem;margin-bottom:8px}
+.company-site .faq summary{font-size:1rem;padding-block:16px;line-height:1.5}
+.company-site .faq details p{font-size:.94rem;margin:0 0 18px;line-height:1.65}
+.company-site .company-footer{padding-block:40px 22px;gap:32px}
+.company-footer address,.company-footer nav{font-size:.9rem}
+@media(max-width:1100px){.template-3 .product-layout{grid-template-columns:1fr}.company-site .product-copy{max-width:740px}.company-site .product-identity{display:flex;gap:24px;align-items:center}.company-site .product-identity img{flex-shrink:0;margin:0}.template-3 .plan-list{column-gap:14px}.template-3 .plan-row{padding:22px}}
+@media(max-width:760px){.company-site .wrap{width:calc(100% - 36px)}.company-site .header-inner{min-height:64px;gap:16px}.company-brand,.company-brand img{width:46px;height:46px}.company-site .section{padding-block:44px}.template-3 .company-hero{padding-block:40px}.company-site h1{font-size:2.3rem}.company-site h2,.company-site .pricing h2{font-size:1.9rem}.company-site .intro-copy>p{font-size:1rem;margin-top:20px}.company-site .hero-actions{gap:14px;margin-top:22px}.intro-copy .hero-actions .text-button{font-size:1rem}.template-3 .plan-list{grid-template-columns:1fr;gap:16px;max-width:420px}.template-3 .plan-row{gap:18px;padding:24px}.faq-layout{grid-template-columns:1fr;gap:24px}.company-site .product-identity img{width:100px;height:100px}.company-site .product-identity{gap:18px}.company-site .product-identity h2{font-size:1.75rem}.company-site .product-copy>p{font-size:1rem}.company-site .main-nav>a{padding-block:10px}.company-site .company-footer{gap:28px}}
+.template-3 .pricing-copy p{max-width:64ch;margin-inline:auto}.template-3 .pricing-copy h2 br{display:none}

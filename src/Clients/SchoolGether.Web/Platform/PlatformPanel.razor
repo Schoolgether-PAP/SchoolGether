@@ -5,29 +5,32 @@
 @inject IdentitySession Session
 <div class="platform-shell">
     <aside class="platform-sidebar">
-        <img src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" />
-        <strong>@T("Brand")</strong><span>@T("PlatformAdministration")</span>
+        <a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a>
+        <p class="workspace-context">@T("PlatformAdministration")</p>
         <nav aria-label="@T("PlatformAreas")">
             @foreach (var item in FilteredAreas)
             {
-                <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button>
+                <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
             }
         </nav>
+        @if (!FilteredAreas.Any()) { <p class="navigation-empty" role="status">@T("NoMatchingAreas")</p> }
+        <details class="workspace-saved"><summary>@T("SavedNavigation")</summary>
+            <span>@T("Favorites")</span>
+            @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
+            @if (recent.Count > 0) { <span>@T("RecentAreas")</span> }
+            @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+        </details>
+        <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Session.Account?.Name</strong><span>@T("PlatformAdministration")</span></div><button type="button" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="SignOut"><WorkspaceIcon Name="Exit" /></button></div>
+        <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
     </aside>
     <div class="platform-main">
         <header class="platform-topbar">
             <button type="button" class="mobile-menu" @onclick="() => menu = true">@T("Menu")</button>
-            <div class="area-search"><label for="area-search">@T("SearchAreas")</label><input id="area-search" type="search" @bind="search" @bind:event="oninput" /></div>
-            <button type="button" @onclick='() => NavigateAsync("PlatformProfile")'>@T("ProfileTitle")</button>
-            <button type="button" @onclick="SignOut">@T("SignOut")</button>
+            <div class="workspace-breadcrumb"><span>@T("PlatformAdministration")</span><span aria-hidden="true">/</span><strong>@T(area)</strong></div>
+            <div class="area-search"><label class="sr-only" for="area-search">@T("SearchAreas")</label><WorkspaceIcon Name="Search" /><input id="area-search" type="search" placeholder="@T("SearchAreas")" @bind="search" @bind:event="oninput" /></div>
+            <button class="topbar-profile" type="button" aria-label="@T("ProfileTitle")" @onclick='() => NavigateAsync("PlatformProfile")'><span class="account-avatar" aria-hidden="true">@Initial</span></button>
         </header>
-        <div class="platform-shortcuts">
-            <span>@T("Favorites")</span>
-            @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
-            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
-            <span class="recent-label">@T("RecentAreas")</span>
-            @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
-        </div>
         <section class="platform-workspace" aria-busy="@Busy">
             @if (Error is not null) { <p role="alert" class="feedback error-message">@Error</p><button type="button" @onclick="LoadContextAsync">@T("Retry")</button> }
             @if (context is null) { <p role="status">@T("Loading")</p> }
@@ -50,7 +53,16 @@
 @if (menu)
 {
     <PlatformDialog Title="@T("Menu")" Drawer Cancel="() => menu = false">
-        <nav aria-label="@T("MobileAreas")">@foreach (var item in FilteredAreas) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }</nav>
+        <nav aria-label="@T("MobileAreas")">@foreach (var item in FilteredAreas) { <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" />@T(item)</button> }</nav>
+        @if (!FilteredAreas.Any()) { <p role="status">@T("NoMatchingAreas")</p><button type="button" @onclick='() => search = ""'>@T("ClearAreaSearch")</button> }
+        <details class="workspace-saved"><summary>@T("SavedNavigation")</summary><span>@T("Favorites")</span>
+            @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
+            @if (recent.Count > 0) { <span>@T("RecentAreas")</span> }
+            @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
+        </details>
+        <button type="button" @onclick="SignOut">@T("SignOut")</button>
+        <a class="workspace-return" href="../">@T("PublicBack")</a>
     </PlatformDialog>
 }
 @code {
@@ -58,6 +70,7 @@
     private PlatformContextResponse? context;
     private string area = "Overview", search = "";
     private bool menu;
+    private string Initial => Session.Account?.Name.Trim().FirstOrDefault().ToString().ToUpperInvariant() ?? "S";
     private bool? institutionFilter;
     private void SetContext(PlatformContextResponse value) { context = value; Context = value; }
     private async Task FilterInstitutionsAsync(bool? suspended) { institutionFilter = suspended; await NavigateAsync("Institutions", true); }

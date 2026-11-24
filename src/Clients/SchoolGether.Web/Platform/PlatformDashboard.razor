@@ -5,9 +5,11 @@
 else if (data is null || preferences is null) { <p role="status">@T("Loading")</p> }
 else
 {
-    <div class="metric-row">
+    <div class="metric-row" aria-label="@T("DashboardIndicators")">
         @if (Can(PlatformPermissions.InstitutionsRead) && data.InstitutionsTotal is { } total) { <button class="metric-link" type="button" @onclick="() => InstitutionsRequested.InvokeAsync(null)"><span>@T("InstitutionsTotal")</span><strong>@total</strong></button> }
         @if (Can(PlatformPermissions.InstitutionsRead) && data.AccountsTotal is { } accounts) { <div><span>@T("AccountsTotal")</span><strong>@accounts</strong><small>@T("AccountsScope")</small></div> }
+        @if (Can(PlatformPermissions.InstitutionsRead) && data.ActiveInstitutions is { } activeTotal) { <button class="metric-link" type="button" @onclick="() => InstitutionsRequested.InvokeAsync(false)"><span>@T("ActiveInstitutions")</span><strong>@activeTotal</strong><small>@T("ViewInstitutions")</small></button> }
+        @if (Can(PlatformPermissions.InstitutionsRead) && data.SuspendedInstitutions is { } suspendedTotal) { <button class="metric-link" type="button" @onclick="() => InstitutionsRequested.InvokeAsync(true)"><span>@T("SuspendedInstitutions")</span><strong>@suspendedTotal</strong><small>@T("ViewInstitutions")</small></button> }
     </div>
     <div class="dashboard-grid">
     @foreach (var widget in preferences.Widgets.Where(w => w.Visible && Authorized(w.Id)))
@@ -19,21 +21,12 @@ else
             @if (data.InstitutionsTrend.Count == 0) { <p>@T("TrendEmpty")</p> }
             else
             {
-                <div class="chart-scroll"><div class="line-chart">
-                    <svg viewBox="0 0 600 230" aria-hidden="true" focusable="false">
-                        <line x1="35" y1="180" x2="565" y2="180" stroke="#8f8176" />
-                        <line x1="35" y1="20" x2="35" y2="180" stroke="#8f8176" />
-                        <text x="4" y="184">0</text><text x="4" y="28">@Maximum</text>
-                        <polyline points="@Points" fill="none" stroke="#c87532" stroke-width="3" />
-                    </svg>
-                    @for (var i = 0; i < data.InstitutionsTrend.Count; i++)
+                <ol class="trend-bars" aria-label="@T("TrendTitle")">
+                    @foreach (var point in data.InstitutionsTrend)
                     {
-                        var index = i; var point = data.InstitutionsTrend[index];
-                        <button class="chart-point" type="button" style="left:@Percent(X(index) / 600 * 100);top:@Percent(Y(point.Count) / 230 * 100)" aria-label="@UiMessages.Format("TrendPoint", point.Label, point.Count)" title="@UiMessages.Format("TrendPoint", point.Label, point.Count)"><span>@point.Count</span></button>
-                        <span class="chart-label" style="left:@Percent(X(index) / 600 * 100)">@point.Label</span>
+                        <li><span>@point.Label</span><div class="trend-track" aria-hidden="true"><span style="width:@Percent(100d * point.Count / Maximum)"></span></div><strong>@point.Count</strong></li>
                     }
-                </div></div>
-                <p class="chart-legend"><span aria-hidden="true"></span>@T("TrendLegend")</p>
+                </ol>
                 <details><summary>@T("ShowDataTable")</summary><table><caption>@T("TrendTitle")</caption><thead><tr><th>@T("MonthUtc")</th><th>@T("Institutions")</th></tr></thead><tbody>@foreach (var point in data.InstitutionsTrend) { <tr><td>@point.Label</td><td>@point.Count</td></tr> }</tbody></table></details>
             }
         }
@@ -67,8 +60,5 @@ else
     private bool Authorized(string id) => id == "recent-actions" ? Can(PlatformPermissions.AuditRead) : id is "institutions-trend" or "institutions-status" && Can(PlatformPermissions.InstitutionsRead);
     private void PreferenceSaved(DashboardPreferenceResponse value) { preferences = value; editing = false; }
     private int Maximum => Math.Max(1, data!.InstitutionsTrend.Max(x => x.Count));
-    private double X(int i) => 55 + i * (490d / Math.Max(1, data!.InstitutionsTrend.Count - 1));
-    private double Y(int count) => 180 - 150d * count / Maximum;
-    private string Points => string.Join(" ", data!.InstitutionsTrend.Select((p, i) => FormattableString.Invariant($"{X(i)},{Y(p.Count)}")));
     private static string Percent(double value) => value.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture) + "%";
 }

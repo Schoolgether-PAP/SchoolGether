@@ -1,9 +1,10 @@
 @inherits LayoutComponentBase
 @implements IDisposable
 @inject NavigationManager Navigation
-<div class="site-shell">
+@inject IdentitySession Session
+<div class="site-shell @(Session.Account is null ? "public-shell" : "workspace-shell")">
     <a class="skip-link" href="#main-content">@UiMessages.Get("SkipToContent")</a>
-    @if (SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area")
+    @if (Session.Account is null && SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area")
     {
         <header class="site-header">
             <a class="wordmark" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" width="64" height="64" /><span>@UiMessages.Get("Brand")</span></a>
@@ -11,10 +12,11 @@
         </header>
     }
     <main id="main-content" tabindex="-1">@Body</main>
-    @if (SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area") { <footer>@UiMessages.Get("Footer")</footer> }
+    @if (Session.Account is null && SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area") { <footer>@UiMessages.Get("Footer")</footer> }
 </div>
 @code {
-    protected override void OnInitialized() => Navigation.LocationChanged += LocationChanged;
+    protected override void OnInitialized() { Navigation.LocationChanged += LocationChanged; Session.Changed += SessionChanged; }
+    private void SessionChanged() => _ = InvokeAsync(StateHasChanged);
     private void LocationChanged(object? sender, Microsoft.AspNetCore.Components.Routing.LocationChangedEventArgs args) => _ = InvokeAsync(StateHasChanged);
-    public void Dispose() => Navigation.LocationChanged -= LocationChanged;
+    public void Dispose() { Navigation.LocationChanged -= LocationChanged; Session.Changed -= SessionChanged; }
 }

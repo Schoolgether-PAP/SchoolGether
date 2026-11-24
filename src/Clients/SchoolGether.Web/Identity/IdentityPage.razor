@@ -15,9 +15,9 @@ else if (Session.Account?.Role == "InstitutionAdmin")
 {
     <SchoolGether.Web.Institutions.InstitutionPanel @key="Session.Account.Id" SignOut="SignOutAsync" />
 }
-else if (Session.Account?.Role == "Teacher" && showSupport)
+else if (Session.Account is { } member)
 {
-    <div class="teacher-support-shell"><header><img src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" /><button type="button" @onclick="BackToProfile">@T("SupportProfile")</button><button type="button" disabled="@busy" @onclick="SignOutAsync">@T("SignOut")</button></header><main><SchoolGether.Web.Support.SupportWorkspace @key="Session.Account.Id" /></main></div>
+    <MemberWorkspace Account="member" SignOut="SignOutAsync" Refresh="RefreshProfileAsync" Busy="busy" Feedback="message" IsError="isError" />
 }
 else
 {
@@ -31,65 +31,42 @@ else
     </section>
     <section class="account-panel">
         <div class="account-content">
-            @if (Session.Account is { } profile)
-            {
-                <h1 tabindex="-1" @ref="heading">@T("ProfileTitle")</h1>
-                <p class="introduction">@T("ProfileIntroduction")</p>
-                <dl class="profile-details">
-                    <div><dt>@T("Name")</dt><dd>@profile.Name</dd></div>
-                    <div><dt>@T("Email")</dt><dd>@profile.Email</dd></div>
-                    <div><dt>@T("Role")</dt><dd>@RoleLabel(profile.Role)</dd></div>
-                    <div><dt>@T("Institution")</dt><dd>@InstitutionLabel(profile)</dd></div>
-                </dl>
-                <div class="profile-actions" aria-busy="@(busy ? "true" : "false")">
-                    @if (profile.Role == "Teacher") { <button class="primary-action" type="button" @onclick="() => showSupport = true">@T("Support")</button> }
-                    <button class="primary-action" type="button" disabled="@busy" @onclick="RefreshProfileAsync">
-                        @T(busyAction == "refresh" ? "RefreshingProfile" : "RefreshProfile")
-                    </button>
-                    <button class="secondary-action" type="button" disabled="@busy" @onclick="SignOutAsync">
-                        @T(busyAction == "logout" ? "SigningOut" : "SignOut")
-                    </button>
-                </div>
-            }
-            else
-            {
-                <h1 tabindex="-1" @ref="heading">@T("LoginTitle")</h1>
-                <p class="introduction">@T("LoginIntroduction")</p>
-                <form @onsubmit="SignInAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
-                    <fieldset disabled="@(busy || !Configuration.IsConfigured)">
-                        <div class="field">
-                            <label for="email">@T("Email")</label>
-                            <input id="email" name="email" type="email" autocomplete="username" inputmode="email"
-                                   maxlength="256" required placeholder="@T("EmailPlaceholder")"
-                                   @bind="email" @bind:event="oninput" aria-invalid="@(emailError is not null ? "true" : "false")"
-                                   aria-describedby="email-error" @ref="emailInput" />
-                            @if (emailError is not null)
-                            {
-                                <p class="field-error" id="email-error">@emailError</p>
-                            }
+            <h1 tabindex="-1" @ref="heading">@T("LoginTitle")</h1>
+            <p class="introduction">@T("LoginIntroduction")</p>
+            <form @onsubmit="SignInAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
+                <fieldset disabled="@(busy || !Configuration.IsConfigured)">
+                    <div class="field">
+                        <label for="email">@T("Email")</label>
+                        <input id="email" name="email" type="email" autocomplete="username" inputmode="email"
+                               maxlength="256" required placeholder="@T("EmailPlaceholder")"
+                               @bind="email" @bind:event="oninput" aria-invalid="@(emailError is not null ? "true" : "false")"
+                               aria-describedby="email-error" @ref="emailInput" />
+                        @if (emailError is not null)
+                        {
+                            <p class="field-error" id="email-error">@emailError</p>
+                        }
+                    </div>
+                    <div class="field">
+                        <label for="password">@T("Password")</label>
+                        <div class="password-field">
+                            <input id="password" name="password" type="@(showPassword ? "text" : "password")"
+                                   autocomplete="current-password" maxlength="128" required
+                                   placeholder="@T("PasswordPlaceholder")" @bind="password" @bind:event="oninput"
+                                   aria-invalid="@(passwordError is not null ? "true" : "false")" aria-describedby="password-error" />
+                            <button class="password-toggle" type="button" aria-controls="password"
+                                    aria-pressed="@(showPassword ? "true" : "false")" @onclick="TogglePassword">
+                                @T(showPassword ? "HidePassword" : "ShowPassword")
+                            </button>
                         </div>
-                        <div class="field">
-                            <label for="password">@T("Password")</label>
-                            <div class="password-field">
-                                <input id="password" name="password" type="@(showPassword ? "text" : "password")"
-                                       autocomplete="current-password" maxlength="128" required
-                                       placeholder="@T("PasswordPlaceholder")" @bind="password" @bind:event="oninput"
-                                       aria-invalid="@(passwordError is not null ? "true" : "false")" aria-describedby="password-error" />
-                                <button class="password-toggle" type="button" aria-controls="password"
-                                        aria-pressed="@(showPassword ? "true" : "false")" @onclick="TogglePassword">
-                                    @T(showPassword ? "HidePassword" : "ShowPassword")
-                                </button>
-                            </div>
-                            @if (passwordError is not null)
-                            {
-                                <p class="field-error" id="password-error">@passwordError</p>
-                            }
-                        </div>
-                        <button class="primary-action" type="submit">@T(busyAction == "logout" ? "SigningOut" : busyAction == "login" ? "SigningIn" : "SignIn")</button>
-                    </fieldset>
-                </form>
-                <p class="account-help">@T("AccountHelp")<br /><strong>@T("AccessHelp")</strong></p>
-            }
+                        @if (passwordError is not null)
+                        {
+                            <p class="field-error" id="password-error">@passwordError</p>
+                        }
+                    </div>
+                    <button class="primary-action" type="submit">@T(busyAction == "logout" ? "SigningOut" : busyAction == "login" ? "SigningIn" : "SignIn")</button>
+                </fieldset>
+            </form>
+            <p class="account-help">@T("AccountHelp")<br /><strong>@T("AccessHelp")</strong></p>
             @if (!Configuration.IsConfigured)
             {
                 <p class="feedback error-message" role="alert">@T("ConfigurationError")</p>
@@ -116,8 +93,8 @@ else
     private bool isError;
     private bool focusHeading = true;
     private bool focusEmail;
-    private bool showSupport;
-    private void BackToProfile() { showSupport = false; focusHeading = true; }
+
+
     private ElementReference heading;
     private ElementReference emailInput;
 
@@ -125,7 +102,7 @@ else
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (focusHeading && Session.Account?.Role is not ("PlatformAdmin" or "InstitutionAdmin"))
+        if (focusHeading && Session.Account is null)
         {
             focusHeading = false;
             await heading.FocusAsync();
@@ -145,7 +122,7 @@ else
             SetMessage("SessionExpired", true);
             focusEmail = true;
         }
-        if (Session.Account is null) showSupport = false;
+
         StateHasChanged();
     });
 
@@ -268,20 +245,6 @@ else
         };
         SetMessage(key, true);
     }
-
-    private static string RoleLabel(string role) => T(role switch
-    {
-        "Student" => "RoleStudent",
-        "Teacher" => "RoleTeacher",
-        "InstitutionAdmin" => "RoleInstitutionAdmin",
-        "PlatformAdmin" => "RolePlatformAdmin",
-        _ => "RoleUnknown"
-    });
-
-    private static string InstitutionLabel(AccountResponse profile)
-        => profile.Role == "PlatformAdmin" ? T("PlatformAdministration")
-            : profile.InstitutionId is { } id ? UiMessages.Format("InstitutionNumber", id)
-            : T("InstitutionUnavailable");
 
     public void Dispose()
     {

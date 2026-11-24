@@ -898,4 +898,12 @@
 <data name="InstitutionAvailableTeachers" xml:space="preserve"><value>Lugares docentes disponíveis</value></data>
 <data name="InstitutionTeacherLimit" xml:space="preserve"><value>O plano inclui até {0} professores. Alunos e responsáveis não ocupam lugares docentes; professores desativados continuam a ocupar lugar.</value></data>
 <data name="InstitutionPlanPrice" xml:space="preserve"><value>Valor do plano</value></data>
+<data name="NoMatchingAreas" xml:space="preserve"><value>Nenhuma área encontrada. Altera a pesquisa.</value></data>
+<data name="SavedNavigation" xml:space="preserve"><value>Favoritos e recentes</value></data>
+<data name="DashboardIndicators" xml:space="preserve"><value>Resumo da plataforma</value></data>
+<data name="ViewInstitutions" xml:space="preserve"><value>Consultar instituições</value></data>
+<data name="AcademicWorkspaceHelp" xml:space="preserve"><value>Organiza cursos, disciplinas e turmas.</value></data>
+<data name="MemberWorkspaceHelp" xml:space="preserve"><value>Consulta os dados da tua conta e os serviços disponíveis.</value></data>
+<data name="AccountWorkspace" xml:space="preserve"><value>Área da conta</value></data>
+<data name="ClearAreaSearch" xml:space="preserve"><value>Limpar pesquisa</value></data>
 </root>

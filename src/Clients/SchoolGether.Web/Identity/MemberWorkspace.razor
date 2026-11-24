@@ -1,0 +1,34 @@
+<div class="member-shell" @onkeydown="HandleKeyAsync">
+    <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(support ? "Support" : "ProfileTitle")</strong></div><button class="member-menu-toggle" type="button" aria-expanded="@menu" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
+    <aside class="member-sidebar @(menu ? "menu-open" : "")" id="member-navigation">
+        <nav aria-label="@T("AccountWorkspace")"><button type="button" aria-current="@(!support ? "page" : null)" @onclick="() => Navigate(false)"><WorkspaceIcon Name="Profile" /><span>@T("ProfileTitle")</span></button>
+            @if (Account.Role == "Teacher") { <button type="button" aria-current="@(support ? "page" : null)" @onclick="() => Navigate(true)"><WorkspaceIcon Name="Support" /><span>@T("Support")</span></button> }
+        </nav>
+        <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Account.Name</strong><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span></div><button type="button" disabled="@Busy" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="SignOut"><WorkspaceIcon Name="Exit" /></button></div>
+        <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
+    </aside>
+    <section class="member-content" aria-busy="@Busy">
+        @if (support && Account.Role == "Teacher") { <SchoolGether.Web.Support.SupportWorkspace @key="Account.Id" /> }
+        else
+        {
+            <div class="page-heading"><div><h1 tabindex="-1" @ref="heading">@T("ProfileTitle")</h1><p class="platform-intro">@T("MemberWorkspaceHelp")</p></div><button type="button" disabled="@Busy" @onclick="Refresh">@T(Busy ? "RefreshingProfile" : "RefreshProfile")</button></div>
+            <section class="member-profile" aria-labelledby="member-name"><div class="member-profile-title"><span class="account-avatar" aria-hidden="true">@Initial</span><div><h2 id="member-name">@Account.Name</h2><p>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</p></div></div><dl class="profile-details"><div><dt>@T("Email")</dt><dd>@Account.Email</dd></div><div><dt>@T("Institution")</dt><dd>@(Account.InstitutionId is { } id ? UiMessages.Format("InstitutionNumber", id) : T("InstitutionUnavailable"))</dd></div></dl></section>
+        }
+        @if (Feedback is not null) { <p class="feedback @(IsError ? "error-message" : "status-message")" role="@(IsError ? "alert" : "status")">@Feedback</p> }
+    </section>
+</div>
+@code {
+    [Parameter, EditorRequired] public AccountResponse Account { get; set; } = default!;
+    [Parameter] public EventCallback SignOut { get; set; }
+    [Parameter] public EventCallback Refresh { get; set; }
+    [Parameter] public bool Busy { get; set; }
+    [Parameter] public string? Feedback { get; set; }
+    [Parameter] public bool IsError { get; set; }
+    private bool support, menu, focus = true;
+    private ElementReference heading, menuToggle;
+    private string Initial => Account.Name.Trim().FirstOrDefault().ToString().ToUpperInvariant();
+    private static string T(string key) => UiMessages.Get(key);
+    private void Navigate(bool value) { support = value; menu = false; focus = !value; }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focus && !support) { focus = false; await heading.FocusAsync(); } }
+    private async Task HandleKeyAsync(KeyboardEventArgs e) { if (e.Key == "Escape" && menu) { menu = false; await menuToggle.FocusAsync(); } }
+}

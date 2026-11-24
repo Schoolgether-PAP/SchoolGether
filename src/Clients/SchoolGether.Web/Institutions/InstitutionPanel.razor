@@ -5,7 +5,8 @@
 @inject InstitutionApiClient Api
 <div class="institution-shell" @onkeydown="HandleKeyAsync">
     <header class="institution-header">
-        <div class="institution-brand"><img src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" /><span>@T("InstitutionArea")</span></div>
+        <a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a>
+        <div class="workspace-breadcrumb"><span>@T("InstitutionArea")</span><span aria-hidden="true">/</span><strong>@T(area)</strong></div>
         <button class="menu-toggle" type="button" aria-expanded="@(menuOpen ? "true" : "false")" aria-controls="institution-navigation" @ref="menuToggle" @onclick="() => menuOpen = !menuOpen">@T(menuOpen ? "InstitutionCloseMenu" : "InstitutionOpenMenu")</button>
     </header>
     @if (Active)
@@ -15,10 +16,11 @@
             <nav aria-label="@T("InstitutionAreas")">
                 @foreach (var item in Areas)
                 {
-                    <button type="button" disabled="@(Busy || !CanNavigate(item))" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)">@T(item)</button>
+                    <button type="button" disabled="@(Busy || !CanNavigate(item))" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
                 }
             </nav>
-            <div class="sidebar-account"><span>@Session.Account?.Name</span><button type="button" @onclick="LeaveAsync">@T("SignOut")</button></div>
+            <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Session.Account?.Name</strong><span>@T("RoleInstitutionAdmin")</span></div><button type="button" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="LeaveAsync"><WorkspaceIcon Name="Exit" /></button></div>
+            <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
         </aside>
         <main class="institution-content @(area == "Support" ? "institution-support" : "")" aria-busy="@(Busy ? "true" : "false")">
             @if (Error is not null)
@@ -54,6 +56,7 @@
                 <p class="page-introduction">@T("InstitutionOverviewHelp")</p>
                 <section class="institution-overview" aria-labelledby="institution-name">
                     <div class="overview-details">
+                        <img class="overview-school-logo" src="images/schoolgether-restored.png" alt="" />
                         <h2 id="institution-name">@setup.Name</h2>
                         <dl class="institution-facts">
                             <div><dt>@T("InstitutionYear")</dt><dd>@(setup.AcademicYear ?? T("InstitutionPending"))</dd></div>
@@ -83,6 +86,7 @@
                 <section class="institution-shortcuts" aria-labelledby="shortcut-title">
                     <h2 id="shortcut-title">@T("InstitutionQuickAccess")</h2>
                     <div class="shortcut-list">
+                        <button type="button" @onclick='() => NavigateAsync("Courses")'><WorkspaceIcon Name="Courses" /><strong>@T("Courses")</strong><span>@T("AcademicWorkspaceHelp")</span></button>
                         <button type="button" @onclick='() => NavigateAsync("InstitutionMembers")'><strong>@T("InstitutionManageMembers")</strong><span>@T("InstitutionMembersHelp")</span></button>
                         <button type="button" @onclick='() => NavigateAsync("Support")'><strong>@T("InstitutionOpenSupport")</strong><span>@T("InstitutionSupportHelp")</span></button>
                         <button type="button" @onclick='() => NavigateAsync("InstitutionSetup")'><strong>@T("InstitutionEditData")</strong><span>@T("InstitutionEditDataHelp")</span></button>
@@ -98,6 +102,7 @@
     private InstitutionSetupResponse? setup;
     private InstitutionSubscriptionResponse? subscription;
     private string area = "InstitutionSummary";
+    private string Initial => Session.Account?.Name.Trim().FirstOrDefault().ToString().ToUpperInvariant() ?? "S";
     private string? notice;
     private ElementReference heading, menuToggle;
     private bool focusHeading, menuOpen, loadingSetup;
