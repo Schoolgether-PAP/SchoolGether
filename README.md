@@ -21,6 +21,7 @@ O **SchoolGether** é a plataforma educativa desenvolvida pela SaguiLearn, desti
 - **[Aceder à demonstração online](https://schoolgether-pap.github.io/SchoolGether/)** — conhecer a plataforma e consultar os planos de demonstração.
 - **[Consultar o desenvolvimento](https://github.com/Schoolgether-PAP/SchoolGether/tree/develop)** — código e documentação técnica no ramo `develop`.
 - **[Ver as alterações em revisão](https://github.com/Schoolgether-PAP/SchoolGether/pulls)** — acompanhar as próximas entregas.
+- **[Colaborar com outra IA](colaboracao-ia/README.md)** — contexto, instruções, papéis de agentes e registo obrigatório das alterações. Ler o estado dos ramos antes de editar.
 
 ## Contexto académico
 
