@@ -1,6 +1,6 @@
 {
-  "builtAt": "2026-11-24T14:06:20.6331634Z",
-  "sourceCommit": "bfc750bb7e126d24dfe71bbfa2b08722a1632695",
-  "apiBaseUrl": "https://schoolgether-api.runasp.net/",
-  "basePath": "/SchoolGether/"
+  "builtAt": "2026-11-24T14:51:15.1620781Z",
+  "sourceCommit": "855a2aca8de0512ad608b97201641364243a3689",
+  "basePath": "/SchoolGether/",
+  "apiBaseUrl": "https://schoolgether-api.runasp.net/"
 }
