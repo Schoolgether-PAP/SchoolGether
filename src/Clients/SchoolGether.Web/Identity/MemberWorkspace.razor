@@ -1,5 +1,5 @@
 <div class="member-shell" @onkeydown="HandleKeyAsync">
-    <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(support ? "Support" : "ProfileTitle")</strong></div><button class="member-menu-toggle" type="button" aria-expanded="@menu" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
+    <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(support ? "Support" : "ProfileTitle")</strong></div><button class="member-menu-toggle" type="button" aria-expanded="@(menu ? "true" : "false")" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
     <aside class="member-sidebar @(menu ? "menu-open" : "")" id="member-navigation">
         <nav aria-label="@T("AccountWorkspace")"><button type="button" aria-current="@(!support ? "page" : null)" @onclick="() => Navigate(false)"><WorkspaceIcon Name="Profile" /><span>@T("ProfileTitle")</span></button>
             @if (Account.Role == "Teacher") { <button type="button" aria-current="@(support ? "page" : null)" @onclick="() => Navigate(true)"><WorkspaceIcon Name="Support" /><span>@T("Support")</span></button> }
@@ -7,7 +7,7 @@
         <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Account.Name</strong><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span></div><button type="button" disabled="@Busy" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="SignOut"><WorkspaceIcon Name="Exit" /></button></div>
         <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
     </aside>
-    <section class="member-content" aria-busy="@Busy">
+    <section class="member-content" aria-busy="@(Busy ? "true" : "false")">
         @if (support && Account.Role == "Teacher") { <SchoolGether.Web.Support.SupportWorkspace @key="Account.Id" /> }
         else
         {

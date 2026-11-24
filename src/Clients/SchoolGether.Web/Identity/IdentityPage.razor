@@ -17,7 +17,7 @@ else if (Session.Account?.Role == "InstitutionAdmin")
 }
 else if (Session.Account is { } member)
 {
-    <MemberWorkspace Account="member" SignOut="SignOutAsync" Refresh="RefreshProfileAsync" Busy="busy" Feedback="message" IsError="isError" />
+    <MemberWorkspace Account="member" SignOut="SignOutAsync" Refresh="RefreshProfileAsync" Busy="busy" Feedback="@message" IsError="isError" />
 }
 else
 {

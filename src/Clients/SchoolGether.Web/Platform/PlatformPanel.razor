@@ -17,7 +17,7 @@
         <details class="workspace-saved"><summary>@T("SavedNavigation")</summary>
             <span>@T("Favorites")</span>
             @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
-            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
+            <button type="button" aria-pressed="@(favorites.Contains(area) ? "true" : "false")" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
             @if (recent.Count > 0) { <span>@T("RecentAreas")</span> }
             @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
         </details>
@@ -31,7 +31,7 @@
             <div class="area-search"><label class="sr-only" for="area-search">@T("SearchAreas")</label><WorkspaceIcon Name="Search" /><input id="area-search" type="search" placeholder="@T("SearchAreas")" @bind="search" @bind:event="oninput" /></div>
             <button class="topbar-profile" type="button" aria-label="@T("ProfileTitle")" @onclick='() => NavigateAsync("PlatformProfile")'><span class="account-avatar" aria-hidden="true">@Initial</span></button>
         </header>
-        <section class="platform-workspace" aria-busy="@Busy">
+        <section class="platform-workspace" aria-busy="@(Busy ? "true" : "false")">
             @if (Error is not null) { <p role="alert" class="feedback error-message">@Error</p><button type="button" @onclick="LoadContextAsync">@T("Retry")</button> }
             @if (context is null) { <p role="status">@T("Loading")</p> }
             else if (area == "Overview") { <PlatformDashboard Context="context" PermissionsChanged="LoadContextAsync" ContextUpdated="SetContext" InstitutionsRequested="FilterInstitutionsAsync" /> }
@@ -57,7 +57,7 @@
         @if (!FilteredAreas.Any()) { <p role="status">@T("NoMatchingAreas")</p><button type="button" @onclick='() => search = ""'>@T("ClearAreaSearch")</button> }
         <details class="workspace-saved"><summary>@T("SavedNavigation")</summary><span>@T("Favorites")</span>
             @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
-            <button type="button" aria-pressed="@favorites.Contains(area)" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
+            <button type="button" aria-pressed="@(favorites.Contains(area) ? "true" : "false")" @onclick="ToggleFavorite">@T(favorites.Contains(area) ? "RemoveFavorite" : "AddFavorite")</button>
             @if (recent.Count > 0) { <span>@T("RecentAreas")</span> }
             @foreach (var item in recent.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }
         </details>
