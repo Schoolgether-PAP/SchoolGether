@@ -18,7 +18,7 @@ Identidade confirmada pelo utilizador em 2026-10-13: **SaguiLearn é a empresa q
 - Não implementar catálogo de livros da SaguiLearn nem seleção de livros na adesão. O catálogo nunca foi implementado; documentos antigos descrevem a proposta anterior.
 - Calendário partilhado: direção e funcionários autorizados publicam; professores propõem eventos para aprovação. Permissões de funcionários serão especificadas antes da implementação.
 - Manutenção é módulo adicional pago: avarias de equipamentos encaminhadas ao departamento da escola. Suporte SaguiLearn é separado.
-- Anuidades de demonstração 1 000/2 500/4 000 EUR; nomes Essencial/Profissional/Institucional. Decisão inicial delegada ao implementador: 20/50/100 lugares docentes, alunos/responsáveis incluídos. Os limites comerciais precisam de validação; armazenamento não é ilimitado.
+- Anuidades de demonstração 1 750/2 950/4 000 EUR; nomes Essencial/Profissional/Institucional. Decisão inicial delegada ao implementador: 20/50/100 lugares docentes, alunos/responsáveis incluídos. Os limites comerciais precisam de validação; armazenamento não é ilimitado.
 - Pacotes de horas para formação/configuração/assistência, sem consumir horas na correção de defeitos do produto. Preços de módulos/horas usados nas projeções são hipóteses, ainda não implementadas como oferta.
 - Sem cobranças reais ou renovação automática na PAP. Subscrições antigas conservam preço, período e quota; nada de conversão ou faturação retroativa.
 - Materiais docentes continuam sujeitos às permissões por instituição e à escolha de proteção; acessibilidade e offline protegido continuam por implementar. Gamificação, stand e portefólio não são prioridades atuais.
@@ -39,7 +39,7 @@ Identidade confirmada pelo utilizador em 2026-10-13: **SaguiLearn é a empresa q
 | Autenticação | JWT de curta duração + refresh token; papéis `PlatformAdmin`, `InstitutionAdmin`, `Teacher`, `Student` |
 | Multi-instituição | `institution_id` em todas as tabelas de dados de cliente + filtro global no EF Core |
 | Contas | Uma instituição por conta. Professores/alunos e restantes responsáveis são criados pelos administradores. Implementado localmente em 2026-10-15: adesão pública cria apenas a nova instituição e o primeiro `InstitutionAdmin`, com registo desativado por omissão e publicação dependente de revisão/CI. `PlatformAdmin` é global, sem instituição |
-| Alojamento (demonstração) | API no MonsterASP.NET (gratuito), MySQL no Aiven (gratuito), site no GitHub Pages |
+| Alojamento (demonstração) | API no MonsterASP.NET (gratuito), TiDB compatível com MySQL (Starter gratuito), site no GitHub Pages |
 | Pontos e regras | Tabelas `activity`, `grading_rule` (JSON versionado) e `reward`; `xp_event` guarda a versão da regra usada |
 
 ## 4. Estrutura da solução

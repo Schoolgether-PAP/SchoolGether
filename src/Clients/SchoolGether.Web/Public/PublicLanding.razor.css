@@ -1,4 +1,4 @@
-.public-surface{--paper:#fbf8f3;--brown:#512f1f;--orange:#c86521;--ink:#2e231e;--line:#ded1c3;--sand:#f1e5d5;--muted:#6a584b}
+.public-surface{--paper:#fbf8f3;--brown:#193f30;--orange:#c86521;--ink:#2e231e;--line:#ded1c3;--sand:#f1e5d5;--muted:#6a584b}
 *{box-sizing:border-box}
 .public-surface{margin:0;background:var(--paper);color:var(--ink);font:16px/1.6 'Segoe UI',system-ui,sans-serif}
 button,input,select{font:inherit}

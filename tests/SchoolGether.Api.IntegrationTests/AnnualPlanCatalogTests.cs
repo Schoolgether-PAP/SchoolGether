@@ -14,10 +14,10 @@ public sealed class AnnualPlanCatalogTests
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         using var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         var root = json.RootElement;
-        Assert.Equal("2026-11-09-v1", root.GetProperty("version").GetString());
+        Assert.Equal("2026-11-24-v1", root.GetProperty("version").GetString());
         var plans = root.GetProperty("plans").EnumerateArray().ToArray();
         Assert.Equal(3, plans.Length);
-        Assert.Equal(new decimal[] { 1000, 2500, 4000 }, plans.Select(p => p.GetProperty("price").GetDecimal()));
+        Assert.Equal(new decimal[] { 1750, 2950, 4000 }, plans.Select(p => p.GetProperty("price").GetDecimal()));
         Assert.Equal(new[] { 20, 50, 100 }, plans.Select(p => p.GetProperty("accountLimit").GetInt32()));
         Assert.Equal(new[] { "Essencial", "Profissional", "Institucional" }, plans.Select(p => p.GetProperty("name").GetString()));
         Assert.All(plans, plan => {

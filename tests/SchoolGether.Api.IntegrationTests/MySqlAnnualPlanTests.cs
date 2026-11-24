@@ -48,7 +48,7 @@ public sealed class MySqlAnnualPlanTests
         using var verify = factory.Services.CreateScope();
         var actual = verify.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();
         var current = await actual.Subscriptions.IgnoreQueryFilters().SingleAsync(x => x.InstitutionId == institutionId);
-        Assert.Equal(1000m, current.Price);
+        Assert.Equal(1750m, current.Price);
         Assert.Equal("Annual", current.BillingPeriod);
         Assert.Equal("Teachers", current.CapacityUnit);
         Assert.Equal(1, current.UsedAccounts);

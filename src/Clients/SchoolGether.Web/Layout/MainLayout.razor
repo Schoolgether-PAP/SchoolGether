@@ -6,8 +6,8 @@
     @if (SchoolGether.Web.Public.PublicNavigation.View(Navigation) is "entrar" or "area")
     {
         <header class="site-header">
-            <a class="wordmark" href="@Navigation.BaseUri"><span class="brand-dot" aria-hidden="true"></span>@UiMessages.Get("Brand")</a>
-            <a href="@Navigation.BaseUri">@UiMessages.Get("PublicBack")</a>
+            <a class="wordmark" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" width="64" height="64" /><span>@UiMessages.Get("Brand")</span></a>
+            <a href="../">@UiMessages.Get("PublicBack")</a>
         </header>
     }
     <main id="main-content" tabindex="-1">@Body</main>

@@ -1,0 +1,67 @@
+@font-face{font-family:'Public Sans';src:url('../fonts/PublicSans.ttf') format('truetype');font-weight:100 900;font-display:swap}
+:root{--ink:#24382d;--muted:#53644f;--action:#193f30;--accent:#38632d;--line:#82947b;--line-soft:#d4ddcd;--canvas:#f6f4ef;--error:#a12c30;color-scheme:light}
+body{font-family:'Public Sans',sans-serif;background:var(--canvas)}
+::selection{background:#dbe9ce;color:#193f30}
+#app button,#app input,#app select,#app textarea{font-family:inherit;accent-color:var(--action)}
+#app h1,#app h2,#app h3{font-family:'Public Sans',sans-serif;letter-spacing:-.025em;color:#193f30}
+#app a{color:var(--action);text-underline-offset:5px}
+#app .site-header{min-height:96px;padding:14px clamp(20px,4vw,64px);border-bottom:1px solid var(--line-soft);background:white}
+#app .wordmark{gap:16px;font-size:1.2rem;color:#193f30}
+#app .wordmark img{width:64px;height:64px;object-fit:contain}
+#app .site-header>a:last-child{font-size:.95rem}
+#app .site-shell>footer{background:#193f30;color:#f2f4e9;padding:20px;font-size:.875rem}
+#app .identity-layout{min-height:calc(100dvh - 156px);grid-template-columns:1.05fr 1fr;background:white}
+#app .brand-panel{background:#e6eedf;border:0;text-align:left;padding:60px clamp(32px,6vw,96px);justify-content:flex-start}
+#app .brand-panel::after{display:none}
+#app .brand-panel>div{max-width:560px}
+#app .brand-logo{width:200px;max-width:100%;aspect-ratio:1;object-fit:contain;margin:0 0 36px}
+#app .brand-panel h2{font-size:clamp(2.5rem,4vw,4rem);line-height:1.08;margin:0 0 22px;color:#47263e}
+#app .brand-panel p{font-size:1.15rem;color:#314d35;max-width:38ch;line-height:1.65}
+#app .account-panel{background:#f6f4ef;padding:60px clamp(24px,5vw,80px)}
+#app .account-content{max-width:440px}
+#app .account-content h1{font-size:clamp(2rem,3vw,3rem);line-height:1.15;margin-bottom:16px;color:#47263e}
+#app .introduction{font-size:1rem;line-height:1.65;margin-bottom:32px;color:#53644f}
+#app label{font-size:.95rem;color:#24382d}
+#app input,#app select,#app textarea{border-color:#82947b;border-radius:7px;color:#24382d;background:white;min-height:48px;font-size:1rem}
+#app input::placeholder,#app textarea::placeholder{color:#5b6856;opacity:1}
+#app input[aria-invalid=true],#app textarea[aria-invalid=true]{border-color:var(--error)}
+#app .primary-action,#app .button.primary,#app .wizard .primary{background:#193f30;border-color:#193f30;color:white;border-radius:7px;min-height:50px}
+#app .primary-action:hover:enabled,#app .button.primary:hover{background:#28583b}
+#app .secondary-action,#app .password-toggle{color:#193f30;border-color:#82947b}
+#app .password-toggle{min-height:42px;font-size:.875rem}
+#app .account-help{font-size:.875rem;color:#53644f;border-color:#d4ddcd}
+#app .feedback{border:1px solid currentColor;border-radius:7px;background:#fff;padding:14px 16px}
+#app .profile-details{font-size:1rem}
+#app .profile-details dt{font-size:.875rem;color:#53644f}
+#app .profile-details dd{color:#24382d}
+#app .institution-shell,#app .platform-shell,#app .teacher-support-shell{font-family:'Public Sans',sans-serif;color:#24382d;background:#f6f4ef}
+#app .institution-header,#app .platform-topbar{background:white;border-color:#d4ddcd;min-height:88px;padding:16px 32px}
+#app .institution-brand img{width:76px;height:64px}
+#app .institution-brand span{font-size:1.05rem;border-color:#d4ddcd}
+#app .institution-sidebar,#app .platform-sidebar{background:#e6eedf;border-color:#cad8c1;padding:28px 18px}
+#app .institution-sidebar button,#app .platform-sidebar button{font-size:.95rem;font-weight:600;color:#193f30;background:transparent;border-color:transparent;border-radius:7px;padding:12px 14px;min-height:48px}
+#app .institution-sidebar button[aria-current=page],#app .platform-sidebar button[aria-current=page]{background:#193f30;border-color:#193f30;color:white}
+#app .institution-sidebar button:hover:enabled,#app .platform-sidebar button:hover:enabled{background:#d2e2c6}
+#app .institution-sidebar button[aria-current=page]:hover,#app .platform-sidebar button[aria-current=page]:hover{background:#28583b}
+#app .sidebar-institution,#app .platform-sidebar>strong{color:#193f30;font-size:1.05rem}
+#app .platform-sidebar>span,#app .sidebar-account span{color:#4d6249;font-size:.875rem}
+#app .platform-sidebar>img{width:110px;height:110px;object-fit:contain}
+#app .institution-content,#app .platform-workspace{padding:40px clamp(22px,3vw,56px);max-width:1680px;width:100%;margin-inline:auto}
+#app .institution-content h1,#app .platform-workspace h1{font-size:clamp(1.9rem,3vw,2.8rem);line-height:1.15;color:#47263e;margin-bottom:16px}
+#app .institution-content h2,#app .platform-workspace h2{color:#193f30;font-size:1.35rem}
+#app .institution-content p,#app .platform-intro{font-size:1rem;line-height:1.65}
+#app .institution-content button,#app .platform-shell button,#app .platform-dialog button,#app .teacher-support-shell button{font-family:inherit;border-radius:7px;border-color:#82947b;min-height:44px}
+#app .institution-content button.primary,#app .platform-shell button.primary,#app .platform-dialog button.primary{background:#193f30;color:white;border-color:#193f30}
+#app .institution-content .overview-grid>article,#app .dashboard-widget,#app .data-panel{background:white;border-color:#d4ddcd;border-radius:12px}
+#app .platform-shell table,#app .institution-content table,#app .platform-dialog table{font-size:.95rem}
+#app .platform-shell th,#app .institution-content th,#app .platform-dialog th{background:#edf2e8;color:#314d35;font-size:.875rem;border-color:#d4ddcd}
+#app .platform-shell td,#app .institution-content td,#app .platform-dialog td{border-color:#d4ddcd}
+#app .platform-shortcuts{background:#edf2e8;border-color:#d4ddcd;font-size:.875rem}
+#app .platform-shortcuts button{background:white;font-size:.875rem}
+#app .state-pill{background:#edf2e8;border-color:#b6c9aa;color:#193f30}
+#app .wizard{background:white;max-width:1000px;margin:40px auto;padding:40px;border-radius:12px;font-family:'Public Sans',sans-serif}
+#app .wizard-head{border-color:#d4ddcd}
+#app .wizard h1{color:#47263e;font-size:2.4rem}
+#app button:focus-visible,#app input:focus-visible,#app select:focus-visible,#app textarea:focus-visible,#app a:focus-visible{outline:3px solid #38632d;outline-offset:4px}
+#app button:disabled{opacity:.55}
+@media(max-width:760px){#app .site-header{min-height:80px;padding:12px 18px;gap:12px}#app .wordmark{font-size:1rem;gap:8px}#app .wordmark img{width:48px;height:48px}#app .site-header>a:last-child{font-size:.8rem}#app .identity-layout{grid-template-columns:1fr}#app .brand-panel{padding:24px;display:block}#app .brand-panel>div{display:grid;grid-template-columns:70px 1fr;gap:16px;align-items:center}#app .brand-logo{width:70px;margin:0}#app .brand-panel h2{font-size:1.8rem;margin:0}#app .brand-panel p{display:none}#app .account-panel{padding:36px 24px}#app .account-content{max-width:100%}#app .institution-header,#app .platform-topbar{padding:14px 18px}#app .institution-content,#app .platform-workspace{padding:28px 18px}#app .institution-brand{gap:14px}#app .institution-brand img{width:54px;height:54px}#app .institution-brand span{padding-left:14px;font-size:.95rem}#app .wizard{margin:20px 14px;padding:26px 18px}#app .wizard h1{font-size:2rem}}
