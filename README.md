@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="docs/images/logo-schoolgether.png" alt="Logo do SchoolGether: alunos em frente a uma escola" width="300">
+  <img src="docs/images/logo-schoolgether-transparente.png" alt="Logo do SchoolGether: alunos em frente a uma escola" width="300">
 </p>
 
 <h1 align="center">SchoolGether</h1>
