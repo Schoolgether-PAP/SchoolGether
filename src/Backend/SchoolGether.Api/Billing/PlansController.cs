@@ -17,5 +17,5 @@ public sealed class PlansController(PlanCatalog catalog, IConfiguration configur
         catalog.Version,
         configuration.GetValue<bool>("Onboarding:Enabled"),
         catalog.GetPlans().Select(plan => new PlanResponse(
-            plan.Id, messages[plan.NameKey], plan.MonthlyPrice, plan.Currency, plan.AccountLimit)).ToArray()));
+            plan.Id, messages[plan.NameKey], plan.Price, plan.Currency, plan.AccountLimit, plan.BillingPeriod, plan.CapacityUnit)).ToArray()));
 }

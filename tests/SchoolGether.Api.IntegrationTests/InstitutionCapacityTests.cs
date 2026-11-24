@@ -32,6 +32,12 @@ public sealed class InstitutionCapacityTests
         using var denied = await client.PostAsJsonAsync(UsersRoute, User("excess@example.test"));
         await AssertCapacityError(denied);
         await AssertCounts(factory, institutionId, 2, 2);
+        using var snapshot = await client.GetAsync("/api/v1/institutions/current/subscription");
+        Assert.Equal(HttpStatusCode.OK, snapshot.StatusCode);
+        var plan = (await snapshot.Content.ReadFromJsonAsync<JsonElement>()).GetProperty("plan");
+        Assert.Equal(59m, plan.GetProperty("price").GetDecimal());
+        Assert.Equal("Monthly", plan.GetProperty("billingPeriod").GetString());
+        Assert.Equal("Accounts", plan.GetProperty("capacityUnit").GetString());
     }
 
     [Theory]
@@ -191,6 +197,10 @@ public sealed class InstitutionCapacityTests
         var subscription = await db.Subscriptions.SingleAsync();
         // Small deterministic quota; the public server catalogue remains unchanged.
         db.Entry(subscription).Property(x => x.AccountLimit).CurrentValue = 2;
+        db.Entry(subscription).Property(x => x.CapacityUnit).CurrentValue = "Accounts";
+        db.Entry(subscription).Property(x => x.BillingPeriod).CurrentValue = "Monthly";
+        db.Entry(subscription).Property(x => x.Price).CurrentValue = 59m;
+        db.Entry(subscription).Property(x => x.UsedAccounts).CurrentValue = 1;
         await db.SaveChangesAsync();
         await AssertCounts(factory, institutionId, 1, 1);
         return institutionId;
@@ -222,7 +232,7 @@ public sealed class InstitutionCapacityTests
         Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
         Assert.Equal("application/problem+json", response.Content.Headers.ContentType?.MediaType);
         var problem = await response.Content.ReadFromJsonAsync<JsonElement>();
-        Assert.Contains("limite de contas", problem.GetProperty("title").GetString());
+        Assert.Contains("limite de lugares", problem.GetProperty("title").GetString());
     }
 
     private sealed class Owner(int userId, int institutionId) : ICurrentAccount

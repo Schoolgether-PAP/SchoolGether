@@ -9,7 +9,7 @@ namespace SchoolGether.Infrastructure.Billing;
 internal sealed class InstitutionAccountCapacity(SchoolGetherDbContext db, ICurrentAccount current, TimeProvider clock)
     : IInstitutionAccountCapacity
 {
-    public async Task ReserveAsync(int institutionId, CancellationToken cancellationToken)
+    public async Task ReserveAsync(int institutionId, AccountRole role, CancellationToken cancellationToken)
     {
         // ExecuteUpdate bypasses SaveChanges and query filters cannot select a global
         // administrator's target. Authorize this narrow write before bypassing them.
@@ -21,7 +21,8 @@ internal sealed class InstitutionAccountCapacity(SchoolGetherDbContext db, ICurr
             throw new InvalidOperationException("AccountTransactionRequired");
 
         var subscription = db.Subscriptions.IgnoreQueryFilters()
-            .Where(x => x.InstitutionId == institutionId && x.DeletedAt == null);
+            .Where(x => x.InstitutionId == institutionId && x.DeletedAt == null &&
+                (x.CapacityUnit == "Accounts" || role == AccountRole.Teacher));
         var now = clock.GetUtcNow().UtcDateTime;
         var reserved = await subscription.Where(x => x.UsedAccounts < x.AccountLimit)
             .ExecuteUpdateAsync(setters => setters

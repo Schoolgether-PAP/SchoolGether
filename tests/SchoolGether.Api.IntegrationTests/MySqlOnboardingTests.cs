@@ -34,7 +34,7 @@ public sealed class MySqlOnboardingTests
             var profile = await db.InstitutionProfiles.IgnoreQueryFilters().SingleAsync();
             Assert.Equal(member.InstitutionId, subscription.InstitutionId);
             Assert.Equal(member.InstitutionId, profile.InstitutionId);
-            Assert.Equal(1, subscription.UsedAccounts);
+            Assert.Equal(0, subscription.UsedAccounts);
             Assert.Equal(owner.Id, subscription.CreatedBy);
             Assert.Equal(owner.Id, profile.CreatedBy);
             Assert.Equal(owner.Id, owner.CreatedBy);

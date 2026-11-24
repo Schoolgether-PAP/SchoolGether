@@ -1,6 +1,8 @@
 # Leitura offline e direitos sobre materiais
 
-Data: 2026-10-14. Requisito recebido; funcionalidade por desenvolver na etapa de offline. Este registo não é uma especificação completa nem aprova uma implementação de DRM.
+Atualização 2026-11-09: o catálogo de livros da SaguiLearn foi retirado; materiais apenas enviados pelos professores. As regras técnicas de offline continuam por definir.
+
+Registo histórico de 2026-10-14. Requisito recebido; funcionalidade por desenvolver na etapa de offline. Este registo não é uma especificação completa nem aprova uma implementação de DRM.
 
 ## Intenção confirmada pelo utilizador
 
@@ -8,7 +10,7 @@ Alguns materiais têm restrições de direitos e de comercialização. O aluno d
 
 ### Origem e escolha de proteção — decisão confirmada
 
-- Todos os materiais disponibilizados pela SaguiLearn/SchoolGether são protegidos. Professores e alunos não podem desativar essa proteção.
+- A antiga regra para materiais fornecidos pela SaguiLearn deixou de ter aplicação no âmbito atual, pois esse catálogo foi removido da proposta.
 - Nos materiais disponibilizados pelo professor, ele escolhe se o material é protegido ou não protegido.
 - Protegido: consulta dentro da plataforma e, quando houver autorização offline, cópia protegida dentro da app, sem exportação livre.
 - Não protegido: permite disponibilizar download normal ao aluno autorizado. Isto não torna o material público, não dispensa os acessos da instituição nem concede autorização automática para comercialização.

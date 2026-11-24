@@ -17,14 +17,14 @@ else if (Session.Account?.Role == "InstitutionAdmin")
 }
 else if (Session.Account?.Role == "Teacher" && showSupport)
 {
-    <div class="teacher-support-shell"><header><img src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" /><button type="button" @onclick="BackToProfile">@T("SupportProfile")</button><button type="button" disabled="@busy" @onclick="SignOutAsync">@T("SignOut")</button></header><main><SchoolGether.Web.Support.SupportWorkspace @key="Session.Account.Id" /></main></div>
+    <div class="teacher-support-shell"><header><img src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" /><button type="button" @onclick="BackToProfile">@T("SupportProfile")</button><button type="button" disabled="@busy" @onclick="SignOutAsync">@T("SignOut")</button></header><main><SchoolGether.Web.Support.SupportWorkspace @key="Session.Account.Id" /></main></div>
 }
 else
 {
 <div class="identity-layout">
     <section class="brand-panel" aria-label="@T("Brand")">
         <div>
-            <img class="brand-logo" src="images/schoolgether-logo.jpeg" alt="@T("LogoAlternative")" />
+            <img class="brand-logo" src="images/schoolgether-restored.png" alt="@T("LogoAlternative")" />
             <h2>@T("Brand")</h2>
             <p>@T("BrandTagline")</p>
         </div>
