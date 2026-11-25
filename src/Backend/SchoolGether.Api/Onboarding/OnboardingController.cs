@@ -20,7 +20,7 @@ public sealed class OnboardingController(OnboardingService service) : Controller
         if (authentication.Failure is not null) return Unauthorized();
         var created = await service.RegisterAsync(new RegisterInstitution(request.PlanId, request.CatalogVersion,
             request.OwnerName, request.Email, request.Password, request.InstitutionName, request.InstitutionType,
-            request.Locality, request.AcceptDemonstration), cancellationToken);
+            request.Locality, request.AcceptDemonstration, request.AcademicYear), cancellationToken);
         return StatusCode(StatusCodes.Status201Created, new RegistrationResponse(created.InstitutionId, created.OwnerId, created.Email));
     }
 }

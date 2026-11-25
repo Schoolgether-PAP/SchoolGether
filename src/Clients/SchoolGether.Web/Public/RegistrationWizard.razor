@@ -27,7 +27,6 @@
             @for (var index = 0; index < 4; index++) { <li aria-current="@(step == index ? "step" : null)" class="@(step == index ? "current" : "")">@(index + 1). @T("JoinStep" + index)</li> }
         </ol>
         <h1 id="join-title" tabindex="-1" @ref="heading">@T("JoinTitle" + step)</h1>
-        <p class="small">@T("ExampleDataNotice")</p>
         @if (catalog is null)
         {
             <p role="status">@T(catalogFailed ? "CatalogUnavailable" : "CatalogLoading")</p>
@@ -62,12 +61,14 @@
                     <div class="fields">
                         <div><label for="join-institution">@T("InstitutionName")</label><input id="join-institution" maxlength="200" @bind="institutionName" @bind:event="oninput" aria-invalid="@Invalid("institution")" aria-describedby="join-error" @ref="institutionInput" /></div>
                         <div><label for="join-type">@T("InstitutionType")</label><select id="join-type" @bind="institutionType" aria-invalid="@Invalid("type")" aria-describedby="join-error" @ref="typeInput"><option value="">@T("ChooseTypePrompt")</option>@foreach (var type in Types) { <option value="@type">@T("InstitutionType_" + type)</option> }</select></div>
+                        <div><label for="join-year">@T("AcademicYear")</label><input id="join-year" maxlength="9" @bind="academicYear" @bind:event="oninput" aria-invalid="@Invalid("year")" aria-describedby="join-error join-year-help" @ref="yearInput" /><p class="small" id="join-year-help">@T("InstitutionYearHelp")</p></div>
                         <div><label for="join-locality">@T("LocalityOptional")</label><input id="join-locality" maxlength="100" @bind="locality" @bind:event="oninput" aria-invalid="@Invalid("locality")" aria-describedby="join-error" @ref="localityInput" /></div>
                     </div>
                 }
                 else if (Selected is { } plan)
                 {
-                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd></dl>
+                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd><dt>@T("AcademicYear")</dt><dd>@academicYear</dd></dl>
+                    <aside class="billing-summary" aria-labelledby="billing-summary-title"><h2 id="billing-summary-title">@T("SignupBillingSummary")</h2><dl><dt>@T("SignupPlanAmount")</dt><dd>@PublicLanding.Price(plan) @PublicLanding.Period(plan)</dd><dt>@T("SignupAmountDue")</dt><dd>@T("SignupNoAmountDue")</dd></dl><p>@T("SignupBillingHelp")</p></aside>
                     <p class="notice">@T("CreationNotice")</p>
                     <label class="consent"><input id="join-consent" type="checkbox" @bind="accepted" aria-invalid="@Invalid("consent")" aria-describedby="join-error" @ref="consentInput" /><span>@T("DemonstrationConsent")</span></label>
                 }
@@ -84,11 +85,11 @@
     private static readonly string[] Types = ["School", "Faculty", "Polytechnic", "TrainingCenter", "Other"];
     private PlanCatalogResponse? catalog;
     private PlanResponse? Selected => catalog?.Plans.FirstOrDefault(plan => plan.Id == planId);
-    private string planId = "", ownerName = "", email = "", password = "", confirmation = "", institutionName = "", institutionType = "", locality = "";
+    private string planId = "", ownerName = "", email = "", password = "", confirmation = "", institutionName = "", institutionType = "", locality = "", academicYear = "";
     private string? message, invalidField;
     private int step;
     private bool busy, accepted, finished, ownLogin, catalogFailed, offerLogin, disposed, focusHeading;
-    private ElementReference heading, planInput, ownerInput, emailInput, passwordInput, confirmationInput, institutionInput, typeInput, localityInput, consentInput;
+    private ElementReference heading, planInput, ownerInput, emailInput, passwordInput, confirmationInput, institutionInput, typeInput, localityInput, yearInput, consentInput;
     private static string T(string key) => UiMessages.Get(key);
     private string Invalid(string field) => invalidField == field ? "true" : "false";
     protected override async Task OnInitializedAsync() { planId = InitialPlanId ?? ""; Session.Changed += SessionChanged; await LoadCatalogAsync(); }
@@ -126,6 +127,7 @@
             institutionName = institutionName.Trim(); locality = locality.Trim();
             if (institutionName.Length is < 1 or > 200) { await ErrorAsync("institution", "InstitutionRequired", institutionInput); return; }
             if (!Types.Contains(institutionType)) { await ErrorAsync("type", "ChooseTypePrompt", typeInput); return; }
+            if (!System.Text.RegularExpressions.Regex.IsMatch(academicYear, @"^[0-9]{4}/[0-9]{4}$") || !int.TryParse(academicYear[..4], out var start) || start is < 1900 or > 2199 || int.Parse(academicYear[5..]) != start + 1) { await ErrorAsync("year", "InstitutionYearInvalid", yearInput); return; }
             if (locality.Length > 100) { await ErrorAsync("locality", "LocalityTooLong", localityInput); return; }
         }
         if (step < 3) { step++; focusHeading = true; return; }
@@ -133,7 +135,7 @@
         busy = true;
         try
         {
-            var created = await Onboarding.RegisterAsync(new(planId, catalog.Version, ownerName, email, password, institutionName, institutionType, locality.Length == 0 ? null : locality, true), lifetime.Token);
+            var created = await Onboarding.RegisterAsync(new(planId, catalog.Version, ownerName, email, password, institutionName, institutionType, locality.Length == 0 ? null : locality, true, academicYear), lifetime.Token);
             if (disposed || lifetime.IsCancellationRequested || Session.Account is not null) return;
             ownLogin = true;
             try

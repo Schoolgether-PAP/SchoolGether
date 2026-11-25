@@ -560,17 +560,17 @@
   <data name="InstitutionType_TrainingCenter" xml:space="preserve"><value>Centro de formação</value></data>
   <data name="InstitutionType_Other" xml:space="preserve"><value>Outro</value></data>
   <data name="LocalityOptional" xml:space="preserve"><value>Localidade (opcional)</value></data>
-  <data name="CreationNotice" xml:space="preserve"><value>Serão criadas uma conta e uma instituição neste ambiente de demonstração. Não existe cobrança. Não é solicitado cartão e esta ação não constitui uma entidade jurídica.</value></data>
-  <data name="DemonstrationConsent" xml:space="preserve"><value>Compreendo e aceito que a adesão e o plano são de demonstração, sem pagamento real.</value></data>
+  <data name="CreationNotice" xml:space="preserve"><value>Serão criadas a conta de administração e a instituição com a configuração indicada. Esta confirmação não efetua qualquer cobrança real nem inicia uma renovação automática. Não é solicitado cartão.</value></data>
+  <data name="DemonstrationConsent" xml:space="preserve"><value>Confirmo os dados da instituição e compreendo que esta adesão não efetua qualquer cobrança real.</value></data>
   <data name="Back" xml:space="preserve"><value>Voltar</value></data>
   <data name="Continue" xml:space="preserve"><value>Continuar</value></data>
   <data name="Registering" xml:space="preserve"><value>A criar e a entrar…</value></data>
-  <data name="ConfirmRegistration" xml:space="preserve"><value>Confirmar adesão simulada</value></data>
+  <data name="ConfirmRegistration" xml:space="preserve"><value>Confirmar adesão</value></data>
   <data name="OwnerRequired" xml:space="preserve"><value>Preenche o nome do responsável, até 150 caracteres.</value></data>
   <data name="PasswordMismatch" xml:space="preserve"><value>Confirma a mesma palavra-passe.</value></data>
   <data name="InstitutionRequired" xml:space="preserve"><value>Preenche o nome da instituição, até 200 caracteres.</value></data>
   <data name="LocalityTooLong" xml:space="preserve"><value>A localidade pode ter até 100 caracteres.</value></data>
-  <data name="ConsentRequired" xml:space="preserve"><value>Confirma que compreendes as condições da demonstração.</value></data>
+  <data name="ConsentRequired" xml:space="preserve"><value>Confirma os dados e as condições da adesão.</value></data>
   <data name="CreatedLoginRequired" xml:space="preserve"><value>Conta criada; entra para continuar. Não voltes a enviar a adesão.</value></data>
   <data name="CatalogChanged" xml:space="preserve"><value>Os planos foram atualizados. Revê o novo resumo e confirma novamente.</value></data>
   <data name="RegistrationConflict" xml:space="preserve"><value>Não foi possível concluir a adesão com este e-mail. Experimenta Entrar.</value></data>
@@ -906,4 +906,9 @@
 <data name="MemberWorkspaceHelp" xml:space="preserve"><value>Consulta os dados da tua conta e os serviços disponíveis.</value></data>
 <data name="AccountWorkspace" xml:space="preserve"><value>Área da conta</value></data>
 <data name="ClearAreaSearch" xml:space="preserve"><value>Limpar pesquisa</value></data>
+  <data name="SignupBillingSummary" xml:space="preserve"><value>Resumo do plano</value></data>
+  <data name="SignupPlanAmount" xml:space="preserve"><value>Valor de referência</value></data>
+  <data name="SignupAmountDue" xml:space="preserve"><value>A pagar nesta adesão</value></data>
+  <data name="SignupNoAmountDue" xml:space="preserve"><value>0 €</value></data>
+  <data name="SignupBillingHelp" xml:space="preserve"><value>Resumo de pagamento simulado, sem recolha de dados bancários ou de cartão.</value></data>
 </root>
