@@ -1,0 +1,19 @@
+.teaching-materials { max-width: 70rem; font-family: inherit; font-size: 1rem; }
+.teaching-materials h1 { margin-bottom: 1.25rem; }
+.plans-toolbar { display: flex; flex-wrap: wrap; align-items: end; gap: .75rem; margin-block: 1rem; }
+.teaching-materials label { display: grid; gap: .35rem; font-weight: 600; }
+.teaching-materials button, .teaching-materials input, .teaching-materials select, .teaching-materials textarea { font: inherit; }
+.teaching-materials button, .teaching-materials input, .teaching-materials select { min-height: 44px; }
+.teaching-materials button { padding: .55rem .85rem; cursor: pointer; }
+.teaching-materials button:disabled { cursor: default; }
+.teaching-materials input, .teaching-materials select, .teaching-materials textarea { box-sizing: border-box; width: 100%; padding: .6rem; }
+.plan-list { list-style: none; padding: 0; margin: 1rem 0; border: 1px solid var(--border-color, #98a5b5); border-radius: .5rem; }
+.plan-list:empty { display: none; }
+.plan-list li { display: flex; flex-wrap: wrap; align-items: center; gap: .65rem; padding: .8rem 1rem; }
+.plan-list li + li { border-top: 1px solid var(--border-color, #98a5b5); }
+.teaching-materials form { display: grid; gap: 1rem; max-width: 48rem; margin-top: 1.25rem; padding: 1.25rem; border: 1px solid var(--border-color, #98a5b5); border-radius: .5rem; }
+.teaching-materials textarea { min-height: 7rem; resize: vertical; }
+.teaching-materials form button { justify-self: start; }
+@media (max-width: 40rem) { .teaching-materials form { padding: .9rem; } .plans-toolbar label { width: 100%; } .plan-list li { align-items: stretch; } }
+
+.plan-list p { flex-basis: 100%; white-space: pre-wrap; overflow-wrap: anywhere; }

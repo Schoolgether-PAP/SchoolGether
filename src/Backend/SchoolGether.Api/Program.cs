@@ -56,6 +56,8 @@ builder.Services.AddApiSupport();
 builder.Services.AddAcademicModule();
 builder.Services.AddCalendarModule();
 builder.Services.AddLearningPlans();
+builder.Services.AddLearningMaterials();
+builder.Services.AddExceptionHandler<SchoolGether.Api.Learning.LearningMaterialExceptionHandler>();
 builder.Services.AddExceptionHandler<CalendarExceptionHandler>();
 builder.Services.AddScoped<AcademicRefusalAudit>();
 builder.Services.AddExceptionHandler<AcademicExceptionHandler>();

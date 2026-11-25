@@ -22,6 +22,8 @@ namespace SchoolGether.Infrastructure.Persistence;
 public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext> options, ICurrentAccount? current = null)
     : IdentityUserContext<ApplicationUser, int>(options)
 {
+    internal LearningMaterialWriteScope? LearningMaterialScope { get; set; }
+    public DbSet<LearningMaterial> LearningMaterials => Set<LearningMaterial>();
     internal LessonPlanWriteScope? LessonPlanScope { get; set; }
     public DbSet<LessonPlan> LessonPlans => Set<LessonPlan>();
     internal CalendarWriteScope? CalendarScope { get; set; }
@@ -61,6 +63,7 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchoolGetherDbContext).Assembly);
         IdentityModel.Configure(modelBuilder);
+        modelBuilder.Entity<LearningMaterial>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && ((AccountRoleName == "Teacher" && x.TeacherId == AccountId) || (AccountRoleName == "Student" && x.IsPublished)));
         modelBuilder.Entity<LessonPlan>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "Teacher" && x.TeacherId == AccountId);
         modelBuilder.Entity<SchoolEvent>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && (AccountRoleName == "InstitutionAdmin" || ((AccountRoleName == "Teacher" || AccountRoleName == "Student") && (x.Status == "Published" || (AccountRoleName == "Teacher" && x.CreatedBy == AccountId)))));
         modelBuilder.Entity<AcademicAssignment>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
@@ -87,6 +90,14 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     {
         if (ChangeTracker.Entries<AuditEntry>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("AuditAppendOnly");
+        if (LearningMaterialScope is not null)
+        {
+            if (LessonPlanScope is not null || AssignmentScope is not null || EnrolmentScope is not null || CalendarScope is not null || ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("LearningMaterialWriteDenied");
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!LearningMaterialScope.Allows(change)) throw new InvalidOperationException("LearningMaterialWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries<LearningMaterial>().Any(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)) throw new InvalidOperationException("LearningMaterialWriteDenied");
         if (LessonPlanScope is not null)
         {
             if (AssignmentScope is not null || EnrolmentScope is not null || CalendarScope is not null || ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("LessonPlanWriteDenied");

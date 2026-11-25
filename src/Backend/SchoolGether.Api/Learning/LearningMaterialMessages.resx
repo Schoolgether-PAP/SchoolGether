@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader><resheader name="version"><value>2.0</value></resheader><resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader><resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="InvalidSession" xml:space="preserve"><value>A sessão já não é válida.</value></data><data name="Forbidden" xml:space="preserve"><value>Não tem permissão para realizar esta operação.</value></data><data name="NotFound" xml:space="preserve"><value>O material ou contexto já não está disponível.</value></data><data name="VersionConflict" xml:space="preserve"><value>O material foi alterado. Atualize e reveja os dados.</value></data><data name="StateConflict" xml:space="preserve"><value>O material já não permite esta operação.</value></data><data name="InvalidInput" xml:space="preserve"><value>Verifique o título, o texto e a ligação HTTPS.</value></data>
+</root>

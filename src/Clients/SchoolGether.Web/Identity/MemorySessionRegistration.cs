@@ -28,6 +28,7 @@ public static class MemorySessionRegistration
         services.AddScoped<SchoolGether.ApiClient.Academic.AcademicAssignmentApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Calendar.CalendarApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Learning.LessonPlansApiClient>();
+        services.AddScoped<SchoolGether.ApiClient.Learning.LearningMaterialsApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Learning.LearningContextsApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Platform.PlatformApiClient>();
         services.AddScoped<IRefreshTokenStore, MemoryRefreshTokenStore>();
