@@ -10,6 +10,7 @@
     <section class="member-content" aria-busy="@(Busy ? "true" : "false")">
         @if(section=="classes"){<SchoolGether.Web.Learning.ClassroomOverview @key="Account.Id" />}
         else if(section=="plans" && Account.Role=="Teacher"){<SchoolGether.Web.Learning.LessonPlans @key="Account.Id" />}
+        else if(section=="materials"){<SchoolGether.Web.Learning.TeachingMaterials @key="Account.Id" />}
         else if (section=="calendar") { <SchoolGether.Web.Calendar.SchoolCalendar @key="Account.Id" /> }
         else if (section=="support" && Account.Role == "Teacher") { <SchoolGether.Web.Support.SupportWorkspace @key="Account.Id" /> }
         else
@@ -33,6 +34,7 @@
         get {
             yield return ("classes","MemberClasses","Learning");
             if(Account.Role=="Teacher")yield return ("plans","LessonPlans","Courses");
+            yield return ("materials","TeachingMaterials","Courses");
             yield return ("calendar","Calendar","Calendar");
             if(Account.Role=="Teacher")yield return ("support","Support","Support");
             yield return ("profile","ProfileTitle","Profile");

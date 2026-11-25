@@ -16,7 +16,7 @@ internal sealed class LearningMaterialConfiguration : IEntityTypeConfiguration<L
 {
     public void Configure(EntityTypeBuilder<LearningMaterial> b)
     {
-        b.ToTable("learning_material"); b.HasKey(x => x.Id); b.Property(x => x.Title).HasMaxLength(200); b.Property(x => x.AcademicYear).HasMaxLength(9); b.Property(x => x.Content).HasMaxLength(8000).HasColumnType("text"); b.Property(x => x.Url).HasMaxLength(2048); b.Property(x => x.CreateHash).HasMaxLength(64); b.Property(x => x.RowVersion).IsConcurrencyToken(); b.HasIndex(x => new { x.InstitutionId, x.TeacherId, x.ClientId }).IsUnique(); b.HasIndex(x => new { x.InstitutionId, x.AcademicYear, x.CourseId, x.ClassId, x.UnitId }); b.HasOne<Institution>().WithMany().HasForeignKey(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
+        b.ToTable("learning_material"); b.HasKey(x => x.Id); b.Property(x => x.Title).HasMaxLength(200); b.Property(x => x.AcademicYear).HasMaxLength(9); b.Property(x => x.Content).HasMaxLength(8000).HasColumnType("text"); b.Property(x => x.Url).HasMaxLength(2048); b.Property(x => x.CreateHash).HasMaxLength(64); b.Property(x => x.RowVersion).IsConcurrencyToken(); b.HasIndex(x => new { x.InstitutionId, x.TeacherId, x.ClientId }).IsUnique(); b.HasIndex(x => new { x.InstitutionId, x.AcademicYear, x.CourseId, x.ClassId, x.UnitId }).HasDatabaseName("IX_learning_material_context"); b.HasOne<Institution>().WithMany().HasForeignKey(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
         foreach (var p in b.Metadata.GetProperties()) p.SetColumnName(string.Concat(p.Name.Select((ch, i) => char.IsUpper(ch) && i > 0 ? "_" + char.ToLowerInvariant(ch) : char.ToLowerInvariant(ch).ToString())));
     }
 }

@@ -1013,4 +1013,5 @@
 <data name="AssignmentUnitId" xml:space="preserve"><value>Disciplina #{0}</value></data>
   <data name="MemberClasses" xml:space="preserve"><value>As minhas turmas</value></data>
   <data name="LessonPlans" xml:space="preserve"><value>Planificações</value></data>
+  <data name="TeachingMaterials" xml:space="preserve"><value>Materiais</value></data>
 </root>
