@@ -89,8 +89,21 @@ $$('[data-material]').forEach(button => button.addEventListener('click', () => {
 
 const planIds = { essencial: 'essential', profissional: 'evolution', institucional: 'campus' };
 $$('[data-plan]').forEach(button => button.addEventListener('click', () => { const destination = new URL('app/', document.baseURI); destination.searchParams.set('view', 'aderir'); destination.searchParams.set('plan', planIds[button.dataset.plan]); location.assign(destination); }));
-$('#contact-form')?.addEventListener('submit', event => { event.preventDefault(); $('#contact-status').textContent = 'Mensagem validada na pré-visualização. Nada foi enviado. Para contactar a equipa, utilize o endereço de e-mail acima.'; });
+
 const privacyDialog = $('#privacy-dialog');
 $('#privacy-open').addEventListener('click', () => privacyDialog.showModal());
 $('#privacy-close').addEventListener('click', () => privacyDialog.close());
 privacyDialog.addEventListener('click', event => { if (event.target === privacyDialog) { const box = privacyDialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) privacyDialog.close(); } });
+
+const form = document.querySelector('#contact-form');
+form?.addEventListener('submit', event => {
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  const data = new FormData(form);
+  const subject = 'Contacto SchoolGether — ' + String(data.get('school') || '').trim();
+  const body = ['Nome: ' + data.get('name'), 'E-mail: ' + data.get('email'), 'Instituição: ' + data.get('school'), '', String(data.get('message') || '')].join('\r\n');
+  const link = document.createElement('a');
+  link.href = 'mailto:saguilearn@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  link.click();
+  document.querySelector('#contact-status').textContent = 'Mensagem preparada no seu programa de correio. Confirme aí o envio; se não abrir, escreva para saguilearn@gmail.com.';
+});

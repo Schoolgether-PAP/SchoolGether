@@ -25,7 +25,7 @@ internal sealed class AcademicClassConfiguration : IEntityTypeConfiguration<Acad
 {
     public void Configure(EntityTypeBuilder<AcademicClass> b)
     {
-        b.ToTable("academic_class"); b.HasKey(x => x.Id); b.HasAlternateKey(x => new { x.InstitutionId, x.CourseId, x.Id });
+        b.ToTable("academic_class"); b.HasKey(x => x.Id); b.HasAlternateKey(x => new { x.InstitutionId, x.CourseId, x.StudyYear, x.AcademicYear, x.Id }); b.HasAlternateKey(x => new { x.InstitutionId, x.CourseId, x.Id });
         b.Property(x => x.Code).HasMaxLength(30); b.Property(x => x.Name).HasMaxLength(200); b.Property(x => x.AcademicYear).HasMaxLength(9); b.Property(x => x.CreationFingerprint).HasMaxLength(64);
         b.Property(x => x.RowVersion).IsConcurrencyToken();
         b.HasIndex(x => new { x.InstitutionId, x.CourseId, x.StudyYear, x.AcademicYear, x.Code }).IsUnique();
@@ -167,6 +167,7 @@ internal sealed class ClassUnitOfWork(SchoolGetherDbContext db) : IClassUnitOfWo
 {
     public async Task<T> ExecuteAsync<T>(AuthorizedClassScope scope, Func<CancellationToken, Task<T>> operation, CancellationToken ct)
     {
+        if (db.EnrolmentScope is not null) throw new InvalidOperationException("EnrolmentWriteDenied");
         if (db.ClassScope is not null || db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null) throw new InvalidOperationException("ClassWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(ct); db.ClassScope = new(db, scope);
         try { var result = await operation(ct); await db.SaveChangesAsync(ct); await transaction.CommitAsync(ct); return result; }

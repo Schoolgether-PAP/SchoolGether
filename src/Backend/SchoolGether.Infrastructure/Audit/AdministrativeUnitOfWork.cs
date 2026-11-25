@@ -10,6 +10,7 @@ internal sealed class AdministrativeUnitOfWork(SchoolGetherDbContext db) : IAdmi
 {
     public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken)
     {
+        if (db.EnrolmentScope is not null) throw new InvalidOperationException("EnrolmentWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);
         try
         {

@@ -1,0 +1,115 @@
+@using SchoolGether.ApiClient.Calendar
+@using SchoolGether.ApiClient.Identity
+@using SchoolGether.Contracts.Calendar
+@using System.Globalization
+@using System.Net
+@inject CalendarApiClient Api
+@inject IdentitySession Session
+@implements IDisposable
+
+<section class="school-calendar" aria-labelledby="calendar-title">
+ <h1 id="calendar-title">@T("Title")</h1>
+ @if (!Allowed) { <p>@T("Denied")</p> }
+ else
+ {
+ <div class="calendar-toolbar">
+  <button type="button" disabled="@busy" @onclick="()=>Move(-1)">@T("Previous")</button>
+  <strong>@anchor.ToString("MMMM yyyy", CultureInfo.GetCultureInfo("pt-PT"))</strong>
+  <button type="button" disabled="@busy" @onclick="()=>Move(1)">@T("Next")</button>
+  <select aria-label="@T("View")" disabled="@busy" value="@(week ? "week" : "month")" @onchange="ChangeView"><option value="month">@T("Month")</option><option value="week">@T("Week")</option></select>
+  @if (Role != "Student") { <select aria-label="@T("Pending")" disabled="@busy" @bind="status" @bind:after="ResetLoad">@foreach(var state in new[]{"Published","Pending","Rejected","Cancelled"}){<option value="@state">@T(state)</option>}</select> }
+  <button type="button" disabled="@busy" @onclick="Reload">@T("Refresh")</button>
+  @if(Role != "Student"){<button type="button" disabled="@(busy || pendingCreate is not null)" @onclick="New">@T("New")</button>}
+ </div>
+ <p>@RangeStart.ToString("dd/MM/yyyy") – @RangeEnd.AddDays(-1).ToString("dd/MM/yyyy")</p>
+ @if(error is not null){<p role="alert">@error</p>}
+ @if(notice is not null){<p role="status">@notice</p>}
+ @if(busy){<p role="status">@T("Loading")</p>}
+ else if(rows.Count==0){<p>@T("Empty")</p>}
+ <ul class="calendar-agenda">
+ @foreach(var e in rows)
+ {
+  <li @key="e.Id"><article><h3>@e.Title</h3><p><time datetime="@e.Start.ToString("O")">@Local(e.Start).ToString("dd/MM HH:mm")</time> – <time datetime="@e.End.ToString("O")">@Local(e.End).ToString("dd/MM HH:mm")</time> · @T(e.Status)</p><p>@e.Location</p><p class="calendar-details">@e.Details</p>
+  @if(CanEdit(e)){<button type="button" disabled="@busy" @onclick="()=>Edit(e)">@T("Edit")</button><button type="button" disabled="@busy" @onclick='()=>Change(e,"cancel")'>@T("CancelEvent")</button>}
+  @if(Role=="InstitutionAdmin" && e.Status=="Pending"){<button type="button" disabled="@busy" @onclick='()=>Change(e,"approve")'>@T("Approve")</button><button type="button" disabled="@busy" @onclick='()=>Change(e,"reject")'>@T("Reject")</button>}
+  </article></li>
+ }
+ </ul>
+ <div class="calendar-toolbar"><button type="button" disabled="@(busy||page==1)" @onclick="PreviousPage">@T("Back")</button><span>@T("Page") @(page)</span><button type="button" disabled="@(busy||page*30>=total)" @onclick="NextPage">@T("More")</button></div>
+ @if(editing && Role!="Student")
+ {
+ <form @onsubmit="Save" @onsubmit:preventDefault>
+  <label>@T("EventTitle")<input required maxlength="200" @bind="title" @bind:event="oninput" disabled="@(busy || pendingCreate is not null)" /></label>
+  <label>@T("Details")<textarea maxlength="4000" @bind="details" @bind:event="oninput" disabled="@(busy || pendingCreate is not null)"></textarea></label>
+  <label>@T("Location")<input maxlength="200" @bind="location" @bind:event="oninput" disabled="@(busy || pendingCreate is not null)" /></label>
+  <label>@T("Start")<input type="datetime-local" required @bind="start" disabled="@(busy || pendingCreate is not null)" /></label>
+  <label>@T("End")<input type="datetime-local" required @bind="end" disabled="@(busy || pendingCreate is not null)" /></label>
+  <p>@T("Zone")</p>
+  @if(pendingCreate is not null && !busy){<p role="status">@T("PendingConfirmation")</p>}
+  <button type="submit" disabled="@(busy||conflict)">@T(selected is not null?"Save":Role=="Teacher"?"Propose":"Publish")</button>
+  <button type="button" disabled="@(busy || pendingCreate is not null)" @onclick="()=>editing=false">@T("CancelEdit")</button>
+ </form>
+ }
+ }
+</section>
+
+@code {
+ CancellationTokenSource lifetime=new();
+ static readonly TimeZoneInfo Lisbon=TimeZoneInfo.FindSystemTimeZoneById("Europe/Lisbon");
+ string identity="";
+ long generation, lifecycle; bool busy,week,editing,conflict; string? error,notice; int page=1,total;
+ Guid draftId=Guid.NewGuid();
+ readonly CalendarCreateRecovery createRecovery=new();
+ CreateEventRequest? pendingCreate=>createRecovery.Pending;
+ DateTime anchor=DateTime.Today,start,end; string status="Published",title="",details="",location="";
+ EventResponse? selected; IReadOnlyList<EventResponse> rows=Array.Empty<EventResponse>();
+ string? Role=>Session.Account?.Role; bool Allowed=>Role is "Teacher" or "Student" or "InstitutionAdmin";
+ string Identity=>$"{Session.Account?.Id}:{Session.Account?.InstitutionId}:{Role}";
+ bool Active=>!lifetime.IsCancellationRequested&&generation==Session.Generation&&identity==Identity&&Allowed;
+ DateTime RangeStart=>week?anchor.Date.AddDays(-(((int)anchor.DayOfWeek+6)%7)):new(anchor.Year,anchor.Month,1);
+ DateTime RangeEnd=>week?RangeStart.AddDays(7):RangeStart.AddMonths(1);
+ static string T(string key)=>CalendarMessages.Get(key);
+ static DateTime Local(DateTimeOffset value)=>TimeZoneInfo.ConvertTime(value,Lisbon).DateTime;
+ static DateTimeOffset Utc(DateTime value){var local=DateTime.SpecifyKind(value,DateTimeKind.Unspecified);if(Lisbon.IsInvalidTime(local)||Lisbon.IsAmbiguousTime(local))throw new ArgumentException();return new(TimeZoneInfo.ConvertTimeToUtc(local,Lisbon));}
+ bool CanEdit(EventResponse e)=>e.Status is "Pending" or "Published"&&(Role=="InstitutionAdmin"||Role=="Teacher"&&e.Status=="Pending"&&e.CreatedBy==Session.Account?.Id);
+ protected override async Task OnInitializedAsync(){generation=Session.Generation;identity=Identity;Session.Changed+=SessionChanged;if(Allowed)await Reload();}
+ void SessionChanged()
+ {
+  if(generation==Session.Generation&&identity==Identity)return;
+  lifecycle++; lifetime.Cancel(); lifetime.Dispose(); lifetime=new();
+  generation=Session.Generation;identity=Identity;
+  rows=Array.Empty<EventResponse>();selected=null;createRecovery.Confirm();editing=false;error=null;notice=null;busy=false;total=0;page=1;status="Published";
+  _ = InvokeAsync(async()=>{if(Allowed)await Reload();StateHasChanged();});
+ }
+ bool Current(long cycle)=>Active&&cycle==lifecycle;
+ async Task<bool> Reload()
+ {
+  if(!Active)return false;var cycle=lifecycle;var token=lifetime.Token;
+  busy=true;error=null;notice=null;rows=Array.Empty<EventResponse>();total=0;
+  try{var result=await Api.ListAsync(Utc(RangeStart),Utc(RangeEnd),status,page,token);if(!Current(cycle))return false;rows=result.Items;total=result.Total;return true;}
+  catch(Exception ex){if(Current(cycle))Failure(ex);return false;}
+  finally{if(Current(cycle))busy=false;}
+ }
+ async Task ResetLoad(){page=1;await Reload();}
+ async Task ChangeView(ChangeEventArgs value){week=value.Value?.ToString()=="week";await ResetLoad();}
+ async Task Move(int delta){anchor=week?anchor.AddDays(delta*7):anchor.AddMonths(delta);await ResetLoad();}
+ async Task PreviousPage(){page--;await Reload();} async Task NextPage(){page++;await Reload();}
+ void New(){if(pendingCreate is not null)return;selected=null;draftId=Guid.NewGuid();title=details=location="";start=(DateTime.Today>=RangeStart&&DateTime.Today<RangeEnd?DateTime.Today:RangeStart).AddHours(9);end=start.AddHours(1);editing=true;conflict=false;}
+ void Edit(EventResponse e){if(pendingCreate is not null)return;selected=e;title=e.Title;details=e.Details??"";location=e.Location??"";start=Local(e.Start);end=Local(e.End);editing=true;conflict=false;}
+ void Failure(Exception ex){if(!Active)return;conflict=selected is not null && pendingCreate is null && ex is IdentityApiException {StatusCode:HttpStatusCode.Conflict};error=T(conflict?"Conflict":"Error");}
+ async Task Save()
+ {
+  if(!Active||conflict||busy)return;var cycle=lifecycle;var token=lifetime.Token;busy=true;error=null;
+  try{var from=Utc(start);var to=Utc(end);if(selected is null){var request=createRecovery.Begin(new(title,details,location,from,to,draftId));await Api.CreateAsync(request,token);}else await Api.UpdateAsync(selected.Id,new(selected.RowVersion,title,details,location,from,to),token);if(Current(cycle)){createRecovery.Confirm();editing=false;if(await Reload()&&Current(cycle))notice=T("Saved");}}
+  catch(Exception ex){if(Current(cycle)){createRecovery.Fail(ex);Failure(ex);if(selected is null)conflict=false;}}
+  finally{if(Current(cycle))busy=false;}
+ }
+ async Task Change(EventResponse e,string operation)
+ {
+  if(!Active||busy)return;var cycle=lifecycle;var token=lifetime.Token;busy=true;error=null;
+  try{await Api.ChangeAsync(e.Id,e.RowVersion,operation,token);if(Current(cycle)&&await Reload()&&Current(cycle))notice=T("Saved");}
+  catch(Exception ex){if(Current(cycle))Failure(ex);}
+  finally{if(Current(cycle))busy=false;}
+ }
+ public void Dispose(){Session.Changed-=SessionChanged;lifetime.Cancel();lifetime.Dispose();}
+}

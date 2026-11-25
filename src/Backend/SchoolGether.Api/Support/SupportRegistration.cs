@@ -21,6 +21,12 @@ public static class SupportRegistration
             if (options.Enabled)
             {
                 var environment = sp.GetRequiredService<IWebHostEnvironment>();
+                if (options.UseApplicationDataStorage)
+                {
+                    if (!string.IsNullOrWhiteSpace(options.FilesRoot))
+                        throw new InvalidOperationException("Definir apenas Support:FilesRoot ou Support:UseApplicationDataStorage.");
+                    options.FilesRoot = Path.GetFullPath(Path.Combine(environment.ContentRootPath, "App_Data", "support"));
+                }
                 var publicRoot = Path.TrimEndingDirectorySeparator(Path.GetFullPath(environment.WebRootPath ?? Path.Combine(environment.ContentRootPath, "wwwroot")));
                 if (!Path.IsPathFullyQualified(options.FilesRoot) || options.InstitutionStorageLimitBytes <= 0 ||
                     Path.GetFullPath(options.FilesRoot).StartsWith(publicRoot + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase) ||

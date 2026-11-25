@@ -102,6 +102,7 @@ internal sealed class CourseUnitOfWork(SchoolGetherDbContext db) : ICourseUnitOf
 {
     public async Task<T> ExecuteAsync<T>(AuthorizedCourseUnitScope scope, Func<CancellationToken, Task<T>> operation, CancellationToken ct)
     {
+        if (db.EnrolmentScope is not null) throw new InvalidOperationException("EnrolmentWriteDenied");
         if (db.ClassScope is not null || db.CourseUnitScope is not null || db.AcademicScope is not null || db.SupportScope is not null || db.OnboardingScope is not null) throw new InvalidOperationException("CourseUnitWriteDenied");
         await using var transaction = await db.Database.BeginTransactionAsync(ct); db.CourseUnitScope = new(db, scope);
         try { var result = await operation(ct); await db.SaveChangesAsync(ct); await transaction.CommitAsync(ct); return result; }

@@ -45,6 +45,8 @@ public sealed class AcademicClass
         RequireVersion(version, now); if (!IsActive) throw new CourseRuleException("ClassArchived");
         var fields = Normalize(code, name); Code = fields.Code; Name = fields.Name; Advance(now);
     }
+    public void TouchEnrolments(long version, DateTime now, bool allowArchived = false)
+    { RequireVersion(version, now); if (!IsActive && !allowArchived) throw new CourseRuleException("ClassArchived"); Advance(now); }
     public void Archive(long version, DateTime now)
     { RequireVersion(version, now); if (!IsActive) throw new CourseRuleException("ClassArchived"); IsActive = false; DeletedAt = now; Advance(now); }
     public void Restore(long version, DateTime now)

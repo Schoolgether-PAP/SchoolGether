@@ -594,7 +594,7 @@
 <data name="InstitutionNoSubscription" xml:space="preserve"><value>Sem subscrição</value></data>
 <data name="InstitutionOccupancy" xml:space="preserve"><value>{0} de {1} contas</value></data>
 <data name="InstitutionLegacyOccupancy" xml:space="preserve"><value>{0} contas existentes</value></data>
-<data name="InstitutionDemonstration" xml:space="preserve"><value>Plano de demonstração: sem cobrança, fatura ou contrato real.</value></data>
+<data name="InstitutionDemonstration" xml:space="preserve"><value>Condições do plano associado à sua instituição.</value></data>
 <data name="InstitutionFuture" xml:space="preserve"><value>Cursos, turmas, disciplinas e outras funcionalidades académicas serão disponibilizados numa entrega futura.</value></data>
 <data name="InstitutionYearHelp" xml:space="preserve"><value>Formato AAAA/AAAA, por exemplo 2026/2027. É um rótulo de configuração; não cria cursos ou inscrições.</value></data>
 <data name="InstitutionSaveSetup" xml:space="preserve"><value>Guardar configuração</value></data>
@@ -911,4 +911,106 @@
   <data name="SignupAmountDue" xml:space="preserve"><value>A pagar nesta adesão</value></data>
   <data name="SignupNoAmountDue" xml:space="preserve"><value>0 €</value></data>
   <data name="SignupBillingHelp" xml:space="preserve"><value>Resumo de pagamento simulado, sem recolha de dados bancários ou de cartão.</value></data>
+  <data name="Calendar" xml:space="preserve"><value>Calendário</value></data>
+<data name="Enrolments" xml:space="preserve"><value>Inscrições</value></data>
+<data name="EnrolmentClassNamed" xml:space="preserve"><value>Inscrições de {0}</value></data>
+<data name="EnrolmentBack" xml:space="preserve"><value>Voltar às turmas</value></data>
+<data name="EnrolmentContext" xml:space="preserve"><value>{0}.º ano curricular · Ano letivo {1}</value></data>
+<data name="EnrolmentNew" xml:space="preserve"><value>Nova inscrição</value></data>
+<data name="EnrolmentCreate" xml:space="preserve"><value>Inscrever aluno</value></data>
+<data name="EnrolmentActive" xml:space="preserve"><value>Ativas</value></data>
+<data name="EnrolmentCancelled" xml:space="preserve"><value>Canceladas</value></data>
+<data name="EnrolmentActiveSingle" xml:space="preserve"><value>Inscrição ativa</value></data>
+<data name="EnrolmentCancelledSingle" xml:space="preserve"><value>Inscrição cancelada</value></data>
+<data name="EnrolmentSearch" xml:space="preserve"><value>Pesquisar por nome ou e-mail</value></data>
+<data name="EnrolmentEmpty" xml:space="preserve"><value>Nenhuma inscrição nesta lista. Altere a pesquisa ou o estado para consultar outras inscrições.</value></data>
+<data name="EnrolmentHistory" xml:space="preserve"><value>Histórico e ações</value></data>
+<data name="EnrolmentOpenNamed" xml:space="preserve"><value>Histórico e ações de {0}</value></data>
+<data name="EnrolmentStudentId" xml:space="preserve"><value>Aluno #{0}</value></data>
+<data name="EnrolmentStudent" xml:space="preserve"><value>Aluno</value></data>
+<data name="EnrolmentUnavailable" xml:space="preserve"><value>Aluno indisponível</value></data>
+<data name="EnrolmentUnavailableHelp" xml:space="preserve"><value>Este aluno está indisponível. Pode consultar o histórico e cancelar uma inscrição ativa. A reativação exige uma conta de aluno disponível.</value></data>
+<data name="EnrolmentCreated" xml:space="preserve"><value>Criada em {0}</value></data>
+<data name="EnrolmentCreatedLabel" xml:space="preserve"><value>Criação</value></data>
+<data name="EnrolmentUpdated" xml:space="preserve"><value>Última alteração</value></data>
+<data name="EnrolmentPage" xml:space="preserve"><value>Página {0} de {1} · {2} inscrições</value></data>
+<data name="EnrolmentStudentPage" xml:space="preserve"><value>Página {0} de {1} · {2} alunos elegíveis</value></data>
+<data name="EnrolmentChoose" xml:space="preserve"><value>Escolher um aluno</value></data>
+<data name="EnrolmentPickerHelp" xml:space="preserve"><value>Cada aluno pode ter uma turma ativa por curso e ano letivo. A lista exclui alunos já inscritos noutra turma desse curso e ano, e alunos com histórico nesta turma. Para estes últimos, reative a inscrição em Canceladas.</value></data>
+<data name="EnrolmentPickerEmpty" xml:space="preserve"><value>Nenhum aluno elegível nesta pesquisa. Consulte também as inscrições canceladas.</value></data>
+<data name="EnrolmentSelected" xml:space="preserve"><value>Aluno selecionado</value></data>
+<data name="EnrolmentArchivedHelp" xml:space="preserve"><value>O curso ou a turma está arquivado. Pode consultar o histórico e cancelar inscrições ativas. Novas inscrições e reativações exigem curso e turma ativos.</value></data>
+<data name="EnrolmentCancel" xml:space="preserve"><value>Cancelar inscrição</value></data>
+<data name="EnrolmentCancelHelp" xml:space="preserve"><value>Confirma o cancelamento da inscrição? O histórico será conservado e o lugar neste curso e ano letivo ficará livre.</value></data>
+<data name="EnrolmentConfirmCancel" xml:space="preserve"><value>Confirmar cancelamento</value></data>
+<data name="EnrolmentKeep" xml:space="preserve"><value>Manter inscrição</value></data>
+<data name="EnrolmentRestore" xml:space="preserve"><value>Reativar inscrição</value></data>
+<data name="EnrolmentRestoreHelp" xml:space="preserve"><value>A reativação volta a ocupar o lugar neste curso e ano letivo. A disponibilidade será verificada ao guardar.</value></data>
+<data name="EnrolmentConflict" xml:space="preserve"><value>Rever a inscrição</value></data>
+<data name="EnrolmentConflictHelp" xml:space="preserve"><value>A inscrição, o aluno ou a turma mudou, ou o aluno já ocupa uma vaga neste curso e ano. A seleção foi conservada. Reveja o estado atual antes de tentar novamente.</value></data>
+<data name="EnrolmentReviewHelp" xml:space="preserve"><value>A revisão conserva a seleção e não altera a inscrição. Depois de aceitar esta versão, confirme novamente a ação; o servidor verificará a disponibilidade atual.</value></data>
+<data name="EnrolmentParentsActive" xml:space="preserve"><value>Curso e turma ativos.</value></data>
+<data name="EnrolmentStudentAvailable" xml:space="preserve"><value>Aluno disponível</value></data>
+<data name="EnrolmentUncertainHelp" xml:space="preserve"><value>A criação pode ter sido concluída. O aluno e o pedido estão fixos até obter uma resposta. Repita a mesma inscrição para recuperar o resultado, mesmo que entretanto tenha sido cancelada.</value></data>
+<data name="EnrolmentRetryIdentical" xml:space="preserve"><value>Repetir a mesma inscrição</value></data>
+<data name="EnrolmentAbandon" xml:space="preserve"><value>Abandonar tentativa</value></data>
+<data name="EnrolmentAbandonedHelp" xml:space="preserve"><value>Tentativa abandonada. A inscrição anterior pode existir; consulte as listas antes de escolher outro aluno. Uma nova escolha usa um pedido novo.</value></data>
+<data name="EnrolmentSavedActive" xml:space="preserve"><value>Inscrição ativa confirmada.</value></data>
+<data name="EnrolmentSavedCancelled" xml:space="preserve"><value>O resultado é uma inscrição cancelada. Consulte o histórico para a reativar, se estiver disponível.</value></data>
+<data name="EnrolmentForbidden" xml:space="preserve"><value>Não tem permissão para gerir as inscrições desta instituição.</value></data>
+<data name="EnrolmentNotFound" xml:space="preserve"><value>A inscrição, o aluno ou a turma já não está disponível neste contexto.</value></data>
+<data name="EnrolmentInvalid" xml:space="preserve"><value>Verifique o aluno selecionado e os dados da inscrição.</value></data>
+<data name="Assignments" xml:space="preserve"><value>Atribuições</value></data>
+<data name="AssignmentClassNamed" xml:space="preserve"><value>Atribuições de {0}</value></data>
+<data name="AssignmentBack" xml:space="preserve"><value>Voltar às turmas</value></data>
+<data name="AssignmentContext" xml:space="preserve"><value>{0}.º ano curricular · Ano letivo {1}</value></data>
+<data name="AssignmentNew" xml:space="preserve"><value>Atribuir professor</value></data>
+<data name="AssignmentCreate" xml:space="preserve"><value>Confirmar atribuição</value></data>
+<data name="AssignmentActive" xml:space="preserve"><value>Ativas</value></data>
+<data name="AssignmentCancelled" xml:space="preserve"><value>Canceladas</value></data>
+<data name="AssignmentActiveSingle" xml:space="preserve"><value>Atribuição ativa</value></data>
+<data name="AssignmentCancelledSingle" xml:space="preserve"><value>Atribuição cancelada</value></data>
+<data name="AssignmentSearch" xml:space="preserve"><value>Pesquisar por nome ou e-mail</value></data>
+<data name="AssignmentEmpty" xml:space="preserve"><value>Nenhuma atribuição nesta lista. Altere a pesquisa ou o estado para consultar outras atribuições.</value></data>
+<data name="AssignmentHistory" xml:space="preserve"><value>Histórico e ações</value></data>
+<data name="AssignmentOpenNamed" xml:space="preserve"><value>Histórico e ações de {0}</value></data>
+<data name="AssignmentTeacherId" xml:space="preserve"><value>Professor #{0}</value></data>
+<data name="AssignmentTeacher" xml:space="preserve"><value>Professor</value></data>
+<data name="AssignmentUnavailable" xml:space="preserve"><value>Professor indisponível</value></data>
+<data name="AssignmentUnavailableHelp" xml:space="preserve"><value>Este professor está indisponível. Pode consultar o histórico e cancelar uma atribuição ativa. A reativação exige uma conta de professor disponível.</value></data>
+<data name="AssignmentCreated" xml:space="preserve"><value>Criada em {0}</value></data>
+<data name="AssignmentCreatedLabel" xml:space="preserve"><value>Criação</value></data>
+<data name="AssignmentUpdated" xml:space="preserve"><value>Última alteração</value></data>
+<data name="AssignmentPage" xml:space="preserve"><value>Página {0} de {1} · {2} atribuições</value></data>
+<data name="AssignmentTeacherPage" xml:space="preserve"><value>Página {0} de {1} · {2} professores elegíveis</value></data>
+<data name="AssignmentChoose" xml:space="preserve"><value>Escolher um professor</value></data>
+<data name="AssignmentPickerHelp" xml:space="preserve"><value>Escolha um professor ativo desta instituição. A disciplina deve pertencer à turma.</value></data>
+<data name="AssignmentPickerEmpty" xml:space="preserve"><value>Nenhum professor elegível nesta pesquisa. Consulte também as atribuições canceladas.</value></data>
+<data name="AssignmentSelected" xml:space="preserve"><value>Professor selecionado</value></data>
+<data name="AssignmentArchivedHelp" xml:space="preserve"><value>O curso ou a turma está arquivado. Pode consultar o histórico e cancelar atribuições ativas. Novas atribuições e reativações exigem curso e turma ativos.</value></data>
+<data name="AssignmentCancel" xml:space="preserve"><value>Cancelar atribuição</value></data>
+<data name="AssignmentCancelHelp" xml:space="preserve"><value>Confirma o cancelamento da atribuição? O histórico será conservado e o lugar neste curso e ano letivo ficará livre.</value></data>
+<data name="AssignmentConfirmCancel" xml:space="preserve"><value>Confirmar cancelamento</value></data>
+<data name="AssignmentKeep" xml:space="preserve"><value>Manter atribuição</value></data>
+<data name="AssignmentRestore" xml:space="preserve"><value>Reativar atribuição</value></data>
+<data name="AssignmentRestoreHelp" xml:space="preserve"><value>Restaurar esta atribuição conserva o professor, a turma e a disciplina originais.</value></data>
+<data name="AssignmentConflict" xml:space="preserve"><value>Rever a atribuição</value></data>
+<data name="AssignmentConflictHelp" xml:space="preserve"><value>A atribuição, o professor ou a turma mudou, ou o professor já ocupa uma vaga neste curso e ano. A seleção foi conservada. Reveja o estado atual antes de tentar novamente.</value></data>
+<data name="AssignmentReviewHelp" xml:space="preserve"><value>A revisão conserva a seleção e não altera a atribuição. Depois de aceitar esta versão, confirme novamente a ação; o servidor verificará a disponibilidade atual.</value></data>
+<data name="AssignmentParentsActive" xml:space="preserve"><value>Curso e turma ativos.</value></data>
+<data name="AssignmentTeacherAvailable" xml:space="preserve"><value>Professor disponível</value></data>
+<data name="AssignmentUncertainHelp" xml:space="preserve"><value>A criação pode ter sido concluída. O professor e o pedido estão fixos até obter uma resposta. Repita a mesma atribuição para recuperar o resultado, mesmo que entretanto tenha sido cancelada.</value></data>
+<data name="AssignmentRetryIdentical" xml:space="preserve"><value>Repetir a mesma atribuição</value></data>
+<data name="AssignmentAbandon" xml:space="preserve"><value>Abandonar tentativa</value></data>
+<data name="AssignmentAbandonedHelp" xml:space="preserve"><value>Tentativa abandonada. A atribuição anterior pode existir; consulte as listas antes de escolher outro professor. Uma nova escolha usa um pedido novo.</value></data>
+<data name="AssignmentSavedActive" xml:space="preserve"><value>Atribuição ativa confirmada.</value></data>
+<data name="AssignmentSavedCancelled" xml:space="preserve"><value>O resultado é uma atribuição cancelada. Consulte o histórico para a reativar, se estiver disponível.</value></data>
+<data name="AssignmentForbidden" xml:space="preserve"><value>Não tem permissão para gerir as atribuições desta instituição.</value></data>
+<data name="AssignmentNotFound" xml:space="preserve"><value>A atribuição, o professor ou a turma já não está disponível neste contexto.</value></data>
+<data name="AssignmentInvalid" xml:space="preserve"><value>Verifique o professor selecionado e os dados da atribuição.</value></data>
+<data name="AssignmentUnit" xml:space="preserve"><value>Disciplina da turma</value></data>
+<data name="AssignmentChooseUnit" xml:space="preserve"><value>Escolher disciplina</value></data>
+<data name="AssignmentUnitId" xml:space="preserve"><value>Disciplina #{0}</value></data>
+  <data name="MemberClasses" xml:space="preserve"><value>As minhas turmas</value></data>
+  <data name="LessonPlans" xml:space="preserve"><value>Planificações</value></data>
 </root>

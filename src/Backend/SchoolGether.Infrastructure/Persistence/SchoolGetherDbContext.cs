@@ -1,4 +1,8 @@
 using Microsoft.EntityFrameworkCore;
+using SchoolGether.Domain.Calendar;
+using SchoolGether.Domain.Learning;
+using SchoolGether.Infrastructure.Learning;
+using SchoolGether.Infrastructure.Calendar;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using SchoolGether.Application.Identity;
 using SchoolGether.Domain.Identity;
@@ -18,10 +22,18 @@ namespace SchoolGether.Infrastructure.Persistence;
 public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext> options, ICurrentAccount? current = null)
     : IdentityUserContext<ApplicationUser, int>(options)
 {
+    internal LessonPlanWriteScope? LessonPlanScope { get; set; }
+    public DbSet<LessonPlan> LessonPlans => Set<LessonPlan>();
+    internal CalendarWriteScope? CalendarScope { get; set; }
+    public DbSet<SchoolEvent> CalendarEvents => Set<SchoolEvent>();
     internal OnboardingWriteScope? OnboardingScope { get; set; }
     internal SupportWriteScope? SupportScope { get; set; }
     internal AcademicWriteScope? AcademicScope { get; set; }
     internal CourseUnitWriteScope? CourseUnitScope { get; set; }
+    internal AssignmentWriteScope? AssignmentScope { get; set; }
+    public DbSet<AcademicAssignment> Assignments => Set<AcademicAssignment>();
+    internal EnrolmentWriteScope? EnrolmentScope { get; set; }
+    public DbSet<AcademicEnrolment> Enrolments => Set<AcademicEnrolment>();
     internal ClassWriteScope? ClassScope { get; set; }
     public DbSet<AcademicClass> AcademicClasses => Set<AcademicClass>();
     public DbSet<AcademicClassUnit> ClassUnits => Set<AcademicClassUnit>();
@@ -49,6 +61,10 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(SchoolGetherDbContext).Assembly);
         IdentityModel.Configure(modelBuilder);
+        modelBuilder.Entity<LessonPlan>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "Teacher" && x.TeacherId == AccountId);
+        modelBuilder.Entity<SchoolEvent>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && (AccountRoleName == "InstitutionAdmin" || ((AccountRoleName == "Teacher" || AccountRoleName == "Student") && (x.Status == "Published" || (AccountRoleName == "Teacher" && x.CreatedBy == AccountId)))));
+        modelBuilder.Entity<AcademicAssignment>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
+        modelBuilder.Entity<AcademicEnrolment>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
         // Inclui arquivados para consulta/restauro e reserva permanente dos códigos.
         modelBuilder.Entity<CourseUnit>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
         modelBuilder.Entity<AcademicClass>().HasQueryFilter(x => InstitutionId != null && x.InstitutionId == InstitutionId && AccountRoleName == "InstitutionAdmin");
@@ -71,6 +87,38 @@ public sealed class SchoolGetherDbContext(DbContextOptions<SchoolGetherDbContext
     {
         if (ChangeTracker.Entries<AuditEntry>().Any(x => x.State is EntityState.Modified or EntityState.Deleted))
             throw new InvalidOperationException("AuditAppendOnly");
+        if (LessonPlanScope is not null)
+        {
+            if (AssignmentScope is not null || EnrolmentScope is not null || CalendarScope is not null || ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("LessonPlanWriteDenied");
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!LessonPlanScope.Allows(change)) throw new InvalidOperationException("LessonPlanWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries<LessonPlan>().Any(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)) throw new InvalidOperationException("LessonPlanWriteDenied");
+        if (AssignmentScope is not null)
+        {
+            if (EnrolmentScope is not null || CalendarScope is not null || ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("AssignmentWriteDenied");
+            foreach(var change in ChangeTracker.Entries().Where(x=>x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if(!AssignmentScope.Allows(change))throw new InvalidOperationException("AssignmentWriteDenied");
+            return;
+        }
+        if(ChangeTracker.Entries<AcademicAssignment>().Any(x=>x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))throw new InvalidOperationException("AssignmentWriteDenied");
+        if (EnrolmentScope is not null)
+        {
+            if (CalendarScope is not null || ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("EnrolmentWriteDenied");
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!EnrolmentScope.Allows(change)) throw new InvalidOperationException("EnrolmentWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries<AcademicEnrolment>().Any(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)) throw new InvalidOperationException("EnrolmentWriteDenied");
+        if (CalendarScope is not null)
+        {
+            if (ClassScope is not null || CourseUnitScope is not null || AcademicScope is not null || SupportScope is not null || OnboardingScope is not null) throw new InvalidOperationException("CalendarWriteDenied");
+            foreach (var change in ChangeTracker.Entries().Where(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted))
+                if (!CalendarScope.Allows(change)) throw new InvalidOperationException("CalendarWriteDenied");
+            return;
+        }
+        if (ChangeTracker.Entries<SchoolEvent>().Any(x => x.State is EntityState.Added or EntityState.Modified or EntityState.Deleted)) throw new InvalidOperationException("CalendarWriteDenied");
         // A exclusividade antecede todos os retornos dos escopos existentes.
         if (ClassScope is not null)
         {

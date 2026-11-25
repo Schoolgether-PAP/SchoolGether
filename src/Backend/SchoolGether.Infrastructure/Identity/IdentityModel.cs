@@ -21,6 +21,9 @@ internal static class IdentityModel
         user.HasIndex(x => x.MasterSlot).IsUnique();
         var member = model.Entity<InstitutionMember>();
         member.ToTable("institution_member");
+        member.HasAlternateKey(x => new { x.InstitutionId, x.UserId });
+        // Conservar o índice usado pela FK institucional durante o upgrade MySQL.
+        member.HasIndex(x => x.InstitutionId);
         member.Property(x => x.Name).HasMaxLength(150);
         member.Property(x => x.Role).HasConversion<string>().HasMaxLength(32);
         member.Property(x => x.RowVersion).IsConcurrencyToken();

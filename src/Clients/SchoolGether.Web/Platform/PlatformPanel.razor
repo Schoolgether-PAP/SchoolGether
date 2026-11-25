@@ -10,7 +10,7 @@
         <nav aria-label="@T("PlatformAreas")">
             @foreach (var item in FilteredAreas)
             {
-                <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
+                <button type="button" title="@T(item)" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
             }
         </nav>
         @if (!FilteredAreas.Any()) { <p class="navigation-empty" role="status">@T("NoMatchingAreas")</p> }
@@ -27,7 +27,7 @@
     <div class="platform-main">
         <header class="platform-topbar">
             <button type="button" class="mobile-menu" @onclick="() => menu = true">@T("Menu")</button>
-            <div class="workspace-breadcrumb"><span>@T("PlatformAdministration")</span><span aria-hidden="true">/</span><strong>@T(area)</strong></div>
+            <AppearanceControls Sidebar /><div class="workspace-breadcrumb"><span>@T("PlatformAdministration")</span><span aria-hidden="true">/</span><strong>@T(area)</strong></div>
             <div class="area-search"><label class="sr-only" for="area-search">@T("SearchAreas")</label><WorkspaceIcon Name="Search" /><input id="area-search" type="search" placeholder="@T("SearchAreas")" @bind="search" @bind:event="oninput" /></div>
             <button class="topbar-profile" type="button" aria-label="@T("ProfileTitle")" @onclick='() => NavigateAsync("PlatformProfile")'><span class="account-avatar" aria-hidden="true">@Initial</span></button>
         </header>
@@ -53,7 +53,7 @@
 @if (menu)
 {
     <PlatformDialog Title="@T("Menu")" Drawer Cancel="() => menu = false">
-        <nav aria-label="@T("MobileAreas")">@foreach (var item in FilteredAreas) { <button type="button" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" />@T(item)</button> }</nav>
+        <nav aria-label="@T("MobileAreas")">@foreach (var item in FilteredAreas) { <button type="button" title="@T(item)" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" />@T(item)</button> }</nav>
         @if (!FilteredAreas.Any()) { <p role="status">@T("NoMatchingAreas")</p><button type="button" @onclick='() => search = ""'>@T("ClearAreaSearch")</button> }
         <details class="workspace-saved"><summary>@T("SavedNavigation")</summary><span>@T("Favorites")</span>
             @foreach (var item in favorites.Where(Areas.Contains)) { <button type="button" @onclick="() => NavigateAsync(item)">@T(item)</button> }

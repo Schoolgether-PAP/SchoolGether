@@ -14,6 +14,18 @@ public sealed class AuthorizedAcademicScope
 }
 public sealed class AcademicAuthorization(ICurrentAccount current, IIdentityStore identities)
 {
+    public async Task<AuthorizedAssignmentScope> RequireAssignmentAsync(string operation,int courseId,int classId,int? assignmentId=null,CancellationToken ct=default)
+    {
+        if(operation is not("read" or "create" or "cancel" or "restore"))throw new AcademicException("Forbidden");
+        var scope=await RequireAsync(operation=="cancel"?"update":operation,courseId,ct);
+        return new(scope.ActorId,scope.ActorName,scope.InstitutionId,operation,courseId,classId,assignmentId);
+    }
+    public async Task<AuthorizedEnrolmentScope> RequireEnrolmentAsync(string operation, int courseId, int classId, int? enrolmentId = null, CancellationToken ct = default)
+    {
+        if (operation is not ("read" or "create" or "cancel" or "restore")) throw new AcademicException("Forbidden");
+        var scope = await RequireAsync(operation == "cancel" ? "update" : operation, courseId, ct);
+        return new(scope.ActorId, scope.ActorName, scope.InstitutionId, operation, courseId, classId, enrolmentId);
+    }
     public async Task<AuthorizedClassScope> RequireClassAsync(string operation, int courseId, int? classId = null, CancellationToken ct = default)
     {
         var scope = await RequireAsync(operation, courseId, ct);

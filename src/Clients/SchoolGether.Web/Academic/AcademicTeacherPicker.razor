@@ -1,0 +1,48 @@
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@inherits AssignmentView
+@inject AcademicAssignmentApiClient Api
+
+@if (Active) {
+<section class="teacher-picker" aria-label="@T("AssignmentChoose")" aria-busy="@(Busy ? "true" : "false")">
+    <h3>@T("AssignmentChoose")</h3><p>@T("AssignmentPickerHelp")</p>
+    <div><label for="teacher-search">@T("AssignmentSearch")</label><div class="search"><input id="teacher-search" maxlength="150" @bind="search" disabled="@(Busy || Disabled)" @onkeydown="SearchKeyAsync" /><button type="button" disabled="@(Busy || Disabled)" @onclick="SearchAsync">@T("CourseSearchAction")</button></div></div>
+    @if (Error is not null) { <p role="alert">@Error</p><button type="button" disabled="@(Busy || Disabled)" @onclick="() => LoadAsync(retryPage)">@T("Retry")</button> }
+    @if (Busy) { <p role="status">@T("Loading")</p> }
+    else if (teachers is not null) {
+        @if (teachers.Items.Count == 0) { <p>@T("AssignmentPickerEmpty")</p> }
+        @foreach (var item in teachers.Items) {
+            <label class="teacher" @key="item.TeacherId"><input type="radio" name="teacher" value="@item.TeacherId" checked="@(SelectedId == item.TeacherId)" disabled="@(Disabled || !item.Available)" @onchange="() => ChooseAsync(item)" /><span><strong>@item.Name</strong><span>@item.Email</span></span></label>
+        }
+        <div class="pagination"><span>@UiMessages.Format("AssignmentTeacherPage", teachers.Page, Math.Max(1, (int)Math.Ceiling(teachers.Total / 20d)), teachers.Total)</span><button type="button" disabled="@(Disabled || Busy || teachers.Page <= 1)" @onclick="() => LoadAsync(teachers.Page - 1)">@T("InstitutionPrevious")</button><button type="button" disabled="@(Disabled || Busy || teachers.Page * 20 >= teachers.Total)" @onclick="() => LoadAsync(teachers.Page + 1)">@T("InstitutionNext")</button></div>
+    }
+</section>
+}
+
+@code {
+    [Parameter] public bool Disabled { get; set; }
+    [Parameter] public int? SelectedId { get; set; }
+    [Parameter] public EventCallback<AcademicTeacherResponse> Choose { get; set; }
+    private AcademicTeacherPageResponse? teachers;
+    private string search = "", appliedSearch = "";
+    private int retryPage = 1;
+    protected override Task InitializeContextAsync() { teachers = null; search = appliedSearch = ""; return LoadAsync(1); }
+
+    private async Task LoadAsync(int requestedPage)
+    {
+        if (!Active || Busy || Disabled) return;
+        var context = Context;
+        Busy = true; Error = null; teachers = null; retryPage = requestedPage;
+        try {
+            var result = await Api.EligibleTeachersAsync(context.CourseId, context.ClassId, requestedPage, appliedSearch, context.Token);
+            if (IsCurrent(context)) teachers = result;
+        }
+        catch (Exception e) { if (IsCurrent(context)) RequestFailed(e); }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+
+    private Task SearchKeyAsync(KeyboardEventArgs e) => e.Key == "Enter" ? SearchAsync() : Task.CompletedTask;
+    private Task SearchAsync() { if (!Active || Busy || Disabled) return Task.CompletedTask; appliedSearch = search.Trim(); return LoadAsync(1); }
+    private Task ChooseAsync(AcademicTeacherResponse item)
+        => Active && !Busy && !Disabled && item.Available && teachers?.Items.Contains(item) == true ? Choose.InvokeAsync(item) : Task.CompletedTask;
+}

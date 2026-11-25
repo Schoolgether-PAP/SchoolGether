@@ -6,6 +6,16 @@ O utilizador pediu avaliação adequada ao ano, tipo de ensino e turma, em vez d
 
 Este documento é uma fotografia. Consulta `git fetch`, os PR e os registos seguintes antes de continuar. Publicação e integração no ramo principal são operações diferentes.
 
+## Entrega em curso: áreas escolares
+
+Adesão com configuração completa e ano letivo guardados atomicamente, em `014bd01`; investigação e regras de avaliação portuguesa em `c54b165`. A continuação acrescenta aspeto claro/escuro, menu lateral recolhível, calendário institucional, inscrições e atribuições académicas, contextos pedagógicos autorizados e planificações privadas do professor. A entrada de professores/alunos passa a mostrar as respetivas turmas; a área docente inclui planificações. Não confundir esta implementação com entrega integral dos materiais, atividades, trabalhos e feedback, ainda em desenvolvimento.
+
+Migrações novas: `SchoolCalendar`, `AcademicMemberships` e `LearningLessonPlans`. Não aplicar a produção sem confirmar as migrações anteriores, cópia privada, testes e revisão. TiDB não suporta `SERIALIZABLE`: os âmbitos académicos usam transações normais com versões otimistas; escritas pedagógicas bloqueiam o contexto autorizado através de `SELECT FOR UPDATE`. Não ativar uma opção que simplesmente ignore a verificação de isolamento. O provider MySQL requer conversão explícita de `DateOnly` para `DateTime`/coluna `date` nos planos.
+
+Evidência corrente: 19 testes de integração focados aprovados, dois MySQL ignorados nessa execução; cenários MySQL reais executados separadamente. Web compilada sem avisos/erros. No navegador local: entrada institucional, configuração concluída, menu móvel, menu recolhido, aspeto escuro e criação de evento confirmada. Consultar os registos de 25/11 para limites e atualizações. O PR de trabalho é [#19](https://github.com/Schoolgether-PAP/SchoolGether/pull/19), direcionado para `feature/site-ligacao`, não para o `main` antigo.
+
+Suporte: opção explícita `Support:UseApplicationDataStorage` permite usar `App_Data/support` privado no servidor. Continua desativado por omissão. A cópia da API publicada foi autorizada e guardada fora do repositório; não incluir configurações/credenciais nos registos. Ativação e publicação online desta entrega continuam por verificar.
+
 ## Ramos e publicação
 
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether

@@ -1,0 +1,48 @@
+@using SchoolGether.ApiClient.Learning
+@using SchoolGether.Contracts.Learning
+@inject LearningContextsApiClient Api
+@inject SchoolGether.ApiClient.Identity.IdentitySession Session
+@implements IDisposable
+
+<section class="classroom-overview" aria-labelledby="classrooms-heading" aria-busy="@(busy ? "true" : "false")">
+ <div class="classrooms-heading"><div><h1 id="classrooms-heading">@T("Title")</h1><p>@T(Session.Account?.Role=="Teacher" ? "TeacherIntro" : "StudentIntro")</p></div></div>
+ <form class="classrooms-filter" @onsubmit="Load" @onsubmit:preventDefault>
+  <label for="classroom-year">@T("Year")<input id="classroom-year" maxlength="9" required @bind="year" @bind:event="oninput" disabled="@busy" /></label>
+  <button type="submit" disabled="@busy">@T("Refresh")</button>
+ </form>
+ @if(error is not null){<p class="feedback error-message" role="alert">@error</p>}
+ @if(busy){<p role="status">@T("Loading")</p>}
+ else if(rows is not null)
+ {
+  @if(rows.Length==0){<div class="classrooms-empty"><h2>@T("EmptyTitle")</h2><p>@T("EmptyHelp")</p></div>}
+  else
+  {
+   <div class="classroom-list">@foreach(var group in rows.GroupBy(x=>new{x.CourseId,x.ClassId,x.CourseName,x.ClassName,x.StudyYear,x.AcademicYear}))
+   {
+    <article @key="group.Key.ClassId"><p class="classroom-course">@group.Key.CourseName</p><h2>@group.Key.ClassName</h2><p>@(group.Key.StudyYear).º @T("StudyYear") · @group.Key.AcademicYear</p>
+     <h3>@T("Subjects")</h3><ul>@foreach(var unit in group){<li @key="unit.UnitId">@unit.UnitName</li>}</ul>
+    </article>
+   }</div>
+  }
+ }
+</section>
+@code {
+ readonly CancellationTokenSource lifetime=new();
+ long generation;
+ bool busy;
+ string year=DefaultYear();
+ string? error;
+ LearningContextResponse[]? rows;
+ static string T(string key)=>ClassroomMessages.Get(key);
+ static string DefaultYear(){var now=DateTime.Today;var first=now.Month>=9?now.Year:now.Year-1;return $"{first}/{first+1}";}
+ bool Active=>!lifetime.IsCancellationRequested&&generation==Session.Generation&&Session.Account?.Role is "Teacher" or "Student";
+ protected override async Task OnInitializedAsync(){generation=Session.Generation;await Load();}
+ async Task Load()
+ {
+  if(!Active||busy)return;busy=true;error=null;rows=null;
+  try{var result=await Api.ListAsync(year.Trim(),lifetime.Token);if(Active)rows=result;}
+  catch{if(Active)error=T("Error");}
+  finally{if(Active)busy=false;}
+ }
+ public void Dispose(){lifetime.Cancel();lifetime.Dispose();}
+}
