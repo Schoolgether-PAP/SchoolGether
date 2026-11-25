@@ -19,13 +19,13 @@ public sealed class OnboardingService(PlanCatalog catalog, IOnboardingAccountPro
             string.IsNullOrWhiteSpace(command.Email) || command.Email.Trim().Length > 256 || !new EmailAddressAttribute().IsValid(command.Email.Trim()) ||
             command.Password is null || command.Password.Length is < 12 or > 128 ||
             string.IsNullOrWhiteSpace(command.InstitutionName) || command.InstitutionName.Trim().Length > 200 ||
-            !InstitutionProfile.IsValidType(command.InstitutionType) || command.Locality?.Trim().Length > 100)
+            !InstitutionProfile.IsValidAcademicYear(command.AcademicYear) || !InstitutionProfile.IsValidType(command.InstitutionType) || command.Locality?.Trim().Length > 100)
             throw new OnboardingException("InvalidSignup");
         var plan = catalog.RequirePlan(command.PlanId, command.CatalogVersion);
         return unitOfWork.ExecuteAsync(async token =>
         {
             var owner = await accounts.CreateOwnerAsync(command.OwnerName.Trim(), command.Email.Trim(), command.Password, token);
-            var institutionId = await institutions.CreateAsync(command.InstitutionName.Trim(), command.InstitutionType, command.Locality?.Trim(), owner.Id, token);
+            var institutionId = await institutions.CreateAsync(command.InstitutionName.Trim(), command.InstitutionType, command.Locality?.Trim(), command.AcademicYear!, owner.Id, token);
             await accounts.LinkInstitutionAsync(owner.Id, institutionId, token);
             await subscriptions.CreateAsync(institutionId, plan, catalog.Version, owner.Id, token);
             audit.Append(new AuditEvent(new AuditActor(owner.Id, "Auto-serviço"), "onboarding.institution.create",

@@ -1,0 +1,29 @@
+@using Microsoft.JSInterop
+@inject IJSRuntime JS
+<div class="appearance-controls">
+    @if (Sidebar)
+    {
+        <button class="sidebar-collapse" type="button" aria-label="@Label(collapsed ? "ExpandMenu" : "CollapseMenu")" title="@Label(collapsed ? "ExpandMenu" : "CollapseMenu")" aria-expanded="@(!collapsed ? "true" : "false")" @onclick="ToggleSidebarAsync"><WorkspaceIcon Name="Menu" /></button>
+    }
+    <label class="appearance-control"><span class="sr-only">@Label("Appearance")</span><select aria-label="@Label("Appearance")" value="@theme" @onchange="ChangeThemeAsync"><option value="system">@Label("System")</option><option value="light">@Label("Light")</option><option value="dark">@Label("Dark")</option></select></label>
+</div>
+@code {
+    [Parameter] public bool Sidebar { get; set; }
+    private string theme = "system";
+    private bool collapsed;
+    private static string Label(string key) => PreferencesMessages.Get(key);
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender) return;
+        var state = await JS.InvokeAsync<PreferenceState>("saguiPreferences.get");
+        theme = state.Theme; collapsed = state.Collapsed;
+        StateHasChanged();
+    }
+    private async Task ToggleSidebarAsync() => collapsed = await JS.InvokeAsync<bool>("saguiPreferences.toggleSidebar");
+    private async Task ChangeThemeAsync(ChangeEventArgs args)
+    {
+        theme = args.Value?.ToString() ?? "system";
+        await JS.InvokeVoidAsync("saguiPreferences.setTheme", theme);
+    }
+    private sealed class PreferenceState { public string Theme { get; set; } = "system"; public bool Collapsed { get; set; } }
+}

@@ -1,3 +1,6 @@
+using SchoolGether.Infrastructure.Learning;
+using SchoolGether.Infrastructure.Calendar;
+using SchoolGether.Api.Calendar;
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
@@ -51,6 +54,11 @@ builder.Services.AddBillingModule();
 builder.Services.AddApiOnboarding();
 builder.Services.AddApiSupport();
 builder.Services.AddAcademicModule();
+builder.Services.AddCalendarModule();
+builder.Services.AddLearningPlans();
+builder.Services.AddLearningMaterials();
+builder.Services.AddExceptionHandler<SchoolGether.Api.Learning.LearningMaterialExceptionHandler>();
+builder.Services.AddExceptionHandler<CalendarExceptionHandler>();
 builder.Services.AddScoped<AcademicRefusalAudit>();
 builder.Services.AddExceptionHandler<AcademicExceptionHandler>();
 builder.Services.AddProblemDetails(options =>

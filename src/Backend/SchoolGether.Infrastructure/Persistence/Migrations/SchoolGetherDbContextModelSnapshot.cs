@@ -93,6 +93,102 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.ToTable("user_token", (string)null);
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicAssignment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AcademicYear")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("varchar(9)")
+                        .HasColumnName("academic_year");
+
+                    b.Property<int?>("ActiveTeacherId")
+                        .HasColumnType("int")
+                        .HasColumnName("active_teacher_id");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int")
+                        .HasColumnName("class_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("client_id");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int")
+                        .HasColumnName("course_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("CreationFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("creation_fingerprint");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_active");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<int>("StudyYear")
+                        .HasColumnType("int")
+                        .HasColumnName("study_year");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int")
+                        .HasColumnName("unit_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId", "ClientId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "TeacherId");
+
+                    b.HasIndex("InstitutionId", "CourseId", "UnitId");
+
+                    b.HasIndex("InstitutionId", "ClassId", "UnitId", "TeacherId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "ClassId");
+
+                    b.ToTable("academic_assignment", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_assignment_active_slot", "(is_active = 1 AND active_teacher_id IS NOT NULL AND active_teacher_id = teacher_id) OR (is_active = 0 AND active_teacher_id IS NULL)");
+                        });
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicClass", b =>
                 {
                     b.Property<int>("Id")
@@ -234,6 +330,99 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.HasIndex("InstitutionId", "CourseId", "UnitId");
 
                     b.ToTable("academic_class_unit", (string)null);
+                });
+
+            modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicEnrolment", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AcademicYear")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("varchar(9)")
+                        .HasColumnName("academic_year");
+
+                    b.Property<int?>("ActiveStudentId")
+                        .HasColumnType("int")
+                        .HasColumnName("active_student_id");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int")
+                        .HasColumnName("class_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("client_id");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int")
+                        .HasColumnName("course_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("CreationFingerprint")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("creation_fingerprint");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_active");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<int>("StudentId")
+                        .HasColumnType("int")
+                        .HasColumnName("student_id");
+
+                    b.Property<int>("StudyYear")
+                        .HasColumnType("int")
+                        .HasColumnName("study_year");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId", "ClientId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "StudentId");
+
+                    b.HasIndex("InstitutionId", "ClassId", "StudentId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "CourseId", "AcademicYear", "ActiveStudentId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "ClassId");
+
+                    b.ToTable("academic_enrolment", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_enrolment_active_slot", "(is_active = 1 AND active_student_id IS NOT NULL AND active_student_id = student_id) OR (is_active = 0 AND active_student_id IS NULL)");
+                        });
                 });
 
             modelBuilder.Entity("SchoolGether.Domain.Academic.Course", b =>
@@ -560,6 +749,78 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.ToTable("demonstration_subscription", (string)null);
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Calendar.SchoolEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("client_id");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("CreatedBy")
+                        .HasColumnType("int")
+                        .HasColumnName("created_by");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(4000)
+                        .HasColumnType("varchar(4000)")
+                        .HasColumnName("details");
+
+                    b.Property<DateTime>("EndUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("end_utc");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<string>("Location")
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("location");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<DateTime>("StartUtc")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("start_utc");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("varchar(20)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId", "ClientId")
+                        .IsUnique();
+
+                    b.HasIndex("InstitutionId", "StartUtc");
+
+                    b.ToTable("calendar_event", (string)null);
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Identity.InstitutionMember", b =>
                 {
                     b.Property<int>("Id")
@@ -730,6 +991,101 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .IsUnique();
 
                     b.ToTable("institution_profile", (string)null);
+                });
+
+            modelBuilder.Entity("SchoolGether.Domain.Learning.LessonPlan", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id");
+
+                    b.Property<string>("AcademicYear")
+                        .IsRequired()
+                        .HasMaxLength(9)
+                        .HasColumnType("varchar(9)")
+                        .HasColumnName("academic_year");
+
+                    b.Property<int>("ClassId")
+                        .HasColumnType("int")
+                        .HasColumnName("class_id");
+
+                    b.Property<Guid>("ClientId")
+                        .HasColumnType("char(36)")
+                        .HasColumnName("client_id");
+
+                    b.Property<string>("Content")
+                        .HasMaxLength(8000)
+                        .HasColumnType("text")
+                        .HasColumnName("content");
+
+                    b.Property<int>("CourseId")
+                        .HasColumnType("int")
+                        .HasColumnName("course_id");
+
+                    b.Property<string>("CreateHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("varchar(64)")
+                        .HasColumnName("create_hash");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTime>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<int>("InstitutionId")
+                        .HasColumnType("int")
+                        .HasColumnName("institution_id");
+
+                    b.Property<bool>("IsArchived")
+                        .HasColumnType("tinyint(1)")
+                        .HasColumnName("is_archived");
+
+                    b.Property<string>("Objectives")
+                        .HasMaxLength(4000)
+                        .HasColumnType("text")
+                        .HasColumnName("objectives");
+
+                    b.Property<string>("Resources")
+                        .HasMaxLength(4000)
+                        .HasColumnType("text")
+                        .HasColumnName("resources");
+
+                    b.Property<long>("RowVersion")
+                        .IsConcurrencyToken()
+                        .HasColumnType("bigint")
+                        .HasColumnName("row_version");
+
+                    b.Property<int>("TeacherId")
+                        .HasColumnType("int")
+                        .HasColumnName("teacher_id");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("varchar(200)")
+                        .HasColumnName("title");
+
+                    b.Property<int>("UnitId")
+                        .HasColumnType("int")
+                        .HasColumnName("unit_id");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime(6)")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InstitutionId", "TeacherId", "AcademicYear");
+
+                    b.HasIndex("InstitutionId", "TeacherId", "ClientId")
+                        .IsUnique();
+
+                    b.ToTable("learning_lesson_plan", (string)null);
                 });
 
             modelBuilder.Entity("SchoolGether.Domain.Support.SupportAttachment", b =>
@@ -1269,6 +1625,30 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicAssignment", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Identity.InstitutionMember", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId", "TeacherId")
+                        .HasPrincipalKey("InstitutionId", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolGether.Domain.Academic.CourseUnit", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId", "CourseId", "UnitId")
+                        .HasPrincipalKey("InstitutionId", "CourseId", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolGether.Domain.Academic.AcademicClass", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "ClassId")
+                        .HasPrincipalKey("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicClass", b =>
                 {
                     b.HasOne("SchoolGether.Domain.Academic.Course", null)
@@ -1300,6 +1680,23 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.Navigation("Unit");
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Academic.AcademicEnrolment", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Identity.InstitutionMember", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId", "StudentId")
+                        .HasPrincipalKey("InstitutionId", "UserId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("SchoolGether.Domain.Academic.AcademicClass", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "ClassId")
+                        .HasPrincipalKey("InstitutionId", "CourseId", "StudyYear", "AcademicYear", "Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Academic.Course", b =>
                 {
                     b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
@@ -1328,6 +1725,15 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("SchoolGether.Domain.Calendar.SchoolEvent", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("SchoolGether.Domain.Identity.InstitutionMember", b =>
                 {
                     b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
@@ -1348,6 +1754,15 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
                         .WithOne()
                         .HasForeignKey("SchoolGether.Domain.Institutions.InstitutionProfile", "InstitutionId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("SchoolGether.Domain.Learning.LessonPlan", b =>
+                {
+                    b.HasOne("SchoolGether.Domain.Institutions.Institution", null)
+                        .WithMany()
+                        .HasForeignKey("InstitutionId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });

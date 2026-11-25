@@ -1,0 +1,158 @@
+@using System.Net
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.ApiClient.Identity
+@using SchoolGether.Contracts.Academic
+@using SchoolGether.Web.Platform
+@inherits AssignmentView
+@inject AcademicAssignmentApiClient Api
+@inject AcademicCourseApiClient CoursesApi
+@inject AcademicClassApiClient ClassesApi
+
+@if (Active) {
+<PlatformDialog Title="@T(Value is null ? "AssignmentNew" : "AssignmentHistory")" Busy="@(Busy || uncertain)" Cancel="CloseAsync">
+<div class="assignment-editor">
+    <p class="context">@Course.Code · @Course.Name<br />@Class.Code · @Class.Name<br />@UiMessages.Format("AssignmentContext", Class.StudyYear, Class.AcademicYear)</p>
+    @if (Archived) { <p class="notice" role="status">@T("AssignmentArchivedHelp")</p> }
+    @if (Error is not null) { <p class="error" role="alert">@Error</p> }
+    @if (conflict) {
+        <section class="notice"><h3>@T("AssignmentConflict")</h3><p>@T("AssignmentConflictHelp")</p>
+        @if (!reviewed) { <button disabled="@Busy" @onclick="ReviewAsync">@T("UnitReview")</button> }
+        else {
+            <h4>@T("UnitServerVersion")</h4><p>@T(reviewCourse!.IsActive && reviewClass!.IsActive ? "AssignmentParentsActive" : "AssignmentArchivedHelp")</p>
+            @if (latest is not null) { <p>@T(latest.IsActive ? "AssignmentActiveSingle" : "AssignmentCancelledSingle") · @T(latest.Teacher?.Available == true ? "AssignmentTeacherAvailable" : "AssignmentUnavailable")</p> }
+            <p>@T("AssignmentReviewHelp")</p><button disabled="@Busy" @onclick="AcceptReview">@T("UnitUseVersion")</button>
+        }
+        </section>
+    }
+    @if (Value is null) {
+        @if (teacher is not null) { <p class="selected" role="status"><strong>@T("AssignmentSelected"): @teacher.Name</strong><br />@teacher.Email</p> }
+        @if (uncertain) {
+            <section class="notice" role="status"><h3>@T("UnitUncertain")</h3><p>@T("AssignmentUncertainHelp")</p><div class="actions"><button disabled="@Busy" @onclick="CreateAsync">@T("AssignmentRetryIdentical")</button><button disabled="@Busy" @onclick="Abandon">@T("AssignmentAbandon")</button></div></section>
+        }
+        <label for="assignment-unit">@T("AssignmentUnit")</label><select id="assignment-unit" @bind="unitId" disabled="@(Busy || uncertain || conflict || Archived)"><option value="0">@T("AssignmentChooseUnit")</option>@foreach(var unit in Class.Units.Where(x=>x.IsActive)) { <option value="@unit.UnitId">@unit.Code · @unit.Name</option> }</select>
+        <AcademicTeacherPicker @key="(CourseId, ClassId)" CourseId="CourseId" ClassId="ClassId" SelectedId="teacher?.TeacherId" Disabled="@(Busy || uncertain || conflict || Archived)" Choose="ChooseTeacher" />
+        <div class="actions"><button disabled="@(Busy || uncertain)" @onclick="CloseAsync">@T("Cancel")</button><button class="primary" disabled="@(Busy || uncertain || conflict || Archived || teacher is null || unitId == 0)" @onclick="CreateAsync">@T(Busy ? "Saving" : "AssignmentCreate")</button></div>
+    }
+    else if (current is not null) {
+        <h3>@(current.Teacher?.Name ?? T("AssignmentUnavailable"))</h3>
+        @if (current.Teacher is not null) { <p>@current.Teacher.Email</p> }
+        <p><strong>@T("AssignmentUnit"):</strong> @(current.Unit is { } unit ? $"{unit.Code} · {unit.Name}" : UiMessages.Format("AssignmentUnitId", current.UnitId))</p><dl><dt>@T("AssignmentTeacher")</dt><dd>@UiMessages.Format("AssignmentTeacherId", current.TeacherId)</dd><dt>@T("CourseStatus")</dt><dd>@T(current.IsActive ? "AssignmentActiveSingle" : "AssignmentCancelledSingle")</dd><dt>@T("AssignmentCreatedLabel")</dt><dd>@current.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd>
+        @if (current.UpdatedAt is DateTime updated) { <dt>@T("AssignmentUpdated")</dt><dd>@updated.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</dd> }</dl>
+        @if (current.Teacher?.Available != true) { <p class="notice">@T("AssignmentUnavailableHelp")</p> }
+        @if (current.IsActive) {
+            @if (confirmCancel) { <p>@T("AssignmentCancelHelp")</p><div class="actions"><button disabled="@Busy" @onclick="() => confirmCancel = false">@T("AssignmentKeep")</button><button class="primary" disabled="@(Busy || conflict)" @onclick="() => ChangeStateAsync(true)">@T("AssignmentConfirmCancel")</button></div> }
+            else { <button disabled="@(Busy || conflict)" @onclick="() => confirmCancel = true">@T("AssignmentCancel")</button> }
+        }
+        else if (!Archived && current.Teacher?.Available == true) { <p>@T("AssignmentRestoreHelp")</p><button class="primary" disabled="@(Busy || conflict)" @onclick="() => ChangeStateAsync(false)">@T("AssignmentRestore")</button> }
+    }
+</div>
+</PlatformDialog>
+}
+
+@code {
+    [Parameter, EditorRequired] public CourseResponse Course { get; set; } = default!;
+    [Parameter, EditorRequired] public AcademicClassResponse Class { get; set; } = default!;
+    [Parameter] public AcademicAssignmentResponse? Value { get; set; }
+    [Parameter] public EventCallback Cancel { get; set; }
+    [Parameter] public EventCallback<AcademicAssignmentResponse> Saved { get; set; }
+    private AcademicAssignmentResponse? current, latest;
+    private AcademicTeacherResponse? teacher;
+    private CourseResponse? reviewCourse;
+    private AcademicClassResponse? reviewClass;
+    private CreateAcademicAssignmentRequest? frozen;
+    private int unitId;
+    private bool uncertain, conflict, reviewed, confirmCancel;
+    private bool Archived => !Course.IsActive || !Class.IsActive;
+
+    protected override Task InitializeContextAsync()
+    {
+        unitId = 0; current = Value; latest = null; teacher = null; frozen = null;
+        uncertain = conflict = reviewed = confirmCancel = false;
+        return Task.CompletedTask;
+    }
+
+    private void ChooseTeacher(AcademicTeacherResponse value)
+    {
+        if (!Active || Busy || uncertain || conflict || Archived || !value.Available) return;
+        teacher = value; frozen = null; Error = null;
+    }
+
+    private Task CloseAsync() => Active && !Busy && !uncertain ? Cancel.InvokeAsync() : Task.CompletedTask;
+
+    private void Abandon()
+    {
+        if (!Active || Busy || !uncertain) return;
+        // Explicit abandonment is the only way to change a request with an unknown outcome.
+        frozen = null; teacher = null; uncertain = conflict = reviewed = false;
+        Error = T("AssignmentAbandonedHelp");
+    }
+
+    private async Task CreateAsync()
+    {
+        if (!Active || Busy || conflict || teacher is null || unitId == 0 || (!uncertain && Archived)) return;
+        var context = Context;
+        frozen ??= new(Guid.NewGuid(), teacher.TeacherId, unitId);
+        var request = frozen;
+        Busy = true; Error = null;
+        try {
+            var result = await Api.CreateAsync(context.CourseId, context.ClassId, request, context.Token);
+            if (IsCurrent(context)) { uncertain = false; frozen = null; await Saved.InvokeAsync(result); }
+        }
+        catch (Exception e) {
+            if (!IsCurrent(context)) return;
+            // A definite later refusal does not resolve an earlier ambiguous attempt.
+            uncertain |= e is not IdentityApiException apiError
+                || apiError.StatusCode is not HttpStatusCode status || (int)status >= 500;
+            if (!uncertain) {
+                frozen = null;
+                if (e is IdentityApiException { StatusCode: HttpStatusCode.Conflict }) { conflict = true; reviewed = false; }
+            }
+            RequestFailed(e);
+        }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+
+    private async Task ReviewAsync()
+    {
+        if (!Active || Busy || !conflict) return;
+        var context = Context;
+        Busy = true; Error = null;
+        try {
+            var parent = await CoursesApi.GetAsync(context.CourseId, context.Token);
+            var classValue = await ClassesApi.GetAsync(context.CourseId, context.ClassId, context.Token);
+            var result = current is null ? null : await Api.GetAsync(context.CourseId, context.ClassId, current.Id, context.Token);
+            if (!IsCurrent(context)) return;
+            reviewCourse = parent; reviewClass = classValue; latest = result; reviewed = true;
+        }
+        catch (Exception e) { if (IsCurrent(context)) RequestFailed(e); }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+
+    private void AcceptReview()
+    {
+        if (!Active || Busy || !reviewed || reviewCourse is null || reviewClass is null) return;
+        Course = reviewCourse; Class = reviewClass; current = latest ?? current;
+        latest = null; reviewed = conflict = confirmCancel = false; Error = null;
+    }
+
+    private async Task ChangeStateAsync(bool cancel)
+    {
+        if (!Active || Busy || conflict || current is null || (cancel ? !confirmCancel || !current.IsActive : current.IsActive || Archived || current.Teacher?.Available != true)) return;
+        var context = Context;
+        var value = current;
+        Busy = true; Error = null;
+        try {
+            var request = new AcademicAssignmentStateRequest(value.RowVersion);
+            var result = cancel
+                ? await Api.CancelAsync(context.CourseId, context.ClassId, value.Id, request, context.Token)
+                : await Api.RestoreAsync(context.CourseId, context.ClassId, value.Id, request, context.Token);
+            if (IsCurrent(context)) await Saved.InvokeAsync(result);
+        }
+        catch (Exception e) {
+            if (!IsCurrent(context)) return;
+            if (e is IdentityApiException { StatusCode: HttpStatusCode.Conflict }) { conflict = true; reviewed = false; latest = null; }
+            RequestFailed(e);
+        }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+}

@@ -24,6 +24,7 @@ public static class DependencyInjection
         services.AddSingleton<TokenSigningKey>();
         services.AddScoped<IAccessTokenIssuer, AccessTokenIssuer>();
         services.AddScoped<IIdentityStore, IdentityStore>();
+        services.AddScoped<IInstitutionTeacherDirectory, InstitutionTeacherDirectory>().AddScoped<IInstitutionStudentDirectory, InstitutionStudentDirectory>();
         services.AddScoped<IPlatformAccountReader, PlatformAccountReader>();
         services.AddScoped<IInstitutionAdministratorProvisioner, InstitutionAdministratorProvisioner>();
         services.AddScoped<ISessionStore, SessionStore>();

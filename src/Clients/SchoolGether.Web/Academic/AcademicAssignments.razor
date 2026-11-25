@@ -1,0 +1,113 @@
+@using SchoolGether.ApiClient.Academic
+@using SchoolGether.Contracts.Academic
+@inherits AssignmentView
+@inject AcademicAssignmentApiClient Api
+@inject AcademicCourseApiClient CoursesApi
+@inject AcademicClassApiClient ClassesApi
+
+@if (Active) {
+<section class="assignments" aria-busy="@(Busy ? "true" : "false")">
+    <button class="back" @onclick="BackAsync">@T("AssignmentBack")</button>
+    <header>
+        <div><p class="context">@course?.Code · @course?.Name</p><h1 tabindex="-1" @ref="heading">@T("Assignments")</h1>
+        @if (academicClass is not null) { <p>@academicClass.Code · @academicClass.Name</p><p>@UiMessages.Format("AssignmentContext", academicClass.StudyYear, academicClass.AcademicYear)</p> }</div>
+        @if (CanCreate) { <button class="primary" disabled="@Busy" @onclick="NewAssignment">@T("AssignmentNew")</button> }
+    </header>
+    @if (course?.IsActive == false || academicClass?.IsActive == false) { <p class="notice" role="status">@T("AssignmentArchivedHelp")</p> }
+    @if (notice is not null) { <p class="notice" role="status">@notice</p> }
+    <div class="filters">
+        <div class="tabs" role="group" aria-label="@T("CourseStatus")"><button disabled="@Busy" aria-pressed="@(!cancelled ? "true" : "false")" @onclick="() => ChangeStatusAsync(false)">@T("AssignmentActive")</button><button disabled="@Busy" aria-pressed="@(cancelled ? "true" : "false")" @onclick="() => ChangeStatusAsync(true)">@T("AssignmentCancelled")</button></div>
+        <form @onsubmit="SearchAsync" @onsubmit:preventDefault><label for="assignment-search">@T("AssignmentSearch")</label><div class="search"><input id="assignment-search" maxlength="150" @bind="search" disabled="@Busy" /><button type="submit" disabled="@Busy">@T("CourseSearchAction")</button></div></form>
+    </div>
+    @if (Error is not null) { <div class="error"><p role="alert">@Error</p><button disabled="@Busy" @onclick="() => LoadAsync(retryPage)">@T("Retry")</button></div> }
+    @if (Busy) { <p role="status">@T("Loading")</p> }
+    else if (rows is not null) {
+        @if (rows.Items.Count == 0) { <p class="empty">@T("AssignmentEmpty")</p> }
+        else { <div class="roster">@foreach (var item in rows.Items) {
+            <article @key="item.Id"><div><h2>@TeacherName(item)</h2>
+                @if (item.Teacher is not null) { <p>@item.Teacher.Email</p> }
+                <p>@UiMessages.Format("AssignmentTeacherId", item.TeacherId) @if (item.Teacher?.Available != true) { <strong> · @T("AssignmentUnavailable")</strong> }</p>
+                <p>@(item.Unit is { } unit ? $"{unit.Code} · {unit.Name}" : UiMessages.Format("AssignmentUnitId", item.UnitId))</p><p>@T(item.IsActive ? "AssignmentActiveSingle" : "AssignmentCancelledSingle") · @UiMessages.Format("AssignmentCreated", item.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy"))</p>
+            </div><button disabled="@Busy" aria-label="@UiMessages.Format("AssignmentOpenNamed", TeacherName(item))" @onclick="() => OpenAsync(item.Id)">@T("AssignmentHistory")</button></article>
+        }</div> }
+        <div class="pagination"><span>@UiMessages.Format("AssignmentPage", rows.Page, Math.Max(1, (int)Math.Ceiling(rows.Total / 20d)), rows.Total)</span><button disabled="@(Busy || rows.Page <= 1)" @onclick="() => LoadAsync(rows.Page - 1)">@T("InstitutionPrevious")</button><button disabled="@(Busy || rows.Page * 20 >= rows.Total)" @onclick="() => LoadAsync(rows.Page + 1)">@T("InstitutionNext")</button></div>
+    }
+    @if (editorOpen && course is not null && academicClass is not null) {
+        <AcademicAssignmentEditor @key="(CourseId, ClassId, selected?.Id)" CourseId="CourseId" ClassId="ClassId" Course="course" Class="academicClass" Value="selected" Cancel="CloseEditor" Saved="SavedAsync" />
+    }
+</section>
+}
+
+@code {
+    [Parameter] public EventCallback Back { get; set; }
+    private CourseResponse? course;
+    private AcademicClassResponse? academicClass;
+    private AcademicAssignmentPageResponse? rows;
+    private AcademicAssignmentResponse? selected;
+    private string search = "", appliedSearch = "";
+    private string? notice;
+    private bool cancelled, editorOpen, focusHeading;
+    private int retryPage = 1;
+    private ElementReference heading;
+    private bool CanCreate => course?.IsActive == true && academicClass?.IsActive == true;
+    private static string TeacherName(AcademicAssignmentResponse value) => value.Teacher?.Name ?? UiMessages.Get("AssignmentUnavailable");
+
+    protected override async Task InitializeContextAsync()
+    {
+        course = null; academicClass = null; rows = null; selected = null;
+        editorOpen = cancelled = false; search = appliedSearch = ""; notice = null;
+        focusHeading = true;
+        await LoadAsync(1);
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (focusHeading && Active) { focusHeading = false; await heading.FocusAsync(); }
+    }
+
+    private async Task LoadAsync(int requestedPage)
+    {
+        if (Busy || !Active) return;
+        var context = Context;
+        Busy = true; Error = null; rows = null; retryPage = requestedPage;
+        try {
+            var parent = await CoursesApi.GetAsync(context.CourseId, context.Token);
+            var classValue = await ClassesApi.GetAsync(context.CourseId, context.ClassId, context.Token);
+            var result = await Api.ListAsync(context.CourseId, context.ClassId, requestedPage, appliedSearch, cancelled, context.Token);
+            if (!IsCurrent(context)) return;
+            course = parent; academicClass = classValue; rows = result;
+        }
+        catch (Exception e) { if (IsCurrent(context)) { course = null; academicClass = null; RequestFailed(e); } }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+
+    private Task BackAsync() => Active ? Back.InvokeAsync() : Task.CompletedTask;
+    private Task SearchAsync() { if (Busy || !Active) return Task.CompletedTask; appliedSearch = search.Trim(); return LoadAsync(1); }
+    private Task ChangeStatusAsync(bool value) { if (Busy || !Active) return Task.CompletedTask; cancelled = value; notice = null; return LoadAsync(1); }
+    private void NewAssignment() { if (!Active || Busy || !CanCreate) return; selected = null; editorOpen = true; }
+    private void CloseEditor() { if (!Active || Busy) return; editorOpen = false; selected = null; }
+
+    private async Task OpenAsync(int id)
+    {
+        if (!Active || Busy) return;
+        var context = Context;
+        Busy = true; Error = null;
+        try {
+            var parent = await CoursesApi.GetAsync(context.CourseId, context.Token);
+            var classValue = await ClassesApi.GetAsync(context.CourseId, context.ClassId, context.Token);
+            var value = await Api.GetAsync(context.CourseId, context.ClassId, id, context.Token);
+            if (!IsCurrent(context)) return;
+            course = parent; academicClass = classValue; selected = value; editorOpen = true;
+        }
+        catch (Exception e) { if (IsCurrent(context)) RequestFailed(e); }
+        finally { if (IsCurrent(context)) Busy = false; }
+    }
+
+    private async Task SavedAsync(AcademicAssignmentResponse result)
+    {
+        if (!Active || result.CourseId != CourseId || result.ClassId != ClassId) return;
+        editorOpen = false; selected = null; cancelled = !result.IsActive;
+        notice = T(result.IsActive ? "AssignmentSavedActive" : "AssignmentSavedCancelled");
+        await LoadAsync(1);
+    }
+}

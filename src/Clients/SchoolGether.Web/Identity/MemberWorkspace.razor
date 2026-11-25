@@ -1,14 +1,17 @@
 <div class="member-shell" @onkeydown="HandleKeyAsync">
-    <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(support ? "Support" : "ProfileTitle")</strong></div><button class="member-menu-toggle" type="button" aria-expanded="@(menu ? "true" : "false")" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
+    <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(SectionTitle)</strong></div><AppearanceControls Sidebar /><button class="member-menu-toggle" type="button" aria-expanded="@(menu ? "true" : "false")" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
     <aside class="member-sidebar @(menu ? "menu-open" : "")" id="member-navigation">
-        <nav aria-label="@T("AccountWorkspace")"><button type="button" aria-current="@(!support ? "page" : null)" @onclick="() => Navigate(false)"><WorkspaceIcon Name="Profile" /><span>@T("ProfileTitle")</span></button>
-            @if (Account.Role == "Teacher") { <button type="button" aria-current="@(support ? "page" : null)" @onclick="() => Navigate(true)"><WorkspaceIcon Name="Support" /><span>@T("Support")</span></button> }
+        <nav aria-label="@T("AccountWorkspace")">
+            @foreach(var item in Areas){<button type="button" title="@T(item.Title)" aria-current="@(section==item.Id ? "page" : null)" @onclick="()=>Navigate(item.Id)"><WorkspaceIcon Name="@item.Icon" /><span>@T(item.Title)</span></button>}
         </nav>
         <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Account.Name</strong><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span></div><button type="button" disabled="@Busy" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="SignOut"><WorkspaceIcon Name="Exit" /></button></div>
         <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
     </aside>
     <section class="member-content" aria-busy="@(Busy ? "true" : "false")">
-        @if (support && Account.Role == "Teacher") { <SchoolGether.Web.Support.SupportWorkspace @key="Account.Id" /> }
+        @if(section=="classes"){<SchoolGether.Web.Learning.ClassroomOverview @key="Account.Id" />}
+        else if(section=="plans" && Account.Role=="Teacher"){<SchoolGether.Web.Learning.LessonPlans @key="Account.Id" />}
+        else if (section=="calendar") { <SchoolGether.Web.Calendar.SchoolCalendar @key="Account.Id" /> }
+        else if (section=="support" && Account.Role == "Teacher") { <SchoolGether.Web.Support.SupportWorkspace @key="Account.Id" /> }
         else
         {
             <div class="page-heading"><div><h1 tabindex="-1" @ref="heading">@T("ProfileTitle")</h1><p class="platform-intro">@T("MemberWorkspaceHelp")</p></div><button type="button" disabled="@Busy" @onclick="Refresh">@T(Busy ? "RefreshingProfile" : "RefreshProfile")</button></div>
@@ -24,11 +27,22 @@
     [Parameter] public bool Busy { get; set; }
     [Parameter] public string? Feedback { get; set; }
     [Parameter] public bool IsError { get; set; }
-    private bool support, menu, focus = true;
+    private string section="classes";
+    private bool menu, focus;
+    private IEnumerable<(string Id,string Title,string Icon)> Areas {
+        get {
+            yield return ("classes","MemberClasses","Learning");
+            if(Account.Role=="Teacher")yield return ("plans","LessonPlans","Courses");
+            yield return ("calendar","Calendar","Calendar");
+            if(Account.Role=="Teacher")yield return ("support","Support","Support");
+            yield return ("profile","ProfileTitle","Profile");
+        }
+    }
+    private string SectionTitle=>Areas.FirstOrDefault(x=>x.Id==section).Title??"MemberClasses";
     private ElementReference heading, menuToggle;
     private string Initial => Account.Name.Trim().FirstOrDefault().ToString().ToUpperInvariant();
     private static string T(string key) => UiMessages.Get(key);
-    private void Navigate(bool value) { support = value; menu = false; focus = !value; }
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focus && !support) { focus = false; await heading.FocusAsync(); } }
+    private void Navigate(string value) { if(!Areas.Any(x=>x.Id==value))return;section=value;menu=false;focus=value=="profile"; }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focus && section=="profile") { focus = false; await heading.FocusAsync(); } }
     private async Task HandleKeyAsync(KeyboardEventArgs e) { if (e.Key == "Escape" && menu) { menu = false; await menuToggle.FocusAsync(); } }
 }

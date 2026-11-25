@@ -1,0 +1,51 @@
+@using SchoolGether.ApiClient.Learning
+@using SchoolGether.ApiClient.Identity
+@using SchoolGether.Contracts.Learning
+@inject LearningMaterialsApiClient Api
+@inject LearningContextsApiClient ContextsApi
+@inject IdentitySession Session
+@implements IDisposable
+<section class="teaching-materials" aria-labelledby="materials-title">
+ <h1 id="materials-title">@T("Title")</h1>
+ @if (!Allowed) { <p>@T("Denied")</p> }
+ else {
+ <div class="plans-toolbar"><label>@T("Year") <input @bind="year" @bind:event="oninput" maxlength="9" disabled="@(busy || editing)" /></label><button type="button" @onclick="Search" disabled="@(busy || editing)">@T("Load")</button></div>
+ @if (error is not null) { <p role="alert">@error</p> }
+ @if (rows.Count == 0) { <p>@T("Empty")</p> }
+ <ul class="plan-list">@foreach (var plan in rows) { <li @key="plan.Id"><strong>@plan.Title</strong> <span>@ContextLabel(plan)</span> @if (Session.Account?.Role == "Teacher") { <span>@T(plan.IsPublished ? "Published" : "Draft")</span> } @if (Session.Account?.Role == "Teacher") { <button type="button" @onclick="() => Edit(plan)" disabled="@(busy || editing || year != loadedYear)">@T("Edit")</button> <button type="button" @onclick="() => Archive(plan)" disabled="@(busy || editing || year != loadedYear)">@T("Archive")</button> } <p>@plan.Content</p> @if (!string.IsNullOrEmpty(plan.Url)) { <a href="@plan.Url" target="_blank" rel="noopener noreferrer">@T("OpenLink")</a> }</li> }</ul>
+ <div class="plans-toolbar"><button type="button" @onclick="Previous" disabled="@(busy || editing || year != loadedYear || page == 1)" aria-label="@T("Previous")">@T("Previous")</button> <span>@(page)</span> <button type="button" @onclick="Next" disabled="@(busy || editing || year != loadedYear || page * 30 >= total)" aria-label="@T("Next")">@T("Next")</button></div>
+ @if (Session.Account?.Role == "Teacher") { <button type="button" @onclick="New" disabled="@(busy || editing || year != loadedYear)">@T("New")</button> }
+ @if (editing) {
+ <form @onsubmit="Save" @onsubmit:preventDefault>
+ <label>@T("Context") <select @bind="contextKey" disabled="@(selected is not null || pending is not null || busy)"><option value="">@T("Choose")</option>@foreach (var context in contexts) { <option value="@ContextKey(context)">@context.ClassName · @context.UnitName</option> }</select></label>
+ <label>@T("Name") <input required maxlength="200" @bind="title" @bind:event="oninput" disabled="@(pending is not null || busy)" /></label>
+
+
+ <label>@T("Content") <textarea maxlength="8000" @bind="content" @bind:event="oninput" disabled="@(pending is not null || busy)"></textarea></label>
+ <label>@T("Url") <input type="url" maxlength="2048" @bind="url" @bind:event="oninput" disabled="@(pending is not null || busy)" /></label><label><input type="checkbox" @bind="published" disabled="@(pending is not null || busy)" /> @T("Published")</label>
+ @if (pending is not null) { <p role="status">@T("Pending")</p> }
+ <button type="submit" disabled="@busy">@T("Save")</button><button type="button" @onclick="Cancel" disabled="@(busy || pending is not null)">@T("Cancel")</button>
+ </form> }
+ }
+</section>
+@code {
+ CancellationTokenSource lifetime = new(); long generation; bool busy, editing, uncertain; string year = DefaultYear(), title = "", content = "", url = ""; bool published; string? error; string contextKey = "", loadedYear = ""; int page = 1, total;
+ LearningMaterialResponse? selected; CreateLearningMaterialRequest? pending; LearningContextResponse[] contexts = []; IReadOnlyList<LearningMaterialResponse> rows = [];
+ bool Allowed => Session.Account?.Role is "Teacher" or "Student"; bool Active => !lifetime.IsCancellationRequested && generation == Session.Generation && Allowed;
+ static string DefaultYear() { var start = DateTime.Today.Month >= 9 ? DateTime.Today.Year : DateTime.Today.Year - 1; return $"{start}/{start + 1}"; }
+ static string ContextKey(LearningContextResponse c) => $"{c.CourseId}:{c.ClassId}:{c.UnitId}";
+ string ContextLabel(LearningMaterialResponse p) { var c = contexts.FirstOrDefault(x => x.CourseId == p.CourseId && x.ClassId == p.ClassId && x.UnitId == p.UnitId); return c is null ? "" : $"{c.ClassName} · {c.UnitName}"; }
+ static string T(string key) => LearningMaterialMessages.Get(key);
+ protected override async Task OnInitializedAsync() { generation = Session.Generation; Session.Changed += SessionChanged; if (Allowed) await Load(); }
+ void SessionChanged() { lifetime.Cancel(); lifetime.Dispose(); lifetime = new(); generation = Session.Generation; rows = []; contexts = []; selected = null; pending = null; uncertain = false; editing = false; busy = false; error = null; _ = InvokeAsync(StateHasChanged); }
+ async Task Load() { if (!Active) return; var g = generation; var token = lifetime.Token; busy = true; error = null; try { var c = await ContextsApi.ListAsync(year, token); var p = await Api.ListAsync(year, page, token); if (Active && g == generation) { contexts = c; rows = p.Items; total = p.Total; loadedYear = year; } } catch { if (Active && g == generation) error = T("Failure"); } finally { if (Active && g == generation) busy = false; } }
+ async Task Search() { if (busy || editing) return; page = 1; await Load(); }
+ async Task Previous() { if (busy || editing || year != loadedYear || page <= 1) return; page--; await Load(); }
+ async Task Next() { if (busy || editing || year != loadedYear || page * 30 >= total) return; page++; await Load(); }
+ void New() { if (busy || editing || year != loadedYear || pending is not null) return; selected = null; editing = true; contextKey = ""; title = content = url = ""; published = false; error = null; }
+ void Edit(LearningMaterialResponse p) { if (busy || editing || year != loadedYear || pending is not null) return; selected = p; editing = true; contextKey = $"{p.CourseId}:{p.ClassId}:{p.UnitId}"; title = p.Title; content = p.Content ?? ""; url = p.Url ?? ""; published = p.IsPublished; error = null; }
+ void Cancel() { if (busy || pending is not null) return; editing = false; selected = null; }
+ async Task Save() { if (!Active || busy) return; var context = contexts.FirstOrDefault(x => ContextKey(x) == contextKey); if (context is null) return; var g = generation; var token = lifetime.Token; busy = true; error = null; try { if (selected is null) { pending ??= new(Guid.NewGuid(), context.CourseId, context.ClassId, context.UnitId, year, title, content, url, published); await Api.CreateAsync(pending, token); if (!Active || g != generation) return; pending = null; uncertain = false; } else await Api.UpdateAsync(selected.Id, new(selected.RowVersion, title, content, url, published), token); if (Active && g == generation) { editing = false; selected = null; await Load(); } } catch (IdentityApiException ex) { if (Active && g == generation) { if (pending is not null) { var status = (int)ex.StatusCode.GetValueOrDefault(); if (status >= 400 && status < 500 && status != 429 && !uncertain) pending = null; else uncertain = true; } error = (int)ex.StatusCode.GetValueOrDefault() == 409 ? T("Conflict") : T("Failure"); } } catch { if (Active && g == generation) { if (pending is not null) uncertain = true; error = T("Failure"); } } finally { if (Active && g == generation) busy = false; } }
+ async Task Archive(LearningMaterialResponse p) { if (!Active || busy || editing || year != loadedYear || pending is not null) return; var g = generation; busy = true; try { await Api.ArchiveAsync(p.Id, p.RowVersion, lifetime.Token); if (Active && g == generation) await Load(); } catch { if (Active && g == generation) error = T("Conflict"); } finally { if (Active && g == generation) busy = false; } }
+ public void Dispose() { Session.Changed -= SessionChanged; lifetime.Cancel(); lifetime.Dispose(); }
+}

@@ -9,6 +9,7 @@ internal sealed class OnboardingUnitOfWork(SchoolGetherDbContext db) : IOnboardi
 {
     public async Task<T> ExecuteAsync<T>(Func<CancellationToken, Task<T>> operation, CancellationToken cancellationToken)
     {
+        if (db.EnrolmentScope is not null) throw new InvalidOperationException("EnrolmentWriteDenied");
         if (db.ClassScope is not null) throw new InvalidOperationException("ClassWriteDenied");
         if (db.OnboardingScope is not null) throw new InvalidOperationException("OnboardingAlreadyStarted");
         await using var transaction = await db.Database.BeginTransactionAsync(cancellationToken);

@@ -52,6 +52,7 @@ public sealed class Course
         Advance(now);
     }
     public void TouchClasses(long version, DateTime now) => TouchUnits(version, now);
+    public void TouchEnrolments(long version, DateTime now) => TouchUnits(version, now);
     public void Archive(long version, DateTime now)
     {
         RequireVersion(version, now);

@@ -37,6 +37,9 @@ public sealed class MySqlOnboardingTests
             Assert.Equal(0, subscription.UsedAccounts);
             Assert.Equal(owner.Id, subscription.CreatedBy);
             Assert.Equal(owner.Id, profile.CreatedBy);
+            Assert.True(profile.IsComplete);
+            Assert.Equal("2026/2027", profile.AcademicYear);
+            Assert.NotNull(profile.CompletedAt);
             Assert.Equal(owner.Id, owner.CreatedBy);
             Assert.False(owner.IsPlatformAdmin);
             Assert.Equal("InstitutionAdmin", member.Role.ToString());

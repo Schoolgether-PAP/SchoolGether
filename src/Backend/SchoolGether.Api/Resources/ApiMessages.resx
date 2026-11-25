@@ -98,4 +98,20 @@
   <data name="ClassNotFound" xml:space="preserve"><value>Turma não encontrada.</value></data>
 <data name="PlanProfessional" xml:space="preserve"><value>Profissional</value></data>
 <data name="PlanInstitutional" xml:space="preserve"><value>Institucional</value></data>
+  <data name="InvalidEnrolmentInput" xml:space="preserve"><value>Verifique os dados da inscrição.</value></data>
+  <data name="EnrolmentNotFound" xml:space="preserve"><value>A inscrição não foi encontrada.</value></data>
+  <data name="StudentNotFound" xml:space="preserve"><value>O aluno não foi encontrado nesta instituição.</value></data>
+  <data name="StudentUnavailable" xml:space="preserve"><value>O aluno está indisponível para inscrição.</value></data>
+  <data name="EnrolmentConflict" xml:space="preserve"><value>O aluno já tem histórico nesta turma ou uma inscrição ativa neste curso e ano letivo. Atualize e reveja as inscrições.</value></data>
+  <data name="EnrolmentReplayConflict" xml:space="preserve"><value>A chave de criação já foi usada com outro pedido.</value></data>
+  <data name="EnrolmentAlreadyActive" xml:space="preserve"><value>A inscrição já está ativa.</value></data>
+  <data name="EnrolmentAlreadyCancelled" xml:space="preserve"><value>A inscrição já está cancelada.</value></data>
+<data name="InvalidAssignmentInput" xml:space="preserve"><value>Verifique os dados da atribuição.</value></data>
+<data name="AssignmentNotFound" xml:space="preserve"><value>A atribuição não foi encontrada.</value></data>
+<data name="TeacherNotFound" xml:space="preserve"><value>O professor não foi encontrado nesta instituição.</value></data>
+<data name="TeacherUnavailable" xml:space="preserve"><value>O professor está indisponível para atribuição.</value></data>
+<data name="AssignmentConflict" xml:space="preserve"><value>O professor já tem histórico nesta turma ou uma atribuição ativa neste curso e ano letivo. Atualize e reveja as atribuições.</value></data>
+<data name="AssignmentReplayConflict" xml:space="preserve"><value>A chave de criação já foi usada com outro pedido.</value></data>
+<data name="AssignmentAlreadyActive" xml:space="preserve"><value>A atribuição já está ativa.</value></data>
+<data name="AssignmentAlreadyCancelled" xml:space="preserve"><value>A atribuição já está cancelada.</value></data>
 </root>

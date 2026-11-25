@@ -10,7 +10,7 @@ namespace SchoolGether.ApiClient.Tests;
 
 public sealed class OnboardingApiClientTests
 {
-    private static readonly RegisterInstitutionRequest Registration = new("essential", "v1", "Responsável", "owner@example.test", "Example-Only42!", "Escola", "School", "Lisboa", true);
+    private static readonly RegisterInstitutionRequest Registration = new("essential", "v1", "Responsável", "owner@example.test", "Example-Only42!", "Escola", "School", "Lisboa", true, "2026/2027");
 
     [Fact]
     public async Task PublicRoutesUseTypedCatalogAndRegistrationWithoutAuthorization()
@@ -31,7 +31,8 @@ public sealed class OnboardingApiClientTests
         using var body = JsonDocument.Parse(sent.Body!);
         Assert.Equal("v1", body.RootElement.GetProperty("catalogVersion").GetString());
         Assert.Equal("School", body.RootElement.GetProperty("institutionType").GetString());
-        Assert.Equal(9, body.RootElement.EnumerateObject().Count());
+        Assert.Equal("2026/2027", body.RootElement.GetProperty("academicYear").GetString());
+        Assert.Equal(10, body.RootElement.EnumerateObject().Count());
     }
 
     [Theory]

@@ -26,7 +26,7 @@ public sealed class InstitutionSetupTests
         Assert.Equal(HttpStatusCode.Created, signup.StatusCode);
         await Login(client, "new-owner@example.test");
         var pending = await Get(client, Setup);
-        Assert.False(pending.GetProperty("isComplete").GetBoolean());
+        Assert.True(pending.GetProperty("isComplete").GetBoolean());
         Assert.Equal("School", pending.GetProperty("institutionType").GetString());
         using var saved = await client.PutAsJsonAsync(Setup, Save());
         Assert.Equal(HttpStatusCode.OK, saved.StatusCode);

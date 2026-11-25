@@ -7,7 +7,7 @@
     <header class="institution-header">
         <a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a>
         <div class="workspace-breadcrumb"><span>@T("InstitutionArea")</span><span aria-hidden="true">/</span><strong>@T(area)</strong></div>
-        <button class="menu-toggle" type="button" aria-expanded="@(menuOpen ? "true" : "false")" aria-controls="institution-navigation" @ref="menuToggle" @onclick="() => menuOpen = !menuOpen">@T(menuOpen ? "InstitutionCloseMenu" : "InstitutionOpenMenu")</button>
+        <AppearanceControls Sidebar /><button class="menu-toggle" type="button" aria-expanded="@(menuOpen ? "true" : "false")" aria-controls="institution-navigation" @ref="menuToggle" @onclick="() => menuOpen = !menuOpen">@T(menuOpen ? "InstitutionCloseMenu" : "InstitutionOpenMenu")</button>
     </header>
     @if (Active)
     {
@@ -16,7 +16,7 @@
             <nav aria-label="@T("InstitutionAreas")">
                 @foreach (var item in Areas)
                 {
-                    <button type="button" disabled="@(Busy || !CanNavigate(item))" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
+                    <button type="button" disabled="@(Busy || !CanNavigate(item))" title="@T(item)" aria-current="@(area == item ? "page" : null)" @onclick="() => NavigateAsync(item)"><WorkspaceIcon Name="@item" /><span>@T(item)</span></button>
                 }
             </nav>
             <div class="workspace-account"><span class="account-avatar" aria-hidden="true">@Initial</span><div><strong>@Session.Account?.Name</strong><span>@T("RoleInstitutionAdmin")</span></div><button type="button" aria-label="@T("SignOut")" title="@T("SignOut")" @onclick="LeaveAsync"><WorkspaceIcon Name="Exit" /></button></div>
@@ -32,6 +32,7 @@
                 @if (Error is null) { <p class="loading-state-panel" role="status">@T("Loading")</p> }
             }
             else if (area == "Support") { <SchoolGether.Web.Support.SupportWorkspace /> }
+            else if (area == "Calendar") { <SchoolGether.Web.Calendar.SchoolCalendar /> }
             else if (area == "InstitutionSetup")
             {
                 @if (!setup.IsComplete) { <p class="institution-note">@T("InstitutionSetupFirst")</p> }
@@ -98,7 +99,7 @@
 </div>
 @code {
     [Parameter] public EventCallback SignOut { get; set; }
-    private static readonly string[] Areas = ["InstitutionSummary", "Courses", "InstitutionMembers", "Support", "InstitutionSetup", "InstitutionProfile"];
+    private static readonly string[] Areas = ["InstitutionSummary", "Courses", "InstitutionMembers", "Calendar", "Support", "InstitutionSetup", "InstitutionProfile"];
     private InstitutionSetupResponse? setup;
     private InstitutionSubscriptionResponse? subscription;
     private string area = "InstitutionSummary";

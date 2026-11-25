@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype"><value>text/microsoft-resx</value></resheader>
+  <resheader name="version"><value>2.0</value></resheader>
+  <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms</value></resheader>
+  <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms</value></resheader>
+  <data name="Title"><value>Planificações de aulas</value></data><data name="Denied"><value>Esta área está disponível para professores.</value></data>
+  <data name="Year"><value>Ano letivo</value></data><data name="Load"><value>Consultar</value></data><data name="Context"><value>Turma e disciplina</value></data>
+  <data name="Choose"><value>Selecione uma turma e disciplina</value></data><data name="New"><value>Nova planificação</value></data><data name="Edit"><value>Editar</value></data><data name="Archive"><value>Arquivar</value></data>
+  <data name="Name"><value>Título</value></data><data name="Date"><value>Data da aula</value></data><data name="Objectives"><value>Objetivos</value></data><data name="Content"><value>Conteúdo</value></data><data name="Resources"><value>Recursos</value></data>
+  <data name="Save"><value>Guardar</value></data><data name="Cancel"><value>Cancelar</value></data><data name="Empty"><value>Não existem planificações neste ano letivo.</value></data><data name="Failure"><value>Não foi possível concluir o pedido. Verifique a ligação e tente novamente.</value></data>
+  <data name="Pending"><value>A confirmação da criação está pendente. Tente guardar novamente com os mesmos dados.</value></data><data name="Conflict"><value>A planificação foi alterada ou arquivada. Consulte novamente antes de guardar.</value></data>
+  <data name="Previous"><value>Página anterior</value></data><data name="Next"><value>Página seguinte</value></data>
+</root>

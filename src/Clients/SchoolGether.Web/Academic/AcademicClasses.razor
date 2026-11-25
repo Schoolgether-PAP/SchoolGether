@@ -4,6 +4,11 @@
 @inject AcademicClassApiClient Api
 @inject AcademicCourseApiClient CoursesApi
 
+@if (assignmentClassId is int staffId) {
+    <AcademicAssignments @key="(CourseId, staffId)" CourseId="CourseId" ClassId="staffId" Back="CloseAssignments" />
+} else if (enrolmentClassId is int rosterId) {
+    <AcademicEnrolments @key="(CourseId, rosterId)" CourseId="CourseId" ClassId="rosterId" Back="CloseEnrolments" />
+} else {
 <section class="units" aria-busy="@(Busy ? "true" : "false")">
     <button class="unit-back" @onclick="BackAsync">@T("UnitBack")</button>
     <header class="unit-heading"><div>
@@ -22,16 +27,24 @@
     @if (Busy) { <p role="status">@T("Loading")</p> }
     else if (classes is not null) {
         @if (classes.Items.Count == 0) { <div class="unit-empty"><h2>@T("ClassEmpty")</h2><p>@T("ClassEmptyHelp")</p></div> }
-        else { <div class="unit-list">@foreach (var item in classes.Items) { <article @key="item.Id"><div><span class="unit-code">@item.Code</span><h2><button class="unit-link" @onclick="() => OpenAsync(item.Id)">@item.Name</button></h2><p>@UiMessages.Format("ClassContext", item.StudyYear, item.AcademicYear, item.UnitCount)</p></div><button disabled="@Busy" aria-label="@UiMessages.Format("ClassOpenNamed", item.Name)" @onclick="() => OpenAsync(item.Id)">@T("ClassDetails")</button></article> }</div> }
+        else { <div class="unit-list">@foreach (var item in classes.Items) { <article @key="item.Id"><div><span class="unit-code">@item.Code</span><h2><button class="unit-link" @onclick="() => OpenAsync(item.Id)">@item.Name</button></h2><p>@UiMessages.Format("ClassContext", item.StudyYear, item.AcademicYear, item.UnitCount)</p></div><button disabled="@Busy" @onclick="() => OpenAssignments(item.Id)">@T("Assignments")</button><button disabled="@Busy" aria-label="@UiMessages.Format("EnrolmentClassNamed", item.Name)" @onclick="() => OpenEnrolments(item.Id)">@T("Enrolments")</button><button disabled="@Busy" aria-label="@UiMessages.Format("ClassOpenNamed", item.Name)" @onclick="() => OpenAsync(item.Id)">@T("ClassDetails")</button></article> }</div> }
         <div class="unit-pagination"><span>@UiMessages.Format("ClassPage", classes.Page, Math.Max(1, (int)Math.Ceiling(classes.Total / 20d)), classes.Total)</span><button disabled="@(Busy || page <= 1)" @onclick="() => LoadAsync(page - 1)">@T("InstitutionPrevious")</button><button disabled="@(Busy || page * 20 >= classes.Total)" @onclick="() => LoadAsync(page + 1)">@T("InstitutionNext")</button></div>
     }
     @if (editorOpen && course is not null) { <AcademicClassEditor @key="(CourseId, selected?.Id)" Course="course" Value="selected" Saved="SavedAsync" Cancel="CloseEditor" /> }
 </section>
+}
 
 @code {
     [Parameter] public int CourseId { get; set; }
     [Parameter] public EventCallback Back { get; set; }
     protected override string EntityPrefix => "Class";
+    private int? assignmentClassId;
+    private void OpenAssignments(int id) { if (!Active || Busy) return; assignmentClassId = id; }
+    private async Task CloseAssignments() { assignmentClassId = null; await LoadAsync(page); }
+    private int? enrolmentClassId;
+    private void OpenEnrolments(int id) { if (Active && !Busy) enrolmentClassId = id; }
+    private void CloseEnrolments() { if (Active) { enrolmentClassId = null; focusAfterRoster = true; } }
+    private bool focusAfterRoster;
     private CourseResponse? course;
     private AcademicClassPageResponse? classes;
     private AcademicClassResponse? selected;
@@ -41,7 +54,7 @@
     private int page = 1, retryPage = 1;
     private ElementReference heading;
     protected override async Task OnInitializedAsync() => await LoadAsync(1);
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (firstRender && Active) await heading.FocusAsync(); }
+    protected override async Task OnAfterRenderAsync(bool firstRender) { if ((firstRender || focusAfterRoster) && Active && enrolmentClassId is null) { focusAfterRoster = false; await heading.FocusAsync(); } }
     private async Task LoadAsync(int requestedPage) {
         if (Busy || !Active) return;
         Busy = true; Error = null; retryPage = requestedPage;

@@ -23,7 +23,7 @@ public sealed class OnboardingTests
         ["planId"] = "essential", ["catalogVersion"] = "2026-11-24-v1",
         ["ownerName"] = "Responsável", ["email"] = email, ["password"] = IdentityFactory.Password,
         ["institutionName"] = "Escola Nova", ["institutionType"] = "School", ["locality"] = "Lisboa",
-        ["acceptDemonstration"] = true
+        ["academicYear"] = "2026/2027", ["acceptDemonstration"] = true
     };
     internal const string Route = "/api/v1/onboarding/institutions";
 
@@ -72,8 +72,8 @@ public sealed class OnboardingTests
         Assert.Equal("School", profile.InstitutionType);
         Assert.Equal("Lisboa", profile.Locality);
         Assert.Equal(owner.Id, profile.CreatedBy);
-        Assert.False(profile.IsComplete);
-        Assert.Null(profile.AcademicYear);
+        Assert.True(profile.IsComplete);
+        Assert.Equal("2026/2027", profile.AcademicYear); Assert.NotNull(profile.CompletedAt);
         Assert.Empty(await db.Subscriptions.ToListAsync());
         Assert.Empty(await db.InstitutionProfiles.ToListAsync());
     }
@@ -88,6 +88,10 @@ public sealed class OnboardingTests
     [InlineData("password", "NoSymbolsHere1")]
     [InlineData("institutionName", "")]
     [InlineData("institutionType", "Unknown")]
+    [InlineData("academicYear", "")]
+    [InlineData("academicYear", "2026/2028")]
+    [InlineData("academicYear", "2026-2027")]
+    [InlineData("academicYear", "1899/1900")]
     [InlineData("acceptDemonstration", false)]
     public async Task Invalid_signup_leaves_no_rows(string field, object value)
     {
@@ -195,7 +199,7 @@ public sealed class OnboardingTests
         var oldOwner = await db.Users.FirstAsync();
         var institutions = scope.ServiceProvider.GetRequiredService<IInstitutionRegistrationStore>();
         await Assert.ThrowsAsync<InvalidOperationException>(() => uow.ExecuteAsync(
-            token => institutions.CreateAsync("Inválida", "School", null, oldOwner.Id, token), default));
+            token => institutions.CreateAsync("Inválida", "School", null, "2026/2027", oldOwner.Id, token), default));
         await Assert.ThrowsAsync<InvalidOperationException>(() => uow.ExecuteAsync(async token =>
         {
             var old = await db.Institutions.SingleAsync(x => x.Id == factory.InstitutionA, token);
@@ -221,7 +225,7 @@ public sealed class OnboardingTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => uow.ExecuteAsync(async token =>
         {
             var owner = await accounts.CreateOwnerAsync("Novo", "scope@example.test", IdentityFactory.Password, token);
-            var id = await institutions.CreateAsync("Nova", "School", null, owner.Id, token);
+            var id = await institutions.CreateAsync("Nova", "School", null, "2026/2027", owner.Id, token);
             await accounts.LinkInstitutionAsync(owner.Id, id, token);
             var member = db.Members.Local.Single();
             db.Entry(member).State = EntityState.Detached;
@@ -376,6 +380,18 @@ public sealed class OnboardingTests
         await Assert.ThrowsAsync<InvalidOperationException>(() => db.SaveChangesAsync());
     }
 
+    [Fact]
+    public async Task Legacy_signup_request_without_year_is_rejected_without_partial_creation()
+    {
+        await using var factory = new IdentityFactory(onboardingEnabled: true);
+        await factory.SeedAsync();
+        using var client = factory.CreateClient();
+        var request = Request();
+        request.Remove("academicYear");
+        using var response = await client.PostAsJsonAsync(Route, request);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertUnchanged(factory);
+    }
     private sealed class UnknownLengthContent : HttpContent
     {
         private readonly byte[] data;
