@@ -28,3 +28,8 @@ Melhorar a adesão funcional, pedir dados necessários, apresentar cobrança sim
 - Contactos novos apenas em leitura na configuração; edição posterior pode ser acrescentada com validação e concorrência.
 - Ficheiros privados, atividades/entregas/feedback, comunicação e manutenção não foram implementados nesta tarefa. Não anunciar como disponíveis.
 - Não enviar credenciais, backups ou artefactos privados para GitHub.
+
+## Ajuste visual pedido após a entrega
+- Borda preta uniforme nos três cartões de planos, incluindo o Profissional.
+- Confirmada a ausência da mensagem «Preços de demonstração. A escolha não origina cobranças.» no código Web; remoção já incluída no primeiro commit deste PR. O ecrã de pagamento mantém a informação localizada de que não efetua cobranças.
+- Verificação estática do CSS e pesquisa do texto; alteração exclusivamente visual, sem alteração de preços ou lógica.
