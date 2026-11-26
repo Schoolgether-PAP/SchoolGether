@@ -5,12 +5,22 @@ Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o esta
 ## Base de trabalho
 
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether
-- Ramo atual: `feature/learning-workspace-reliability`, baseado em `feature/learning-materials` `9ff7277`.
+- Ramo atual: `feature/institution-signup-checkout`, baseado em `feature/learning-materials` `4e1cd45` (PR #20 integrado).
 - Não partir do main antigo para continuar estes módulos. Usar um ramo próprio sobre a entrega atual, confirmar `git status` e consultar os PR antes de editar.
 - PR destas correções: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials.
 - O PR #19 continua a representar o checkpoint anterior `feature/school-workspaces` → `feature/site-ligacao`. Estas correções não reescrevem nem integram automaticamente esse PR.
 - Atualização concorrente do colega integrada: bdc49ae (reutilização dos tokens de aluno/administrador no teste; mantida esta solução) e 7678db1 (registo do respetivo CI verde). Preservado o registo original do colega.
 - Histórico: `014bd01` adesão; `c54b165` regras de avaliação; `d70779a` calendário, inscrições e planificações; `1f48b11` checkpoint; `9ff7277` migração e menu dos materiais.
+
+## Adesão e pagamento simulado — 26/11
+
+- Novo percurso de cinco passos: plano, instituição, responsável, pagamento simulado e confirmação. Os contactos institucionais são validados e guardados na mesma transação da conta.
+- Migração `20261126094610_InstitutionSignupContacts`: sete campos opcionais para compatibilidade com instituições antigas. Aplicar à base antes de publicar API/Web. Não aplicada ao TiDB online.
+- API: 351 aprovados/13 excluídos; domínio: 119; aplicação: 7; ApiClient: 93; Web: 10. MySQL temporário: Onboarding 1/1 aprovado.
+- Pagamento sem cartão, IBAN, referência pagável, fatura ou cobrança. Preferência de pagamento apenas visual, não persistida. Verificação de e-mail ainda indisponível, indicada junto do campo.
+- Textos públicos revistos; ficheiros, comunicação e manutenção identificados como funcionalidades em desenvolvimento.
+- Revisão independente sem pendências após corrigir o estado do módulo de manutenção. Navegador local: criação/entrada com API fictícia e disposição móvel a 390 px.
+- Registo completo: `registos/2026-11-26-adesao-pagamento-codex.md`. Entrega não publicada.
 
 ## Implementado
 

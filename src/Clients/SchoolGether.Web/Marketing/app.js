@@ -33,7 +33,7 @@ const activities = [
   { day: 2, row: 7, span: 1, title: 'Departamento', group: 'Línguas', time: '14:00–15:00', tone: 'sage', description: 'Reunião do departamento de Línguas para planificar atividades.' },
   { day: 3, row: 2, span: 1, title: 'Matemática', group: '7.º A', time: '09:00–10:00', tone: 'sand', description: 'Resolução de problemas e partilha das estratégias da turma.' },
   { day: 3, row: 4, span: 1, title: 'Ciências Naturais', group: '7.º B', time: '11:00–12:00', tone: 'plum', description: 'Aula de exploração e consolidação das aprendizagens.' },
-  { day: 4, row: 2, span: 3, title: 'Visita de estudo', group: 'Museu da Ciência · 8.º ano', time: '09:00–12:00', tone: 'sage', description: 'Visita de estudo demonstrativa, organizada para as turmas do 8.º ano.' }
+  { day: 4, row: 2, span: 3, title: 'Visita de estudo', group: 'Museu da Ciência · 8.º ano', time: '09:00–12:00', tone: 'sage', description: 'Visita de estudo organizada para as turmas do 8.º ano.' }
 ];
 let weekOffset = 0;
 let calendarView = 'week';

@@ -941,9 +941,24 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnType("varchar(20)")
                         .HasColumnName("academic_year");
 
+                    b.Property<string>("Address")
+                        .HasMaxLength(250)
+                        .HasColumnType("varchar(250)")
+                        .HasColumnName("address");
+
                     b.Property<DateTime?>("CompletedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("completed_at");
+
+                    b.Property<string>("ContactEmail")
+                        .HasMaxLength(256)
+                        .HasColumnType("varchar(256)")
+                        .HasColumnName("contact_email");
+
+                    b.Property<string>("ContactRole")
+                        .HasMaxLength(32)
+                        .HasColumnType("varchar(32)")
+                        .HasColumnName("contact_role");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime(6)")
@@ -956,6 +971,10 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime(6)")
                         .HasColumnName("deleted_at");
+
+                    b.Property<int?>("ExpectedTeachers")
+                        .HasColumnType("int")
+                        .HasColumnName("expected_teachers");
 
                     b.Property<int>("InstitutionId")
                         .HasColumnType("int")
@@ -976,10 +995,25 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
                         .HasColumnType("varchar(100)")
                         .HasColumnName("locality");
 
+                    b.Property<string>("Phone")
+                        .HasMaxLength(25)
+                        .HasColumnType("varchar(25)")
+                        .HasColumnName("phone");
+
+                    b.Property<string>("PostalCode")
+                        .HasMaxLength(8)
+                        .HasColumnType("varchar(8)")
+                        .HasColumnName("postal_code");
+
                     b.Property<long>("RowVersion")
                         .IsConcurrencyToken()
                         .HasColumnType("bigint")
                         .HasColumnName("row_version");
+
+                    b.Property<string>("TaxNumber")
+                        .HasMaxLength(9)
+                        .HasColumnType("varchar(9)")
+                        .HasColumnName("tax_number");
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)")
@@ -1075,11 +1109,11 @@ namespace SchoolGether.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("InstitutionId", "AcademicYear", "CourseId", "ClassId", "UnitId")
-                        .HasDatabaseName("IX_learning_material_context");
-
                     b.HasIndex("InstitutionId", "TeacherId", "ClientId")
                         .IsUnique();
+
+                    b.HasIndex("InstitutionId", "AcademicYear", "CourseId", "ClassId", "UnitId")
+                        .HasDatabaseName("IX_learning_material_context");
 
                     b.ToTable("learning_material", (string)null);
                 });

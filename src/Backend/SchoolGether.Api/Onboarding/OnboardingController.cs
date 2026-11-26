@@ -20,7 +20,8 @@ public sealed class OnboardingController(OnboardingService service) : Controller
         if (authentication.Failure is not null) return Unauthorized();
         var created = await service.RegisterAsync(new RegisterInstitution(request.PlanId, request.CatalogVersion,
             request.OwnerName, request.Email, request.Password, request.InstitutionName, request.InstitutionType,
-            request.Locality, request.AcceptDemonstration, request.AcademicYear), cancellationToken);
+            request.Locality, request.AcceptDemonstration, request.AcademicYear, request.Details is { } d ?
+                new SchoolGether.Domain.Institutions.InstitutionContactDetails(d.ContactEmail, d.ContactRole, d.Phone, d.Address, d.PostalCode, d.TaxNumber, d.ExpectedTeachers) : null), cancellationToken);
         return StatusCode(StatusCodes.Status201Created, new RegistrationResponse(created.InstitutionId, created.OwnerId, created.Email));
     }
 }

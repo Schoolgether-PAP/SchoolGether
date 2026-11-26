@@ -15,9 +15,11 @@ public sealed class MySqlOnboardingTests
         await factory.SeedAsync();
         using var first = factory.CreateClient();
         using var second = factory.CreateClient();
+        var firstRequest = OnboardingTests.Request("concurrent@example.test"); firstRequest["details"] = SignupContactDetailsTests.Details();
+        var secondRequest = OnboardingTests.Request("CONCURRENT@EXAMPLE.TEST"); secondRequest["details"] = SignupContactDetailsTests.Details();
         var responses = await Task.WhenAll(
-            first.PostAsJsonAsync(OnboardingTests.Route, OnboardingTests.Request("concurrent@example.test")),
-            second.PostAsJsonAsync(OnboardingTests.Route, OnboardingTests.Request("CONCURRENT@EXAMPLE.TEST")));
+            first.PostAsJsonAsync(OnboardingTests.Route, firstRequest),
+            second.PostAsJsonAsync(OnboardingTests.Route, secondRequest));
         try
         {
             Assert.Equal(new[] { HttpStatusCode.Created, HttpStatusCode.Conflict }, responses.Select(x => x.StatusCode).Order().ToArray());
@@ -38,6 +40,8 @@ public sealed class MySqlOnboardingTests
             Assert.Equal(owner.Id, subscription.CreatedBy);
             Assert.Equal(owner.Id, profile.CreatedBy);
             Assert.True(profile.IsComplete);
+            Assert.Equal("secretaria@example.test", profile.ContactEmail);
+            Assert.Equal(18, profile.ExpectedTeachers);
             Assert.Equal("2026/2027", profile.AcademicYear);
             Assert.NotNull(profile.CompletedAt);
             Assert.Equal(owner.Id, owner.CreatedBy);

@@ -13,6 +13,13 @@
 <label for="setup-year">@T("InstitutionYear")</label><input id="setup-year" maxlength="9" @bind="year" @bind:event="oninput" aria-invalid="@(invalid == "setup-year" ? "true" : "false")" aria-describedby="setup-error setup-year-help" @ref="yearInput" />
 <p id="setup-year-help">@T("InstitutionYearHelp")</p><button type="submit">@T(Busy ? "InstitutionSaving" : "InstitutionSaveSetup")</button>
 </fieldset></form>
+@if (Value.Details is { } details) {
+<section class="signup-contacts" aria-labelledby="signup-contacts-title"><h2 id="signup-contacts-title">@T("SignupSavedContacts")</h2>
+<dl class="profile-details"><div><dt>@T("SignupContactEmail")</dt><dd>@details.ContactEmail</dd></div><div><dt>@T("SignupContactRole")</dt><dd>@T("SignupRole" + details.ContactRole)</dd></div><div><dt>@T("SignupExpectedTeachers")</dt><dd>@details.ExpectedTeachers</dd></div>
+@if (details.Phone is not null) { <div><dt>@T("SignupPhone")</dt><dd>@details.Phone</dd></div> }
+@if (details.Address is not null || details.PostalCode is not null) { <div><dt>@T("SignupAddress")</dt><dd>@details.Address @details.PostalCode @Value.Locality</dd></div> }
+@if (details.TaxNumber is not null) { <div><dt>@T("SignupTaxNumber")</dt><dd>@details.TaxNumber</dd></div> }</dl></section>
+}
 @if (Error is not null) { <p role="alert" id="setup-error">@Error</p> }
 @if (conflict) { <button type="button" disabled="@Busy" @onclick="ReloadAsync">@T("InstitutionReloadSetup")</button><p>@T("InstitutionReloadHelp")</p> }
 @code {
