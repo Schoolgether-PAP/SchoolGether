@@ -6,7 +6,7 @@ namespace SchoolGether.Infrastructure.Institutions;
 
 internal sealed class InstitutionRegistrationStore(SchoolGetherDbContext db) : IInstitutionRegistrationStore
 {
-    public async Task<int> CreateAsync(string name, string type, string? locality, string academicYear, int ownerId, CancellationToken cancellationToken)
+    public async Task<int> CreateAsync(string name, string type, string? locality, string academicYear, int ownerId, CancellationToken cancellationToken, InstitutionContactDetails? details = null)
     {
         var scope = db.OnboardingScope ?? throw new InvalidOperationException("OnboardingTransactionRequired");
         var institution = new Institution(name, ownerId);
@@ -15,6 +15,7 @@ internal sealed class InstitutionRegistrationStore(SchoolGetherDbContext db) : I
         await db.SaveChangesAsync(cancellationToken);
         var profile = new InstitutionProfile(institution.Id, type, locality, ownerId);
         profile.Complete(type, locality, academicYear, DateTime.UtcNow);
+        if (details is not null) profile.SetContactDetails(details);
         scope.BindProfile(profile);
         db.InstitutionProfiles.Add(profile);
         await db.SaveChangesAsync(cancellationToken);

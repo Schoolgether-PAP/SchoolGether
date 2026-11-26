@@ -15,6 +15,12 @@ internal sealed class InstitutionProfileConfiguration : IEntityTypeConfiguration
         builder.Property(x => x.InstitutionType).HasMaxLength(32);
         builder.Property(x => x.Locality).HasMaxLength(100);
         builder.Property(x => x.AcademicYear).HasMaxLength(20);
+        builder.Property(x => x.ContactEmail).HasMaxLength(256);
+        builder.Property(x => x.ContactRole).HasMaxLength(32);
+        builder.Property(x => x.Phone).HasMaxLength(25);
+        builder.Property(x => x.Address).HasMaxLength(250);
+        builder.Property(x => x.PostalCode).HasMaxLength(8);
+        builder.Property(x => x.TaxNumber).HasMaxLength(9);
         builder.Property(x => x.RowVersion).IsConcurrencyToken();
         builder.HasOne<Institution>().WithOne().HasForeignKey<InstitutionProfile>(x => x.InstitutionId).OnDelete(DeleteBehavior.Restrict);
         builder.ApplyPropertyConventions();

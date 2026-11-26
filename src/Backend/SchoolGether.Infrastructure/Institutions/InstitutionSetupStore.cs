@@ -34,5 +34,6 @@ internal sealed class InstitutionSetupStore(SchoolGetherDbContext db) : IInstitu
     }
 
     private static InstitutionSetup Map(Institution institution, InstitutionProfile? profile) => new(institution.Id, institution.Name,
-        profile?.InstitutionType ?? "Other", profile?.Locality, profile?.AcademicYear, profile?.IsComplete ?? false, institution.RowVersion);
+        profile?.InstitutionType ?? "Other", profile?.Locality, profile?.AcademicYear, profile?.IsComplete ?? false, institution.RowVersion,
+        Details: profile?.GetContactDetails());
 }

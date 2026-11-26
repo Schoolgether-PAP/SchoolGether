@@ -428,7 +428,7 @@ public sealed class OnboardingTests
         await AssertUnchanged(factory);
     }
 
-    private static async Task AssertUnchanged(IdentityFactory factory)
+    internal static async Task AssertUnchanged(IdentityFactory factory)
     {
         using var scope = factory.Services.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<SchoolGetherDbContext>();

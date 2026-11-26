@@ -34,6 +34,22 @@ public sealed class InstitutionProfile
         RowVersion++;
     }
     public static bool IsValidType(string? value) => value is "School" or "Faculty" or "Polytechnic" or "TrainingCenter" or "Other";
+    public void SetContactDetails(InstitutionContactDetails value)
+    {
+        var details = value.Normalize();
+        ContactEmail = details.ContactEmail; ContactRole = details.ContactRole; Phone = details.Phone;
+        Address = details.Address; PostalCode = details.PostalCode; TaxNumber = details.TaxNumber;
+        ExpectedTeachers = details.ExpectedTeachers;
+    }
+    public InstitutionContactDetails? GetContactDetails() => ContactEmail is null ? null :
+        new(ContactEmail, ContactRole!, Phone, Address, PostalCode, TaxNumber, ExpectedTeachers!.Value);
+    public string? ContactEmail { get; private set; }
+    public string? ContactRole { get; private set; }
+    public string? Phone { get; private set; }
+    public string? Address { get; private set; }
+    public string? PostalCode { get; private set; }
+    public string? TaxNumber { get; private set; }
+    public int? ExpectedTeachers { get; private set; }
     public int Id { get; private set; }
     public int InstitutionId { get; private set; }
     public string InstitutionType { get; private set; } = string.Empty;

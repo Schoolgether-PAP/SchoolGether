@@ -22,10 +22,13 @@ public sealed class OnboardingService(PlanCatalog catalog, IOnboardingAccountPro
             !InstitutionProfile.IsValidAcademicYear(command.AcademicYear) || !InstitutionProfile.IsValidType(command.InstitutionType) || command.Locality?.Trim().Length > 100)
             throw new OnboardingException("InvalidSignup");
         var plan = catalog.RequirePlan(command.PlanId, command.CatalogVersion);
+        InstitutionContactDetails? details;
+        try { details = command.Details?.Normalize(); }
+        catch (ArgumentException) { throw new OnboardingException("InvalidSignup"); }
         return unitOfWork.ExecuteAsync(async token =>
         {
             var owner = await accounts.CreateOwnerAsync(command.OwnerName.Trim(), command.Email.Trim(), command.Password, token);
-            var institutionId = await institutions.CreateAsync(command.InstitutionName.Trim(), command.InstitutionType, command.Locality?.Trim(), command.AcademicYear!, owner.Id, token);
+            var institutionId = await institutions.CreateAsync(command.InstitutionName.Trim(), command.InstitutionType, command.Locality?.Trim(), command.AcademicYear!, owner.Id, token, details);
             await accounts.LinkInstitutionAsync(owner.Id, institutionId, token);
             await subscriptions.CreateAsync(institutionId, plan, catalog.Version, owner.Id, token);
             audit.Append(new AuditEvent(new AuditActor(owner.Id, "Auto-serviço"), "onboarding.institution.create",

@@ -1,5 +1,6 @@
 @using System.ComponentModel.DataAnnotations
 @using System.Net
+@using System.Text.RegularExpressions
 @using SchoolGether.ApiClient.Billing
 @using SchoolGether.ApiClient.Onboarding
 @using SchoolGether.Contracts.Billing
@@ -10,74 +11,64 @@
 @inject IdentitySession Session
 @inject NavigationManager Navigation
 <section class="wizard" aria-labelledby="join-title">
-    <div class="wizard-head"><strong>@T("Brand")</strong><a href="../">@T("CancelRegistration")</a></div>
-    @if (Session.Account is not null && !ownLogin)
-    {
-        <h1 id="join-title">@T("ActiveSessionTitle")</h1><p>@T("ActiveSessionHelp")</p>
-        <div class="actions"><a class="button primary" href="@PublicNavigation.Url(Navigation, "area")">@T("MyArea")</a><button @onclick="SignOutAsync" disabled="@busy">@T("SignOut")</button></div>
-    }
-    else if (finished)
-    {
-        <h1 id="join-title" tabindex="-1" @ref="heading">@T("RegistrationContinueTitle")</h1>
-        <p role="status">@message</p><a class="button primary" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
-    }
-    else
-    {
-        <ol class="progress" aria-label="@T("RegistrationSteps")">
-            @for (var index = 0; index < 4; index++) { <li aria-current="@(step == index ? "step" : null)" class="@(step == index ? "current" : "")">@(index + 1). @T("JoinStep" + index)</li> }
-        </ol>
-        <h1 id="join-title" tabindex="-1" @ref="heading">@T("JoinTitle" + step)</h1>
-        @if (catalog is null)
-        {
-            <p role="status">@T(catalogFailed ? "CatalogUnavailable" : "CatalogLoading")</p>
-            @if (catalogFailed) { <button type="button" @onclick="LoadCatalogAsync">@T("TryAgain")</button> }
-        }
-        else if (!catalog.RegistrationEnabled)
-        {
-            <p role="status">@T("RegistrationDisabled")</p><a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
-        }
-        else
-        {
-            @if (Selected is { } chosen && step > 0) { <div class="chosen"><strong>@chosen.Name</strong><span>@PublicLanding.Price(chosen) @PublicLanding.Period(chosen) · @PublicLanding.Capacity(chosen)</span></div> }
-            <form @onsubmit="ContinueAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
-                <fieldset disabled="@busy">
-                @if (step == 0)
-                {
-                    <label for="join-plan">@T("JoinStep0")</label>
-                    <select id="join-plan" @bind="planId" aria-invalid="@Invalid("plan")" aria-describedby="join-error" @ref="planInput"><option value="">@T("ChoosePlanPrompt")</option>@foreach (var plan in catalog.Plans) { <option value="@plan.Id">@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</option> }</select>
-                }
-                else if (step == 1)
-                {
-                    <div class="fields">
-                        <div><label for="join-owner">@T("OwnerName")</label><input id="join-owner" autocomplete="name" maxlength="150" @bind="ownerName" @bind:event="oninput" aria-invalid="@Invalid("owner")" aria-describedby="join-error" @ref="ownerInput" /></div>
-                        <div><label for="join-email">@T("Email")</label><input id="join-email" type="email" autocomplete="username" maxlength="256" @bind="email" @bind:event="oninput" aria-invalid="@Invalid("email")" aria-describedby="join-error" @ref="emailInput" /></div>
-                        <div class="two"><div><label for="join-password">@T("Password")</label><input id="join-password" type="password" autocomplete="new-password" maxlength="128" @bind="password" @bind:event="oninput" aria-invalid="@Invalid("password")" aria-describedby="join-error password-help" @ref="passwordInput" /></div>
-                        <div><label for="join-confirmation">@T("PasswordConfirmation")</label><input id="join-confirmation" type="password" autocomplete="new-password" maxlength="128" @bind="confirmation" @bind:event="oninput" aria-invalid="@Invalid("confirmation")" aria-describedby="join-error password-help" @ref="confirmationInput" /></div></div>
-                        <p class="small" id="password-help">@T("PasswordPolicy")</p>
-                    </div>
-                }
-                else if (step == 2)
-                {
-                    <div class="fields">
-                        <div><label for="join-institution">@T("InstitutionName")</label><input id="join-institution" maxlength="200" @bind="institutionName" @bind:event="oninput" aria-invalid="@Invalid("institution")" aria-describedby="join-error" @ref="institutionInput" /></div>
-                        <div><label for="join-type">@T("InstitutionType")</label><select id="join-type" @bind="institutionType" aria-invalid="@Invalid("type")" aria-describedby="join-error" @ref="typeInput"><option value="">@T("ChooseTypePrompt")</option>@foreach (var type in Types) { <option value="@type">@T("InstitutionType_" + type)</option> }</select></div>
-                        <div><label for="join-year">@T("AcademicYear")</label><input id="join-year" maxlength="9" @bind="academicYear" @bind:event="oninput" aria-invalid="@Invalid("year")" aria-describedby="join-error join-year-help" @ref="yearInput" /><p class="small" id="join-year-help">@T("InstitutionYearHelp")</p></div>
-                        <div><label for="join-locality">@T("LocalityOptional")</label><input id="join-locality" maxlength="100" @bind="locality" @bind:event="oninput" aria-invalid="@Invalid("locality")" aria-describedby="join-error" @ref="localityInput" /></div>
-                    </div>
-                }
-                else if (Selected is { } plan)
-                {
-                    <dl class="summary"><dt>@T("JoinStep0")</dt><dd>@plan.Name — @PublicLanding.Price(plan) @PublicLanding.Period(plan) — @PublicLanding.Capacity(plan)</dd><dt>@T("JoinStep1")</dt><dd>@ownerName</dd><dt>@T("Email")</dt><dd>@email</dd><dt>@T("Institution")</dt><dd>@institutionName — @T("InstitutionType_" + institutionType) @locality</dd><dt>@T("AcademicYear")</dt><dd>@academicYear</dd></dl>
-                    <aside class="billing-summary" aria-labelledby="billing-summary-title"><h2 id="billing-summary-title">@T("SignupBillingSummary")</h2><dl><dt>@T("SignupPlanAmount")</dt><dd>@PublicLanding.Price(plan) @PublicLanding.Period(plan)</dd><dt>@T("SignupAmountDue")</dt><dd>@T("SignupNoAmountDue")</dd></dl><p>@T("SignupBillingHelp")</p></aside>
-                    <p class="notice">@T("CreationNotice")</p>
-                    <label class="consent"><input id="join-consent" type="checkbox" @bind="accepted" aria-invalid="@Invalid("consent")" aria-describedby="join-error" @ref="consentInput" /><span>@T("DemonstrationConsent")</span></label>
-                }
-                <div class="actions">@if (step > 0) { <button type="button" @onclick="Back">@T("Back")</button> }<button class="primary" type="submit">@T(busy ? "Registering" : step == 3 ? "ConfirmRegistration" : "Continue")</button></div>
-                </fieldset>
-            </form>
-        }
-        @if (message is not null) { <p id="join-error" class="error" role="alert">@message</p>@if (offerLogin) { <a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a> } }
-    }
+ <div class="wizard-head"><a class="wizard-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" width="48" height="48" /><strong>SaguiLearn</strong></a><a href="../">@T("CancelRegistration")</a></div>
+ @if (Session.Account is not null && !ownLogin) {
+  <h1 id="join-title">@T("ActiveSessionTitle")</h1><p>@T("ActiveSessionHelp")</p>
+  <div class="actions"><a class="button primary" href="@PublicNavigation.Url(Navigation, "area")">@T("MyArea")</a><button @onclick="SignOutAsync" disabled="@busy">@T("SignOut")</button></div>
+ } else if (finished) {
+  <h1 id="join-title" tabindex="-1" @ref="heading">@T("RegistrationContinueTitle")</h1>
+  <p role="status">@message</p><a class="button primary" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
+ } else {
+  <ol class="progress" aria-label="@T("RegistrationSteps")">
+   @for (var index = 0; index < 5; index++) { <li aria-current="@(step == index ? "step" : null)" class="@(step == index ? "current" : index < step ? "complete" : "")"><span>@(index + 1)</span>@T("JoinStep" + index)</li> }
+  </ol>
+  <div class="wizard-layout"><div class="wizard-main">
+   <h1 id="join-title" tabindex="-1" @ref="heading">@T("JoinTitle" + step)</h1><p class="step-help">@T("SignupStepHelp" + step)</p>
+   @if (catalog is null) {
+    <p role="status">@T(catalogFailed ? "CatalogUnavailable" : "CatalogLoading")</p>
+    @if (catalogFailed) { <button type="button" @onclick="LoadCatalogAsync">@T("TryAgain")</button> }
+   } else if (!catalog.RegistrationEnabled) {
+    <p role="status">@T("RegistrationDisabled")</p><a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a>
+   } else {
+    <form @onsubmit="ContinueAsync" @onsubmit:preventDefault novalidate aria-busy="@(busy ? "true" : "false")">
+     <fieldset disabled="@busy">
+     @if (step == 0) {
+      <div tabindex="-1" @ref="planInput" class="plan-options" role="group" aria-label="@T("JoinStep0")">
+       @foreach (var option in catalog.Plans) { <label class="plan-option @(planId == option.Id ? "selected" : "")"><input type="radio" name="join-plan" value="@option.Id" checked="@(planId == option.Id)" @onchange="() => planId = option.Id" /><span><strong>@option.Name</strong><small>@PublicLanding.Capacity(option)</small></span><span class="plan-price">@PublicLanding.Price(option)<small>@PublicLanding.Period(option)</small></span></label> }
+      </div>
+     } else if (step == 1) {
+      <div class="fields">
+       <div><label for="join-institution">@T("InstitutionName")</label><input @ref="institutionInput" id="join-institution" maxlength="200" autocomplete="organization" required @bind="institutionName" @bind:event="oninput" aria-invalid="@Invalid("institution")" aria-describedby="join-error" /></div>
+       <div class="two"><div><label for="join-type">@T("InstitutionType")</label><select @ref="typeInput" id="join-type" required @bind="institutionType" aria-invalid="@Invalid("type")" aria-describedby="join-error"><option value="">@T("ChooseTypePrompt")</option>@foreach (var type in Types) { <option value="@type">@T("InstitutionType_" + type)</option> }</select></div><div><label for="join-year">@T("AcademicYear")</label><input @ref="yearInput" id="join-year" maxlength="9" required @bind="academicYear" @bind:event="oninput" aria-invalid="@Invalid("year")" aria-describedby="join-error join-year-help" /><small id="join-year-help">@T("InstitutionYearHelp")</small></div></div>
+       <div><label for="join-institution-email">@T("SignupContactEmail")</label><input @ref="contactEmailInput" id="join-institution-email" type="email" autocomplete="email" maxlength="256" required @bind="contactEmail" @bind:event="oninput" aria-invalid="@Invalid("contactEmail")" aria-describedby="join-error" /></div>
+       <div class="two"><div><label for="join-teachers">@T("SignupExpectedTeachers")</label><input @ref="teachersInput" id="join-teachers" type="number" min="1" max="10000" required @bind="expectedTeachers" aria-invalid="@Invalid("teachers")" aria-describedby="join-error teachers-help" /><small id="teachers-help">@T("SignupTeachersHelp")</small></div><div><label for="join-phone">@T("SignupPhone")</label><input @ref="phoneInput" id="join-phone" type="tel" autocomplete="tel" maxlength="25" @bind="phone" @bind:event="oninput" aria-invalid="@Invalid("phone")" aria-describedby="join-error" /></div></div>
+       @if (Selected is { } selected && expectedTeachers > selected.AccountLimit) { <p class="notice" role="status">@UiMessages.Format("SignupCapacityWarning", selected.AccountLimit)<button type="button" class="inline-link" @onclick="() => GoTo(0)">@T("SignupReviewPlan")</button></p> }
+       <details class="optional-details" open="@(invalidField is "address" or "postal" or "tax" or "locality")"><summary>@T("SignupOptionalIdentity")</summary><div class="fields"><div><label for="join-address">@T("SignupAddress")</label><input @ref="addressInput" id="join-address" autocomplete="street-address" maxlength="250" @bind="address" @bind:event="oninput" aria-invalid="@Invalid("address")" aria-describedby="join-error" /></div><div class="two"><div><label for="join-postal">@T("SignupPostalCode")</label><input @ref="postalInput" id="join-postal" autocomplete="postal-code" maxlength="8" placeholder="0000-000" @bind="postalCode" @bind:event="oninput" aria-invalid="@Invalid("postal")" aria-describedby="join-error" /></div><div><label for="join-locality">@T("LocalityOptional")</label><input @ref="localityInput" id="join-locality" autocomplete="address-level2" maxlength="100" @bind="locality" @bind:event="oninput" aria-invalid="@Invalid("locality")" aria-describedby="join-error" /></div></div><div><label for="join-tax">@T("SignupTaxNumber")</label><input @ref="taxInput" id="join-tax" inputmode="numeric" maxlength="9" @bind="taxNumber" @bind:event="oninput" aria-invalid="@Invalid("tax")" aria-describedby="join-error tax-help" /><small id="tax-help">@T("SignupTaxHelp")</small></div></div></details>
+      </div>
+     } else if (step == 2) {
+      <div class="fields"><div><label for="join-owner">@T("OwnerName")</label><input @ref="ownerInput" id="join-owner" autocomplete="name" maxlength="150" required @bind="ownerName" @bind:event="oninput" aria-invalid="@Invalid("owner")" aria-describedby="join-error" /></div>
+       <div><label for="join-role">@T("SignupContactRole")</label><select @ref="roleInput" id="join-role" required @bind="contactRole" aria-invalid="@Invalid("role")" aria-describedby="join-error"><option value="">@T("SignupChooseRole")</option>@foreach (var role in Roles) { <option value="@role">@T("SignupRole" + role)</option> }</select></div>
+       <div><label for="join-email">@T("SignupLoginEmail")</label><input @ref="emailInput" id="join-email" type="email" autocomplete="username" maxlength="256" required @bind="email" @bind:event="oninput" aria-invalid="@Invalid("email")" aria-describedby="join-error email-help" /><small id="email-help">@T("SignupEmailVerification")</small></div>
+       <div class="two"><div><label for="join-password">@T("Password")</label><input @ref="passwordInput" id="join-password" type="password" autocomplete="new-password" maxlength="128" required @bind="password" @bind:event="oninput" aria-invalid="@Invalid("password")" aria-describedby="join-error password-help" /></div><div><label for="join-confirmation">@T("PasswordConfirmation")</label><input @ref="confirmationInput" id="join-confirmation" type="password" autocomplete="new-password" maxlength="128" required @bind="confirmation" @bind:event="oninput" aria-invalid="@Invalid("confirmation")" aria-describedby="join-error password-help" /></div></div><small id="password-help">@T("PasswordPolicy")</small>
+      </div>
+     } else if (step == 3) {
+      <div class="payment-heading"><h2>@T("SignupPaymentMethod")</h2><span class="payment-status">@T("SignupSimulation")</span></div><p class="notice">@T("SignupPaymentNotice")</p>
+      <div class="payment-options"><label class="payment-option @(paymentMethod == "Reference" ? "selected" : "")"><input type="radio" name="payment" value="Reference" checked="@(paymentMethod == "Reference")" @onchange='() => paymentMethod = "Reference"' /><span><strong>@T("SignupPayReference")</strong><small>@T("SignupReferenceHelp")</small></span></label><label class="payment-option @(paymentMethod == "Transfer" ? "selected" : "")"><input type="radio" name="payment" value="Transfer" checked="@(paymentMethod == "Transfer")" @onchange='() => paymentMethod = "Transfer"' /><span><strong>@T("SignupPayTransfer")</strong><small>@T("SignupTransferHelp")</small></span></label></div>
+      <p class="small">@T("SignupNoBankDetails")</p>
+     } else if (Selected is { } plan) {
+      <div class="review-section"><div class="review-heading"><h2>@T("Institution")</h2><button type="button" class="inline-link" @onclick="() => GoTo(1)">@T("SignupEdit")</button></div><dl class="summary"><dt>@T("InstitutionName")</dt><dd>@institutionName</dd><dt>@T("InstitutionType")</dt><dd>@T("InstitutionType_" + institutionType)</dd><dt>@T("AcademicYear")</dt><dd>@academicYear</dd><dt>@T("SignupContactEmail")</dt><dd>@contactEmail</dd><dt>@T("SignupExpectedTeachers")</dt><dd>@expectedTeachers</dd>@if (!string.IsNullOrWhiteSpace(address + locality + postalCode)) { <dt>@T("SignupAddress")</dt><dd>@address @postalCode @locality</dd> }@if (!string.IsNullOrWhiteSpace(taxNumber)) { <dt>@T("SignupTaxNumber")</dt><dd>@taxNumber</dd> }</dl></div>
+      <div class="review-section"><div class="review-heading"><h2>@T("JoinStep2")</h2><button type="button" class="inline-link" @onclick="() => GoTo(2)">@T("SignupEdit")</button></div><dl class="summary"><dt>@T("OwnerName")</dt><dd>@ownerName</dd><dt>@T("SignupContactRole")</dt><dd>@T("SignupRole" + contactRole)</dd><dt>@T("Email")</dt><dd>@email</dd></dl></div>
+      <p class="notice">@T("CreationNotice")</p><label class="consent"><input @ref="authorizedInput" id="join-authorized" type="checkbox" @bind="authorized" aria-invalid="@Invalid("authorized")" aria-describedby="join-error" /><span>@T("SignupAuthorization")</span></label><label class="consent"><input @ref="consentInput" id="join-consent" type="checkbox" @bind="accepted" aria-invalid="@Invalid("consent")" aria-describedby="join-error" /><span>@T("DemonstrationConsent")</span></label>
+     }
+     @if (message is not null) { <p id="join-error" class="error" role="alert">@message</p>@if (offerLogin) { <a class="button" href="@PublicNavigation.Url(Navigation, "entrar")">@T("SignIn")</a> } }
+     <div class="actions">@if (step > 0) { <button type="button" @onclick="Back">@T("Back")</button> }<button class="primary" type="submit">@T(busy ? "Registering" : step == 4 ? "ConfirmRegistration" : step == 3 ? "SignupReviewRegistration" : "Continue")</button></div>
+     </fieldset>
+    </form>
+   }
+  </div>
+  <aside class="order-summary" aria-labelledby="order-title"><h2 id="order-title">@T("SignupOrderSummary")</h2>@if (Selected is { } order) { <strong class="order-plan">@order.Name</strong><p>@PublicLanding.Capacity(order)</p><p class="small">@T("SignupExcludesTax")</p><dl><dt>@T("SignupPlanAmount")</dt><dd>@PublicLanding.Price(order) <small>@PublicLanding.Period(order)</small></dd><dt>@T("SignupBillingPeriod")</dt><dd>@T("SignupAnnual")</dd>@if (step >= 3) { <dt>@T("SignupAmountDue")</dt><dd>@T("SignupNoAmountDue")</dd> }</dl>@if (step >= 3) { <p class="payment-caption">@T("SignupPay" + paymentMethod)</p> } } else { <p>@T("ChoosePlanPrompt")</p> }<div class="summary-foot"><strong>SchoolGether</strong><span>@T("SignupSummaryHelp")</span></div></aside>
+  </div>
+ }
 </section>
 @code {
     [Parameter] public string? InitialPlanId { get; set; }
@@ -85,15 +76,24 @@
     private static readonly string[] Types = ["School", "Faculty", "Polytechnic", "TrainingCenter", "Other"];
     private PlanCatalogResponse? catalog;
     private PlanResponse? Selected => catalog?.Plans.FirstOrDefault(plan => plan.Id == planId);
-    private string planId = "", ownerName = "", email = "", password = "", confirmation = "", institutionName = "", institutionType = "", locality = "", academicYear = "";
+    private static readonly string[] Roles = ["Direction", "IT", "Secretary", "Administration", "Other"];
+    private string contactEmail = "", contactRole = "", phone = "", address = "", postalCode = "", taxNumber = "", paymentMethod = "Reference";
+    private int expectedTeachers = 10;
+    private bool authorized, focusInvalid;
+    private string planId = "", ownerName = "", email = "", password = "", confirmation = "", institutionName = "", institutionType = "", locality = "", academicYear = DefaultAcademicYear();
     private string? message, invalidField;
     private int step;
     private bool busy, accepted, finished, ownLogin, catalogFailed, offerLogin, disposed, focusHeading;
-    private ElementReference heading, planInput, ownerInput, emailInput, passwordInput, confirmationInput, institutionInput, typeInput, localityInput, yearInput, consentInput;
+    private ElementReference heading, planInput, institutionInput, typeInput, yearInput, contactEmailInput, teachersInput, phoneInput, addressInput, postalInput, localityInput, taxInput, ownerInput, roleInput, emailInput, passwordInput, confirmationInput, authorizedInput, consentInput;
+    private static string DefaultAcademicYear() { var year = DateTime.Today.Year - (DateTime.Today.Month < 9 ? 1 : 0); return $"{year}/{year + 1}"; }
     private static string T(string key) => UiMessages.Get(key);
     private string Invalid(string field) => invalidField == field ? "true" : "false";
     protected override async Task OnInitializedAsync() { planId = InitialPlanId ?? ""; Session.Changed += SessionChanged; await LoadCatalogAsync(); }
-    protected override async Task OnAfterRenderAsync(bool firstRender) { if (focusHeading && !disposed) { focusHeading = false; await heading.FocusAsync(); } }
+    protected override async Task OnAfterRenderAsync(bool firstRender) {
+        if (disposed) return;
+        if (focusInvalid) { focusInvalid = false; var input = invalidField switch { "institution" => institutionInput, "type" => typeInput, "year" => yearInput, "contactEmail" => contactEmailInput, "teachers" => teachersInput, "phone" => phoneInput, "address" => addressInput, "postal" => postalInput, "locality" => localityInput, "tax" => taxInput, "owner" => ownerInput, "role" => roleInput, "email" => emailInput, "password" => passwordInput, "confirmation" => confirmationInput, "authorized" => authorizedInput, "consent" => consentInput, _ => planInput }; await input.FocusAsync(); }
+        else if (focusHeading) { focusHeading = false; await heading.FocusAsync(); }
+    }
     private void SessionChanged()
     {
         if (ownLogin) return;
@@ -107,35 +107,46 @@
         try { var loaded = await Plans.GetCatalogAsync(lifetime.Token); if (!disposed && !lifetime.IsCancellationRequested) { catalog = loaded; if (Selected is null) { planId = ""; step = 0; } } }
         catch { if (!disposed) catalogFailed = true; }
     }
+    private void GoTo(int value) { if (busy || value < 0 || value >= step) return; step = value; accepted = false; message = null; invalidField = null; focusHeading = true; }
     private void Back() { if (busy) return; step--; accepted = false; message = null; invalidField = null; focusHeading = true; }
-    private async Task ErrorAsync(string field, string key, ElementReference input) { invalidField = field; message = T(key); await input.FocusAsync(); }
+    private Task ErrorAsync(string field, string key) { invalidField = field; message = T(key); focusInvalid = true; return Task.CompletedTask; }
     private async Task ContinueAsync()
     {
         if (busy || disposed || lifetime.IsCancellationRequested || Session.Account is not null || catalog?.RegistrationEnabled != true) return;
         message = null; invalidField = null; offerLogin = false;
-        if (step == 0 && Selected is null) { await ErrorAsync("plan", "ChoosePlanPrompt", planInput); return; }
+        if (step == 0 && Selected is null) { await ErrorAsync("plan", "ChoosePlanPrompt"); return; }
         if (step == 1)
         {
-            ownerName = ownerName.Trim(); email = email.Trim();
-            if (ownerName.Length is < 1 or > 150) { await ErrorAsync("owner", "OwnerRequired", ownerInput); return; }
-            if (email.Length is < 1 or > 256 || !new EmailAddressAttribute().IsValid(email)) { await ErrorAsync("email", "EmailInvalid", emailInput); return; }
-            if (password.Length is < 12 or > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(c => !char.IsLetterOrDigit(c))) { await ErrorAsync("password", "PasswordPolicy", passwordInput); return; }
-            if (password != confirmation) { await ErrorAsync("confirmation", "PasswordMismatch", confirmationInput); return; }
+            contactEmail = contactEmail.Trim();
+            if (contactEmail.Length is < 1 or > 256 || !new EmailAddressAttribute().IsValid(contactEmail)) { await ErrorAsync("contactEmail", "EmailInvalid"); return; }
+            if (expectedTeachers is < 1 or > 10000) { await ErrorAsync("teachers", "SignupTeachersInvalid"); return; }
+            if (phone.Trim().Length > 0 && (phone.Trim().Length > 25 || !Regex.IsMatch(phone.Trim(), @"^\+?[0-9 ()-]+$") || phone.Count(char.IsAsciiDigit) is < 9 or > 15)) { await ErrorAsync("phone", "SignupPhoneInvalid"); return; }
+            if (address.Trim().Length > 250) { await ErrorAsync("address", "SignupAddressInvalid"); return; }
+            if (postalCode.Trim().Length > 0 && !Regex.IsMatch(postalCode.Trim(), @"^[0-9]{4}-[0-9]{3}$")) { await ErrorAsync("postal", "SignupPostalInvalid"); return; }
+            if (taxNumber.Trim().Length > 0 && !Regex.IsMatch(taxNumber.Trim(), @"^[0-9]{9}$")) { await ErrorAsync("tax", "SignupTaxInvalid"); return; }
+            institutionName = institutionName.Trim(); locality = locality.Trim();
+            if (institutionName.Length is < 1 or > 200) { await ErrorAsync("institution", "InstitutionRequired"); return; }
+            if (!Types.Contains(institutionType)) { await ErrorAsync("type", "ChooseTypePrompt"); return; }
+            if (!System.Text.RegularExpressions.Regex.IsMatch(academicYear, @"^[0-9]{4}/[0-9]{4}$") || !int.TryParse(academicYear[..4], out var start) || start is < 1900 or > 2199 || int.Parse(academicYear[5..]) != start + 1) { await ErrorAsync("year", "InstitutionYearInvalid"); return; }
+            if (locality.Length > 100) { await ErrorAsync("locality", "LocalityTooLong"); return; }
         }
         if (step == 2)
         {
-            institutionName = institutionName.Trim(); locality = locality.Trim();
-            if (institutionName.Length is < 1 or > 200) { await ErrorAsync("institution", "InstitutionRequired", institutionInput); return; }
-            if (!Types.Contains(institutionType)) { await ErrorAsync("type", "ChooseTypePrompt", typeInput); return; }
-            if (!System.Text.RegularExpressions.Regex.IsMatch(academicYear, @"^[0-9]{4}/[0-9]{4}$") || !int.TryParse(academicYear[..4], out var start) || start is < 1900 or > 2199 || int.Parse(academicYear[5..]) != start + 1) { await ErrorAsync("year", "InstitutionYearInvalid", yearInput); return; }
-            if (locality.Length > 100) { await ErrorAsync("locality", "LocalityTooLong", localityInput); return; }
+            ownerName = ownerName.Trim(); email = email.Trim();
+            if (!Roles.Contains(contactRole)) { await ErrorAsync("role", "SignupChooseRole"); return; }
+            if (ownerName.Length is < 1 or > 150) { await ErrorAsync("owner", "OwnerRequired"); return; }
+            if (email.Length is < 1 or > 256 || !new EmailAddressAttribute().IsValid(email)) { await ErrorAsync("email", "EmailInvalid"); return; }
+            if (password.Length is < 12 or > 128 || !password.Any(char.IsUpper) || !password.Any(char.IsLower) || !password.Any(char.IsDigit) || !password.Any(c => !char.IsLetterOrDigit(c))) { await ErrorAsync("password", "PasswordPolicy"); return; }
+            if (password != confirmation) { await ErrorAsync("confirmation", "PasswordMismatch"); return; }
         }
-        if (step < 3) { step++; focusHeading = true; return; }
-        if (!accepted) { await ErrorAsync("consent", "ConsentRequired", consentInput); return; }
+        if (step == 3 && paymentMethod is not ("Reference" or "Transfer")) { await ErrorAsync("payment", "SignupPaymentRequired"); return; }
+        if (step < 4) { step++; focusHeading = true; return; }
+        if (!authorized) { await ErrorAsync("authorized", "SignupAuthorizationRequired"); return; }
+        if (!accepted) { await ErrorAsync("consent", "ConsentRequired"); return; }
         busy = true;
         try
         {
-            var created = await Onboarding.RegisterAsync(new(planId, catalog.Version, ownerName, email, password, institutionName, institutionType, locality.Length == 0 ? null : locality, true, academicYear), lifetime.Token);
+            var created = await Onboarding.RegisterAsync(new(planId, catalog.Version, ownerName, email, password, institutionName, institutionType, locality.Length == 0 ? null : locality, true, academicYear, new SignupInstitutionDetails(contactEmail, contactRole, phone, address, postalCode, taxNumber, expectedTeachers)), lifetime.Token);
             if (disposed || lifetime.IsCancellationRequested || Session.Account is not null) return;
             ownLogin = true;
             try

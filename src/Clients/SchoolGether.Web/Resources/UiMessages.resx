@@ -474,7 +474,7 @@
 <data name="PublicHeroIntroduction" xml:space="preserve"><value>A SchoolGether está a ser desenvolvida para apoiar a planificação de aulas, os materiais dos professores e o acompanhamento dos alunos, com organização partilhada pela escola.</value></data>
 <data name="PublicExplorePlans" xml:space="preserve"><value>Conhecer os planos</value></data>
 <data name="PublicExplorePlatform" xml:space="preserve"><value>Explorar a plataforma</value></data>
-<data name="PublicProductStage" xml:space="preserve"><value>Projeto em desenvolvimento: consulta abaixo as funcionalidades disponíveis e as próximas entregas.</value></data>
+<data name="PublicProductStage" xml:space="preserve"><value>Consulta as ferramentas e organiza o trabalho da tua escola.</value></data>
 <data name="PublicInstitutionPerspective" xml:space="preserve"><value>A tua instituição</value></data>
 <data name="PublicInstitutionPurpose" xml:space="preserve"><value>Organizar e acompanhar</value></data>
 <data name="PublicTeacherPerspective" xml:space="preserve"><value>Os teus professores</value></data>
@@ -490,15 +490,15 @@
 <data name="PublicInstitutionsDescription" xml:space="preserve"><value>Organizar cursos, disciplinas, turmas e utilizadores. O calendário partilhado será desenvolvido numa próxima entrega.</value></data>
 <data name="PublicInstitutionsStatus" xml:space="preserve"><value>Gestão institucional e catálogo académico disponíveis</value></data>
 <data name="PublicTeachersTitle" xml:space="preserve"><value>Professores</value></data>
-<data name="PublicTeachersDescription" xml:space="preserve"><value>Preparar aulas, partilhar materiais próprios, definir atividades e acompanhar dificuldades. Estes recursos estão em desenvolvimento.</value></data>
-<data name="PublicTeachersStatus" xml:space="preserve"><value>Funcionalidades educativas em desenvolvimento</value></data>
+<data name="PublicTeachersDescription" xml:space="preserve"><value>Organizar turmas, preparar planificações privadas e publicar materiais de texto e ligações para os alunos.</value></data>
+<data name="PublicTeachersStatus" xml:space="preserve"><value>Planificações e materiais disponíveis</value></data>
 <data name="PublicStudentsTitle" xml:space="preserve"><value>Alunos</value></data>
-<data name="PublicStudentsDescription" xml:space="preserve"><value>Consultar os materiais dos professores, acompanhar tarefas e receber orientações para melhorar. Área em desenvolvimento.</value></data>
-<data name="PublicStudentsStatus" xml:space="preserve"><value>Área do aluno em desenvolvimento</value></data>
+<data name="PublicStudentsDescription" xml:space="preserve"><value>Consultar as turmas, os materiais publicados pelos professores e os eventos da escola.</value></data>
+<data name="PublicStudentsStatus" xml:space="preserve"><value>Turmas, materiais e calendário disponíveis</value></data>
 <data name="PublicPlansTitleFirst" xml:space="preserve"><value>Um plano para</value></data>
 <data name="PublicPlansTitleSecond" xml:space="preserve"><value>a tua comunidade.</value></data>
-<data name="PublicPlansIntroduction" xml:space="preserve"><value>Anuidades de demonstração por instituição, dimensionadas pela equipa docente. Os pagamentos são simulados nesta PAP.</value></data>
-<data name="PublicPlansNotice" xml:space="preserve"><value>Nos planos anuais, só as contas de professores ocupam os lugares indicados; alunos e responsáveis estão incluídos. Os limites de armazenamento serão definidos antes de uma contratação real. Não existe cobrança nem renovação automática.</value></data>
+<data name="PublicPlansIntroduction" xml:space="preserve"><value>Anuidades por instituição, dimensionadas pela equipa docente.</value></data>
+<data name="PublicPlansNotice" xml:space="preserve"><value>Nos planos anuais, só os professores ocupam os lugares indicados. Alunos estão incluídos. Consulta os limites e as condições na adesão.</value></data>
 <data name="PublicJourneyTitleFirst" xml:space="preserve"><value>Da escolha do plano</value></data>
 <data name="PublicJourneyTitleSecond" xml:space="preserve"><value>à tua instituição.</value></data>
 <data name="PublicJourneyPlanTitle" xml:space="preserve"><value>Escolhe o plano</value></data>
@@ -506,16 +506,16 @@
 <data name="PublicJourneyOwnerTitle" xml:space="preserve"><value>Cria a tua conta</value></data>
 <data name="PublicJourneyOwnerDescription" xml:space="preserve"><value>Define as credenciais do primeiro responsável pela instituição.</value></data>
 <data name="PublicJourneyInstitutionTitle" xml:space="preserve"><value>Regista a instituição</value></data>
-<data name="PublicJourneyInstitutionDescription" xml:space="preserve"><value>Preenche os dados e confirma a adesão simulada.</value></data>
+<data name="PublicJourneyInstitutionDescription" xml:space="preserve"><value>Preenche os dados e cria o espaço da tua instituição.</value></data>
 <data name="PublicJourneySetupTitle" xml:space="preserve"><value>Prepara a escola</value></data>
 <data name="PublicJourneySetupDescription" xml:space="preserve"><value>Configura a instituição e começa a organizar a tua equipa.</value></data>
 <data name="PublicAboutTitleFirst" xml:space="preserve"><value>Tecnologia com</value></data>
 <data name="PublicAboutTitleSecond" xml:space="preserve"><value>um propósito educativo.</value></data>
 <data name="PublicAboutCompany" xml:space="preserve"><value>A SaguiLearn é a empresa responsável pelo SchoolGether, uma plataforma digital dedicada à comunidade educativa.</value></data>
-<data name="PublicAboutProject" xml:space="preserve"><value>A SchoolGether é um projeto de PAP de três estudantes. A proposta reúne apoio ao professor, materiais adicionados pelos docentes e acompanhamento dos alunos, com calendário partilhado e módulos adicionais em desenvolvimento.</value></data>
+<data name="PublicAboutProject" xml:space="preserve"><value>A SaguiLearn desenvolve a SchoolGether para apoiar os professores, facilitar a organização pedagógica e aproximar a comunidade escolar.</value></data>
 <data name="PublicStartInstitution" xml:space="preserve"><value>Começar com a minha instituição</value></data>
 <data name="PublicFooterBrand" xml:space="preserve"><value>SchoolGether, uma solução SaguiLearn.</value></data>
-<data name="PublicFooterStage" xml:space="preserve"><value>Projeto de demonstração educativa.</value></data>
+<data name="PublicFooterStage" xml:space="preserve"><value>Tecnologia ao serviço da educação.</value></data>
 <data name="PublicBack" xml:space="preserve"><value>Voltar à apresentação</value></data>
 <data name="PublicNavigation" xml:space="preserve"><value>Navegação principal</value></data>
 <data name="MyArea" xml:space="preserve"><value>A minha área</value></data>
@@ -538,14 +538,14 @@
   <data name="RegistrationContinueTitle" xml:space="preserve"><value>Continuar com a tua conta</value></data>
   <data name="RegistrationSteps" xml:space="preserve"><value>Etapas da adesão</value></data>
   <data name="JoinStep0" xml:space="preserve"><value>Plano</value></data>
-  <data name="JoinStep1" xml:space="preserve"><value>Responsável</value></data>
-  <data name="JoinStep2" xml:space="preserve"><value>Instituição</value></data>
-  <data name="JoinStep3" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="JoinStep1" xml:space="preserve"><value>Instituição</value></data>
+  <data name="JoinStep2" xml:space="preserve"><value>Responsável</value></data>
+  <data name="JoinStep3" xml:space="preserve"><value>Pagamento</value></data>
   <data name="JoinTitle0" xml:space="preserve"><value>Escolhe o teu plano</value></data>
-  <data name="JoinTitle1" xml:space="preserve"><value>Cria a tua conta de responsável</value></data>
-  <data name="JoinTitle2" xml:space="preserve"><value>Apresenta a tua instituição</value></data>
-  <data name="JoinTitle3" xml:space="preserve"><value>Está tudo preparado?</value></data>
-  <data name="ExampleDataNotice" xml:space="preserve"><value>Ambiente de demonstração. Usa dados de exemplo. O e-mail não é verificado nesta entrega.</value></data>
+  <data name="JoinTitle1" xml:space="preserve"><value>Apresenta a tua instituição</value></data>
+  <data name="JoinTitle2" xml:space="preserve"><value>Cria a conta de administração</value></data>
+  <data name="JoinTitle3" xml:space="preserve"><value>Escolhe como pretendes pagar</value></data>
+  <data name="ExampleDataNotice" xml:space="preserve"><value>A verificação automática por e-mail ainda não está disponível.</value></data>
   <data name="ChoosePlanPrompt" xml:space="preserve"><value>Seleciona um plano do catálogo.</value></data>
   <data name="Month" xml:space="preserve"><value>mês</value></data>
   <data name="OwnerName" xml:space="preserve"><value>Nome completo</value></data>
@@ -560,12 +560,12 @@
   <data name="InstitutionType_TrainingCenter" xml:space="preserve"><value>Centro de formação</value></data>
   <data name="InstitutionType_Other" xml:space="preserve"><value>Outro</value></data>
   <data name="LocalityOptional" xml:space="preserve"><value>Localidade (opcional)</value></data>
-  <data name="CreationNotice" xml:space="preserve"><value>Serão criadas a conta de administração e a instituição com a configuração indicada. Esta confirmação não efetua qualquer cobrança real nem inicia uma renovação automática. Não é solicitado cartão.</value></data>
-  <data name="DemonstrationConsent" xml:space="preserve"><value>Confirmo os dados da instituição e compreendo que esta adesão não efetua qualquer cobrança real.</value></data>
+  <data name="CreationNotice" xml:space="preserve"><value>Serão criadas a instituição, a conta de administração e as condições do plano selecionado.</value></data>
+  <data name="DemonstrationConsent" xml:space="preserve"><value>Confirmo os dados e compreendo que não será efetuada qualquer cobrança nem renovação automática.</value></data>
   <data name="Back" xml:space="preserve"><value>Voltar</value></data>
   <data name="Continue" xml:space="preserve"><value>Continuar</value></data>
   <data name="Registering" xml:space="preserve"><value>A criar e a entrar…</value></data>
-  <data name="ConfirmRegistration" xml:space="preserve"><value>Confirmar adesão</value></data>
+  <data name="ConfirmRegistration" xml:space="preserve"><value>Criar instituição</value></data>
   <data name="OwnerRequired" xml:space="preserve"><value>Preenche o nome do responsável, até 150 caracteres.</value></data>
   <data name="PasswordMismatch" xml:space="preserve"><value>Confirma a mesma palavra-passe.</value></data>
   <data name="InstitutionRequired" xml:space="preserve"><value>Preenche o nome da instituição, até 200 caracteres.</value></data>
@@ -596,7 +596,7 @@
 <data name="InstitutionLegacyOccupancy" xml:space="preserve"><value>{0} contas existentes</value></data>
 <data name="InstitutionDemonstration" xml:space="preserve"><value>Condições do plano associado à sua instituição.</value></data>
 <data name="InstitutionFuture" xml:space="preserve"><value>Cursos, turmas, disciplinas e outras funcionalidades académicas serão disponibilizados numa entrega futura.</value></data>
-<data name="InstitutionYearHelp" xml:space="preserve"><value>Formato AAAA/AAAA, por exemplo 2026/2027. É um rótulo de configuração; não cria cursos ou inscrições.</value></data>
+<data name="InstitutionYearHelp" xml:space="preserve"><value>Define o ano letivo de trabalho da instituição, por exemplo 2026/2027.</value></data>
 <data name="InstitutionSaveSetup" xml:space="preserve"><value>Guardar configuração</value></data>
 <data name="InstitutionSaving" xml:space="preserve"><value>A guardar…</value></data>
 <data name="InstitutionReloadSetup" xml:space="preserve"><value>Recarregar configuração</value></data>
@@ -907,10 +907,10 @@
 <data name="AccountWorkspace" xml:space="preserve"><value>Área da conta</value></data>
 <data name="ClearAreaSearch" xml:space="preserve"><value>Limpar pesquisa</value></data>
   <data name="SignupBillingSummary" xml:space="preserve"><value>Resumo do plano</value></data>
-  <data name="SignupPlanAmount" xml:space="preserve"><value>Valor de referência</value></data>
+  <data name="SignupPlanAmount" xml:space="preserve"><value>Preço do plano</value></data>
   <data name="SignupAmountDue" xml:space="preserve"><value>A pagar nesta adesão</value></data>
-  <data name="SignupNoAmountDue" xml:space="preserve"><value>0 €</value></data>
-  <data name="SignupBillingHelp" xml:space="preserve"><value>Resumo de pagamento simulado, sem recolha de dados bancários ou de cartão.</value></data>
+  <data name="SignupNoAmountDue" xml:space="preserve"><value>0 € — sem cobrança</value></data>
+  <data name="SignupBillingHelp" xml:space="preserve"><value>Não são recolhidos dados bancários nem de cartão.</value></data>
   <data name="Calendar" xml:space="preserve"><value>Calendário</value></data>
 <data name="Enrolments" xml:space="preserve"><value>Inscrições</value></data>
 <data name="EnrolmentClassNamed" xml:space="preserve"><value>Inscrições de {0}</value></data>
@@ -1014,4 +1014,56 @@
   <data name="MemberClasses" xml:space="preserve"><value>As minhas turmas</value></data>
   <data name="LessonPlans" xml:space="preserve"><value>Planificações</value></data>
   <data name="TeachingMaterials" xml:space="preserve"><value>Materiais</value></data>
+  <data name="JoinStep4" xml:space="preserve"><value>Confirmar</value></data>
+  <data name="JoinTitle4" xml:space="preserve"><value>Revê e cria a tua instituição</value></data>
+  <data name="SignupStepHelp0" xml:space="preserve"><value>Uma anuidade por instituição. Escolhe o plano adequado à tua equipa docente.</value></data>
+  <data name="SignupStepHelp1" xml:space="preserve"><value>Estes dados identificam a escola e preparam o seu espaço de trabalho.</value></data>
+  <data name="SignupStepHelp2" xml:space="preserve"><value>Esta será a primeira conta de administração da instituição.</value></data>
+  <data name="SignupStepHelp3" xml:space="preserve"><value>Confirma a preferência de pagamento e consulta as condições antes de continuar.</value></data>
+  <data name="SignupStepHelp4" xml:space="preserve"><value>Confirma os dados. A instituição e a conta só serão criadas no passo final.</value></data>
+  <data name="SignupContactEmail" xml:space="preserve"><value>E-mail institucional</value></data>
+  <data name="SignupContactRole" xml:space="preserve"><value>Função na instituição</value></data>
+  <data name="SignupChooseRole" xml:space="preserve"><value>Seleciona a tua função na instituição.</value></data>
+  <data name="SignupRoleDirection" xml:space="preserve"><value>Direção</value></data>
+  <data name="SignupRoleIT" xml:space="preserve"><value>Informática / apoio tecnológico</value></data>
+  <data name="SignupRoleSecretary" xml:space="preserve"><value>Secretaria</value></data>
+  <data name="SignupRoleAdministration" xml:space="preserve"><value>Administração</value></data>
+  <data name="SignupRoleOther" xml:space="preserve"><value>Outra função autorizada</value></data>
+  <data name="SignupLoginEmail" xml:space="preserve"><value>E-mail de acesso</value></data>
+  <data name="SignupEmailVerification" xml:space="preserve"><value>Usa um endereço a que tenhas acesso. A verificação automática por e-mail ainda não está disponível.</value></data>
+  <data name="SignupExpectedTeachers" xml:space="preserve"><value>Número previsto de professores</value></data>
+  <data name="SignupTeachersHelp" xml:space="preserve"><value>Uma estimativa para dimensionar o plano. Não cria contas automaticamente.</value></data>
+  <data name="SignupTeachersInvalid" xml:space="preserve"><value>Indica um número de professores entre 1 e 10 000.</value></data>
+  <data name="SignupPhone" xml:space="preserve"><value>Telefone institucional (opcional)</value></data>
+  <data name="SignupPhoneInvalid" xml:space="preserve"><value>Indica um telefone com 9 a 15 algarismos; podes incluir +, espaços, parênteses e hífen.</value></data>
+  <data name="SignupAddress" xml:space="preserve"><value>Morada (opcional)</value></data>
+  <data name="SignupAddressInvalid" xml:space="preserve"><value>A morada pode ter até 250 caracteres.</value></data>
+  <data name="SignupPostalCode" xml:space="preserve"><value>Código postal (opcional)</value></data>
+  <data name="SignupPostalInvalid" xml:space="preserve"><value>Usa o formato de código postal 0000-000.</value></data>
+  <data name="SignupTaxNumber" xml:space="preserve"><value>NIPC / NIF da instituição (opcional)</value></data>
+  <data name="SignupTaxHelp" xml:space="preserve"><value>Apenas identificação institucional. Não será emitida uma fatura.</value></data>
+  <data name="SignupTaxInvalid" xml:space="preserve"><value>O NIPC / NIF deve ter 9 algarismos.</value></data>
+  <data name="SignupOptionalIdentity" xml:space="preserve"><value>Adicionar morada e identificação fiscal (opcional)</value></data>
+  <data name="SignupCapacityWarning" xml:space="preserve"><value>O plano permite até {0} professores. A tua estimativa é superior: revê o plano antes de criar contas. As quotas não serão alteradas automaticamente.</value></data>
+  <data name="SignupReviewPlan" xml:space="preserve"><value>Rever plano</value></data>
+  <data name="SignupPaymentMethod" xml:space="preserve"><value>Método de pagamento</value></data>
+  <data name="SignupSimulation" xml:space="preserve"><value>Pagamento simulado</value></data>
+  <data name="SignupPaymentNotice" xml:space="preserve"><value>Os pagamentos reais ainda não estão disponíveis. Podes concluir a adesão sem cobrança e sem renovação automática.</value></data>
+  <data name="SignupPayReference" xml:space="preserve"><value>Referência de pagamento</value></data>
+  <data name="SignupPayTransfer" xml:space="preserve"><value>Transferência bancária</value></data>
+  <data name="SignupReferenceHelp" xml:space="preserve"><value>Pré-visualização do método. Não é gerada uma referência pagável.</value></data>
+  <data name="SignupTransferHelp" xml:space="preserve"><value>Pré-visualização do método. Não é indicado um IBAN nem feita uma transferência.</value></data>
+  <data name="SignupNoBankDetails" xml:space="preserve"><value>Não introduzas dados bancários ou de cartão. Esta escolha não executa uma operação financeira.</value></data>
+  <data name="SignupPaymentRequired" xml:space="preserve"><value>Seleciona um método de pagamento para continuar.</value></data>
+  <data name="SignupReviewRegistration" xml:space="preserve"><value>Rever adesão</value></data>
+  <data name="SignupOrderSummary" xml:space="preserve"><value>O teu plano</value></data>
+  <data name="SignupBillingPeriod" xml:space="preserve"><value>Periodicidade</value></data>
+  <data name="SignupAnnual" xml:space="preserve"><value>Anual</value></data>
+  <data name="SignupSummaryHelp" xml:space="preserve"><value>Apoio aos professores, alunos e organização da escola.</value></data>
+  <data name="SignupAuthorization" xml:space="preserve"><value>Declaro que tenho autorização para criar e administrar a conta desta instituição.</value></data>
+  <data name="SignupAuthorizationRequired" xml:space="preserve"><value>Confirma que tens autorização para representar a instituição.</value></data>
+  <data name="SignupSavedContacts" xml:space="preserve"><value>Contactos indicados na adesão</value></data>
+  <data name="SignupFeatureAvailable" xml:space="preserve"><value>Disponível na plataforma</value></data>
+  <data name="SignupEdit" xml:space="preserve"><value>Editar</value></data>
+  <data name="SignupExcludesTax" xml:space="preserve"><value>Preço base, acrescido de IVA.</value></data>
 </root>

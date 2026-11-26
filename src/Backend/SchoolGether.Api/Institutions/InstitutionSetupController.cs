@@ -28,5 +28,6 @@ public sealed class InstitutionSetupController(InstitutionSetupService setup, IS
             new PlanResponse(plan.Id, messages[plan.NameKey], plan.Price, plan.Currency, plan.AccountLimit, plan.BillingPeriod, plan.CapacityUnit), value.CatalogVersion, value.UsedAccounts);
     }
     private static InstitutionSetupResponse Map(InstitutionSetup value) => new(value.InstitutionId, value.Name, value.InstitutionType,
-        value.Locality, value.AcademicYear, value.IsComplete, value.RowVersion, value.SuggestedAcademicYear);
+        value.Locality, value.AcademicYear, value.IsComplete, value.RowVersion, value.SuggestedAcademicYear, value.Details is { } d ?
+            new SchoolGether.Contracts.Onboarding.SignupInstitutionDetails(d.ContactEmail, d.ContactRole, d.Phone, d.Address, d.PostalCode, d.TaxNumber, d.ExpectedTeachers) : null);
 }

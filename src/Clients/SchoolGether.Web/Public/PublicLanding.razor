@@ -27,7 +27,7 @@
 <a class="button primary" href="@(Navigation.BaseUri + "#planos")">@T("PublicExplorePlans")</a>
 <a class="button" href="@(Navigation.BaseUri + "#plataforma")">@T("PublicExplorePlatform")</a>
 </div>
-<p class="small">@T("PublicProductStage")</p>
+
 </div>
 <div class="hero-illustration">
 <img src="images/schoolgether-restored.png" alt="">
@@ -85,7 +85,7 @@
 <div class="roles">
 @foreach (var feature in new[] { "Planning", "Calendar", "Maintenance" })
 {
-<article class="role"><h3>@T("Public" + feature + "Title")</h3><p>@T("Public" + feature + "Description")</p><span class="status">@T("DevelopmentStatus")</span></article>
+<article class="role"><h3>@T("Public" + feature + "Title")</h3><p>@T("Public" + feature + "Description")</p><span class="status">@T(feature == "Maintenance" ? "DevelopmentStatus" : "SignupFeatureAvailable")</span></article>
 }
 </div><p class="plans-note">@T("PublicHoursNotice")</p>
 </div>
