@@ -33,8 +33,7 @@
 .template-3 .pricing-copy p{font-size:1rem;margin-top:16px;color:#53645c}
 .template-3 .pricing-copy .pricing-note{font-size:.85rem;margin-top:12px}
 .template-3 .plan-list{gap:20px;max-width:1080px;margin:auto}
-.template-3 .plan-row{border:1px solid #d7dfd9;border-radius:12px;background:white;color:#20362d;display:flex;flex-direction:column;align-items:stretch;gap:20px;padding:26px}
-.template-3 .plan-row:nth-child(2){border-color:#193f30}
+.template-3 .plan-row{border:1px solid #000;border-radius:12px;background:white;color:#20362d;display:flex;flex-direction:column;align-items:stretch;gap:20px;padding:26px}
 .template-3 .plan-row h3{font-size:1.15rem;color:#193f30;margin:0}
 .template-3 .plan-row>p{margin:0;display:flex;flex-direction:column;gap:4px}
 .template-3 .plan-row p strong{font-size:2rem;line-height:1.2;color:#20362d}
