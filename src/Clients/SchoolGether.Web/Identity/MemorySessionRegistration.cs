@@ -30,6 +30,7 @@ public static class MemorySessionRegistration
         services.AddScoped<SchoolGether.ApiClient.Learning.LessonPlansApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Learning.LearningMaterialsApiClient>();
         services.AddScoped<SchoolGether.ApiClient.Learning.LearningContextsApiClient>();
+        services.AddScoped(typeof(SchoolGether.Web.Learning.PendingLearningCreation<>));
         services.AddScoped<SchoolGether.ApiClient.Platform.PlatformApiClient>();
         services.AddScoped<IRefreshTokenStore, MemoryRefreshTokenStore>();
         services.AddSingleton(TimeProvider.System);

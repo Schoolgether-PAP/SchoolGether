@@ -1,68 +1,65 @@
-# Passagem de trabalho — 25/11/2026
+# Estado de colaboração — 26/11/2026
 
-**Desenvolvimento em pausa a pedido do utilizador. A outra IA pode assumir a continuação.** Esta fotografia substitui a análise que conhecia apenas 0989d90/014bd01 e dizia que não existia PR.
+Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o estado atual; os registos datados conservam o histórico e os limites de cada entrega.
 
-## Base correta
+## Base de trabalho
 
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether
-- Partir do último `origin/feature/school-workspaces`, num clone/worktree próprio e limpo. Não usar o main antigo como base da aplicação.
-- Existe o **PR de trabalho #19**, aberto e em rascunho: https://github.com/Schoolgether-PAP/SchoolGether/pull/19. Destino `feature/site-ligacao`, origem `feature/school-workspaces`.
-- Commits anteriores ao checkpoint de pausa: `0989d90` (plano/contexto), `014bd01` (adesão), `c54b165` (avaliação portuguesa), `d70779a` (calendário, turmas, planificações e navegação).
-- O checkpoint de pausa guarda também **materiais em desenvolvimento**. Consultar git log para o SHA final; HEAD não está pronto para publicar.
-- Consulta remota nesta passagem: main `21226fe`, develop `0def4d4`, feature/site-ligacao `855a2ac`, gh-pages `2a71d1d`. Confirmar novamente antes de integrar; não reescrever outros ramos.
+- Ramo atual: `feature/learning-workspace-reliability`, baseado em `feature/learning-materials` `9ff7277`.
+- Não partir do main antigo para continuar estes módulos. Usar um ramo próprio sobre a entrega atual, confirmar `git status` e consultar os PR antes de editar.
+- PR destas correções: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials.
+- O PR #19 continua a representar o checkpoint anterior `feature/school-workspaces` → `feature/site-ligacao`. Estas correções não reescrevem nem integram automaticamente esse PR.
+- Atualização concorrente do colega integrada: bdc49ae (reutilização dos tokens de aluno/administrador no teste; mantida esta solução) e 7678db1 (registo do respetivo CI verde). Preservado o registo original do colega.
+- Histórico: `014bd01` adesão; `c54b165` regras de avaliação; `d70779a` calendário, inscrições e planificações; `1f48b11` checkpoint; `9ff7277` migração e menu dos materiais.
 
-## Implementado em incrementos
+## Implementado
 
-1. Adesão: perfil completo e ano letivo criados atomicamente com instituição, conta e subscrição; confirmação sem cartão nem cobrança real. Registo público desativado por omissão.
-2. Aspeto: automático/claro/escuro, preferência visual persistida, menu recolhível no computador e menu próprio no telemóvel.
-3. Calendário: docentes propõem; administrador publica/aprova/rejeita/cancela; alunos consultam publicados da própria escola. Lisboa/UTC, versões, auditoria e recuperação de criação incerta.
-4. Inscrições e atribuições: aluno por turma/curso/ano; professor por disciplina selecionada; cancelamento/restauro com histórico. **Já estão neste ramo**; não procurar um ramo remoto de matrículas. A identificação da disciplina permanece no histórico após ser retirada da seleção.
-5. Contextos pedagógicos: projeção autenticada por atribuição/inscrição ativa; filtros dos catálogos administrativos preservados.
-6. Planificações: planos privados do professor associados a contexto ativo; criar/listar/editar/arquivar, versões, auditoria e repetição segura. Ligados ao menu docente. A entrada de docentes/alunos mostra as respetivas turmas.
-7. Avaliação: fontes oficiais em `docs/assessment-portugal.md`; regras e testes de domínio em `Domain/Learning/AssessmentScale.cs`. **Configuração por escola/turma e avaliação das atividades ainda não implementadas.** Não impor 0–20 a todos.
-8. Suporte: módulo existente preservado; opção explícita `Support:UseApplicationDataStorage` para diretório privado fora de wwwroot. Ativação online pendente.
+1. Adesão completa: instituição, primeiro administrador, ano letivo, perfil e subscrição na mesma transação; sem cobrança real e registo público desativado por omissão.
+2. Temas claro/escuro/sistema, menus recolhíveis e navegação móvel.
+3. Calendário: propostas docentes, aprovação/publicação institucional e consulta de eventos publicados pelos alunos; Lisboa/UTC, auditoria e versões.
+4. Inscrições de alunos e atribuições docentes com cancelamento/restauro. Já estão neste percurso, não dependem de um ramo remoto separado.
+5. Contextos pedagógicos filtrados pela atribuição/inscrição ativa e pela instituição.
+6. Planificações privadas do professor: criar, consultar, editar e arquivar.
+7. Materiais de texto/HTTPS: rascunhos, publicação, consulta pelos alunos inscritos e revogação de acesso. Migração `20261125140000_LearningMaterials`, snapshot e menus presentes desde `9ff7277`.
+8. Suporte existente preservado; ativação/validação online pendente. Não confundir com manutenção escolar.
 
-## Evidência e limites
+## Correções de 26/11
 
-19 testes HTTP focados aprovados, com dois cenários MySQL ignorados nessa execução. Calendário, inscrições e planificações passaram separadamente num MySQL descartável; os dois últimos foram repetidos após correções. Planificações incluíram migração integral, privacidade, repetições e edições simultâneas. Seis testes de cliente do calendário e um de planificações passaram. Web compilada sem avisos/erros.
+- O teste dos materiais reutiliza os tokens do aluno e do administrador: deixa de atingir o limite de autenticações. O limite de produção não foi alterado.
+- Materiais e planificações só confirmam página/ano/resultados depois de uma resposta bem-sucedida. Uma falha não faz saltar páginas.
+- Pedidos de criação conservam chave e conteúdo imutáveis durante mudanças de área na mesma sessão, incluindo cancelamento de um POST em curso. Reabrir recupera o formulário e repete o mesmo pedido.
+- Atualizar o perfil mantém o pedido; terminar/mudar sessão ou identidade limpa-o. Não há gravação de conteúdos em armazenamento persistente do navegador.
+- Saídas da aplicação com criação pendente têm proteção de navegação. O aviso externo permite ao utilizador abandonar; fechar/recarregar a página ou terminar a sessão perde o estado em memória. Não prometer recuperação entre sessões.
+- Nova suite `SchoolGether.Web.Tests`, sem dependências externas adicionais, integrada na solução e no CI.
+- Script MySQL com cenário `Materials` para ensaios descartáveis.
 
-Navegador local: acesso institucional, configuração concluída, menu móvel/recolhido, modo escuro e criação de evento confirmados. Ainda falta validar visualmente a adesão completa e os novos percursos de turmas/planificações e a vista semanal após o último ajuste. A revisão global final e CI verde do checkpoint não foram confirmados. Consultar os registos de 25/11 para detalhes; compilar não equivale a publicar.
+## Verificado nesta entrega
 
-## Materiais: ponto da interrupção
+- Domínio: 119 aprovados; aplicação: 7; clientes HTTP: 93.
+- API: 344 aprovados, 13 cenários MySQL excluídos na execução normal.
+- Componentes Web: 8 aprovados, incluindo paginação, perda de resposta, desmontagem/reabertura, atualização de perfil e limpeza ao sair.
+- Oracle MySQL 8 temporário: cenário Materials aprovado (1/1), com aplicação das migrações e verificação de publicação, revogação e isolamento.
+- API e Web Release compiladas sem avisos/erros. EF confirmou correspondência entre modelo e migrações.
+- Navegador local em vista estreita/modo escuro, com API fictícia: falha de paginação sem avanço; repetição para a página correta; criação com resposta 503; mudança para Perfil/Atualizar; recuperação e confirmação do mesmo material sem duplicado.
+- Revisão independente encontrou perda de pedido em refresh de perfil; corrigida com regressões. Consultar o registo desta tarefa para o resultado final.
 
-Código provisório nas quatro camadas, contratos, cliente, componente `TeachingMaterials.razor`, recursos e testes para texto/links HTTPS, com rascunhos/publicação e consulta por alunos inscritos. Program, DbContext e registo do cliente foram alterados. **Não existe migração LearningMaterials nem snapshot atualizado; o componente não está ligado à navegação.**
-
-A API compilou. Na passagem, o Web compilou sem avisos/erros, o teste de cliente de materiais passou (1/1) e o teste HTTP de materiais passou (1/1, SQLite com EnsureCreated). Isto não valida migrações. Revisão de segurança/concorrência, ensaio MySQL/TiDB e interface pendentes. Não usar o modelo contra bases existentes sem gerar e rever a migração.
-
-Relatório: `registos/2026-11-25-materiais-em-curso.md`, com adenda em `registos/2026-11-25-pausa-passagem.md`.
+Não foi realizado ensaio no TiDB online, publicação, execução nativa MAUI ou inspeção visual global de todos os painéis. Testar MySQL não comprova todos os comportamentos de TiDB. O CI remoto desta correção deve ser consultado antes de integrar.
 
 ## Próxima sequência
 
-1. Rever/concluir materiais já iniciados, gerar migração após LearningLessonPlans, testar autorização/publicação/revogação/repetição/conflitos e ligar ao menu.
-2. Ficheiros privados: autorização em cada download, validação, quotas, limpeza após falha e persistência. O módulo iniciado só cobre texto/links. Não reutilizar cegamente a limpeza de órfãos do suporte, que conhece apenas os seus anexos.
-3. Atividades, entregas e feedback privado; configurar percurso/escala por turma e guardar a escala usada na atividade. Registos pedagógicos não equivalem a certificação oficial nem devem converter percentagens automaticamente.
-4. Revisão global, desktop/móvel/temas, CI, suporte online, migrações e publicação com recuperação. Registar cada entrega coerente e atualizar o PR.
+1. Rever e integrar este incremento com a entrega dos materiais, coordenando os PR existentes. Confirmar CI remoto verde.
+2. Implementar ficheiros privados dos materiais: autorização em cada transferência, validação, quotas, persistência e limpeza. Não reutilizar a limpeza de órfãos do suporte sem a adaptar.
+3. Atividades, entregas e feedback privado. Configuração da avaliação por escola/percurso/turma e escala guardada na atividade; fontes oficiais em `docs/assessment-portugal.md`. Não impor 0–20 a todos nem converter percentagens automaticamente.
+4. Desenvolver áreas pedagógicas MAUI. Web adaptável a telemóvel não substitui a app nativa.
+5. Rever visualmente todos os percursos em desktop/móvel/temas, validar suporte operacional e preparar publicação com backup/restauro.
 
-## Cuidados técnicos
+## Cuidados técnicos e publicação
 
-- TiDB não suporta SERIALIZABLE. Não ignorar essa verificação. Inscrições/atribuições usam versões otimistas dos pais; escritas pedagógicas usam `ILearningContextDirectory.LockForWriteAsync` com SELECT FOR UPDATE e verificação de contexto, conta, bloqueio de autenticação e instituição.
-- Oracle MySQL apresentou erro ao ler DateOnly; planos usam conversão explícita DateOnly/DateTime e coluna date. A migração não publicada foi regenerada: `20261125100745_LearningLessonPlans`.
-- Outras migrações novas: `20261125092333_SchoolCalendar`, `20261125093431_AcademicMemberships`. Ainda não aplicadas ao TiDB publicado.
-- Conservar chave/conteúdo de criações incertas; usar IDs estáveis na seleção de contexto; cancelar pedidos ao trocar de sessão e impedir resultados antigos de alterarem a sessão nova.
-- Distinguir implementado, testado, revisto, enviado e publicado. Cada alteração coerente deve ter registo e commit/push.
+- TiDB não suporta SERIALIZABLE. Preservar os bloqueios e verificações do diretório pedagógico, versões otimistas, isolamento e auditoria.
+- DateOnly dos planos tem conversão explícita DateTime/date para o provider Oracle.
+- Migrações novas desde calendário/inscrições/planificações/materiais ainda não aplicadas à base publicada.
+- Site: https://schoolgether-pap.github.io/SchoolGether/; API: https://schoolgether-api.runasp.net/. Base online: TiDB, não Aiven.
+- Cópia privada da API anteriormente autorizada em `C:\PAP\artifacts\workspaces-production-2026-11-25\api-before`. Scripts privados e segredos ficam fora do GitHub.
+- Distinguir implementado, testado, revisto, enviado, integrado e publicado. Nunca enviar palavras-passe, tokens, configurações de produção ou backups.
 
-## Publicação e segredos
-
-Site: https://schoolgether-pap.github.io/SchoolGether/; API: https://schoolgether-api.runasp.net/. Esta entrega **não foi publicada**. A base online é TiDB, não Aiven. Suporte online ainda por ativar/verificar.
-
-O utilizador autorizou uma cópia privada da API publicada em `C:\PAP\artifacts\workspaces-production-2026-11-25\api-before`, fora do GitHub; foi realizada. O script privado `C:\PAP\artifacts\Deploy-Workspaces-Api.ps1` foi preparado, não aplicado nem validado integralmente. Consultar docs/deployment.md.
-
-Segredos, configurações de produção, DPAPI, backups e binários não são enviados. Obter acessos apenas pelos canais privados autorizados. Os servidores temporários de verificação foram encerrados; a configuração local temporária 57526 foi retirada do código antes do checkpoint.
-
-## Atualização — ramo `feature/learning-materials` (25/11/2026)
-
-Parte de `feature/school-workspaces` `1f48b11`. Acrescenta a migração `LearningMaterials` (escrita à mão; **validada no CI** de `9ff7277` por `has-pending-model-changes`), a ligação de «Materiais» ao menu de professores e alunos e a revisão de segurança por leitura. Compilado; testes de materiais **não executados** localmente (bloqueio do Windows a DLL novas). Nada enviado para produção. Ver `registos/2026-11-25-materiais-migracao-claude.md`. Seguem-se ficheiros privados, atividades, entregas, feedback e configuração de avaliação por turma.
-
-26/11: no CI de `9ff7277` falharam os testes da API por o teste de materiais exceder o limite de inícios de sessão. Teste corrigido; confirmar o resultado do CI seguinte antes de continuar.
-
-26/11: CI de `bdc49ae` verde. Falta o ensaio MySQL/TiDB e a inspeção visual dos materiais.
+Registo deste incremento: `registos/2026-11-26-fiabilidade-pedagogica-codex.md`.
