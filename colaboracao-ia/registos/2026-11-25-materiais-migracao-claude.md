@@ -66,3 +66,5 @@ Verificar o CI deste ramo (`has-pending-model-changes` e testes de materiais). E
 - Causa (por análise do código; o registo do CI exige sessão no GitHub e não foi lido): o cenário de revogação de inscrição acrescentou dois inícios de sessão a `LearningMaterialsHttpTests`, que passou a fazer 11, acima do limite de 10 por minuto da política `identity`.
 - Correção: o teste reutiliza os tokens do aluno e do administrador (9 inícios de sessão). O limite da API não foi alterado.
 - Verificação local: **não executada** (o mesmo bloqueio do Windows voltou a impedir o carregamento da DLL de testes). Fica por confirmar no CI do commit que inclui esta nota.
+
+**Resultado:** o CI de `bdc49ae` ([execução 45790250064](https://github.com/Schoolgether-PAP/SchoolGether/actions/runs/45790250064)) **passou** em todos os trabalhos. Continuam por fazer o ensaio MySQL/TiDB e a inspeção visual.
