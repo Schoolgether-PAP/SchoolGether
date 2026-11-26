@@ -45,13 +45,16 @@ public sealed class LearningMaterialsHttpTests
         Assert.Equal(HttpStatusCode.Conflict, (await client.PutAsJsonAsync($"/api/v1/learning/materials/{id}", update)).StatusCode);
         await AcademicCourseTests.Login(client, "student-a@example.test");
         Assert.Single((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
+        // O login está limitado a 10 pedidos por minuto: reutiliza os tokens já obtidos.
+        var student = client.DefaultRequestHeaders.Authorization;
         await AcademicCourseTests.Login(client, "admin-a@example.test");
+        var admin = client.DefaultRequestHeaders.Authorization;
         await AcademicCourseTests.Read(await client.PostAsJsonAsync($"{AcademicEnrolmentTests.Route(ids.Course, ids.Class)}/{enrolment.GetProperty("id").GetInt32()}/cancel", new { RowVersion = 1 }));
-        await AcademicCourseTests.Login(client, "student-a@example.test");
+        client.DefaultRequestHeaders.Authorization = student;
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
         await AcademicCourseTests.Login(client, "admin-b@example.test");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027")).StatusCode);
-        await AcademicCourseTests.Login(client, "admin-a@example.test");
+        client.DefaultRequestHeaders.Authorization = admin;
         await AcademicCourseTests.Read(await client.PostAsJsonAsync($"{assignments}/{assignment.GetProperty("id").GetInt32()}/cancel", new { RowVersion = 1 }));
         await AcademicCourseTests.Login(client, "teacher-a@example.test");
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());

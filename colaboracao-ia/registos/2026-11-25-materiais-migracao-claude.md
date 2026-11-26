@@ -59,3 +59,10 @@ Código: compilado localmente. Enviado, revisto, integrado e publicado: ver o es
 ## Próximo passo
 
 Verificar o CI deste ramo (`has-pending-model-changes` e testes de materiais). Em seguida, quem tiver um computador sem o bloqueio deve correr os testes de materiais em SQLite e MySQL e abrir a página «Materiais» em desktop, telemóvel, claro e escuro.
+
+## Atualização 26/11/2026 — CI do commit `9ff7277`
+
+- [Execução 45609128199](https://github.com/Schoolgether-PAP/SchoolGether/actions/runs/45609128199): **falhou** em «Testes da API». Passaram «Compilar API» (incluindo `has-pending-model-changes`, que **confirma a migração e o snapshot escritos à mão**), «Compilar Site» e os testes de domínio, aplicação e cliente API. Na base `1f48b11` era a comparação do modelo que falhava.
+- Causa (por análise do código; o registo do CI exige sessão no GitHub e não foi lido): o cenário de revogação de inscrição acrescentou dois inícios de sessão a `LearningMaterialsHttpTests`, que passou a fazer 11, acima do limite de 10 por minuto da política `identity`.
+- Correção: o teste reutiliza os tokens do aluno e do administrador (9 inícios de sessão). O limite da API não foi alterado.
+- Verificação local: **não executada** (o mesmo bloqueio do Windows voltou a impedir o carregamento da DLL de testes). Fica por confirmar no CI do commit que inclui esta nota.

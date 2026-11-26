@@ -61,4 +61,6 @@ Segredos, configurações de produção, DPAPI, backups e binários não são en
 
 ## Atualização — ramo `feature/learning-materials` (25/11/2026)
 
-Parte de `feature/school-workspaces` `1f48b11`. Acrescenta a migração `LearningMaterials` (escrita à mão, **por validar no CI**), a ligação de «Materiais» ao menu de professores e alunos e a revisão de segurança por leitura. Compilado; testes de materiais **não executados** localmente (bloqueio do Windows a DLL novas). Nada enviado para produção. Ver `registos/2026-11-25-materiais-migracao-claude.md`. Seguem-se ficheiros privados, atividades, entregas, feedback e configuração de avaliação por turma.
+Parte de `feature/school-workspaces` `1f48b11`. Acrescenta a migração `LearningMaterials` (escrita à mão; **validada no CI** de `9ff7277` por `has-pending-model-changes`), a ligação de «Materiais» ao menu de professores e alunos e a revisão de segurança por leitura. Compilado; testes de materiais **não executados** localmente (bloqueio do Windows a DLL novas). Nada enviado para produção. Ver `registos/2026-11-25-materiais-migracao-claude.md`. Seguem-se ficheiros privados, atividades, entregas, feedback e configuração de avaliação por turma.
+
+26/11: no CI de `9ff7277` falharam os testes da API por o teste de materiais exceder o limite de inícios de sessão. Teste corrigido; confirmar o resultado do CI seguinte antes de continuar.
