@@ -25,30 +25,34 @@
 - Navegação recolhida e tema escuro mantêm rótulos, foco e contraste.
 - Falhas de rede e sessões expiradas não apresentam sucesso nem dados de outra conta.
 
+## Estado confirmado em 26/11/2026
+
+Tarefas 1 e 3 implementadas nos commits anteriores e cobertas pelas suites atuais. Tema e navegação implementados; inspeção global de todos os ecrãs continua pendente. A tarefa 4 está parcial: inscrições, atribuições, planificações e materiais texto/HTTPS existem, mas ainda faltam ficheiros, atividades, entregas, feedback e configuração de avaliação. Nada deste ramo foi publicado. Consultar colaboracao-ia/ESTADO.md.
+
 ## Task 1: Adesão e configuração
 
-- [ ] Acrescentar ano letivo aos contratos/comando de adesão e completar perfil na mesma transação de criação.
-- [ ] Atualizar wizard com resumo do plano e confirmação sem cobrança real; preservar subscrições antigas.
-- [ ] Testar validação, atomicidade, isolamento e compatibilidade; compilar Web.
-- [ ] Rever e registar alterações; commit e push.
+- [x] Acrescentar ano letivo aos contratos/comando de adesão e completar perfil na mesma transação de criação.
+- [x] Atualizar wizard com resumo do plano e confirmação sem cobrança real; preservar subscrições antigas.
+- [x] Testar validação, atomicidade, isolamento e compatibilidade; compilar Web.
+- [x] Rever e registar alterações; commit e push.
 
 ## Task 2: Tema e navegação
 
-- [ ] Implementar preferência claro/escuro/sistema persistida, em site público, login e painéis.
-- [ ] Implementar recolha dos três menus laterais com títulos e acesso por teclado.
+- [x] Implementar preferência claro/escuro/sistema persistida, em site público, login e painéis.
+- [x] Implementar recolha dos três menus laterais com títulos e acesso por teclado.
 - [ ] Rever textos de demonstração públicos e de interface, preservando transparência na adesão.
 - [ ] Compilar e inspecionar desktop/móvel; registo, commit e push.
 
 ## Task 3: Calendário
 
-- [ ] Criar módulo com publicação/aprovação institucional, propostas docentes e consulta de alunos.
-- [ ] Criar calendário navegável, formulários, estados e cliente HTTP.
-- [ ] Testar papéis, datas, concorrência e isolamento; gerar migração EF e verificar modelo.
-- [ ] Integrar navegação, rever, registar, commit e push.
+- [x] Criar módulo com publicação/aprovação institucional, propostas docentes e consulta de alunos.
+- [x] Criar calendário navegável, formulários, estados e cliente HTTP.
+- [x] Testar papéis, datas, concorrência e isolamento; gerar migração EF e verificar modelo.
+- [x] Integrar navegação, rever, registar, commit e push.
 
 ## Task 4: Áreas pedagógicas
 
-- [ ] Inspecionar/reaproveitar apenas a implementação de inscrições do ramo separado; implementar atribuições docentes.
+- [x] Integrar inscrições e atribuições docentes (já presentes desde d70779a; não procurar um ramo separado).
 - [ ] Implementar planificações, materiais privados da turma, atividades, entregas e feedback com validação no servidor.
 - [ ] Implementar escalas adequadas ao percurso e ano, com configuração da escola e documentação de fontes oficiais.
 - [ ] Integrar painéis e testes focados de acesso por professor/aluno, arquivos e isolamento; migrações EF.

@@ -1,3 +1,6 @@
+@inject SchoolGether.Web.Learning.PendingLearningCreation<SchoolGether.Contracts.Learning.CreateLessonPlanRequest> PendingPlans
+@inject SchoolGether.Web.Learning.PendingLearningCreation<SchoolGether.Contracts.Learning.CreateLearningMaterialRequest> PendingMaterials
+<NavigationLock ConfirmExternalNavigation="@HasPendingCreation" OnBeforeInternalNavigation="BeforeNavigation" />
 <div class="member-shell" @onkeydown="HandleKeyAsync">
     <header class="member-header"><a class="workspace-brand" href="../"><img src="images/sagui-head.png" alt="SaguiLearn" /><strong>@T("Brand")</strong></a><div class="workspace-breadcrumb"><span>@T(Account.Role == "Teacher" ? "RoleTeacher" : "RoleStudent")</span><span aria-hidden="true">/</span><strong>@T(SectionTitle)</strong></div><AppearanceControls Sidebar /><button class="member-menu-toggle" type="button" aria-expanded="@(menu ? "true" : "false")" aria-controls="member-navigation" @ref="menuToggle" @onclick="() => menu = !menu">@T("Menu")</button></header>
     <aside class="member-sidebar @(menu ? "menu-open" : "")" id="member-navigation">
@@ -8,6 +11,7 @@
         <a class="workspace-return" href="../"><WorkspaceIcon Name="External" />@T("PublicBack")</a>
     </aside>
     <section class="member-content" aria-busy="@(Busy ? "true" : "false")">
+        @if (navigationBlocked && HasPendingCreation) { <p role="alert">@SchoolGether.Web.Learning.LearningMaterialMessages.Get("Pending")</p> }
         @if(section=="classes"){<SchoolGether.Web.Learning.ClassroomOverview @key="Account.Id" />}
         else if(section=="plans" && Account.Role=="Teacher"){<SchoolGether.Web.Learning.LessonPlans @key="Account.Id" />}
         else if(section=="materials"){<SchoolGether.Web.Learning.TeachingMaterials @key="Account.Id" />}
@@ -29,6 +33,9 @@
     [Parameter] public string? Feedback { get; set; }
     [Parameter] public bool IsError { get; set; }
     private string section="classes";
+    private bool HasPendingCreation => PendingPlans.Request is not null || PendingMaterials.Request is not null;
+    private bool navigationBlocked;
+    private void BeforeNavigation(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context) { if (HasPendingCreation) { context.PreventNavigation(); navigationBlocked = true; } }
     private bool menu, focus;
     private IEnumerable<(string Id,string Title,string Icon)> Areas {
         get {

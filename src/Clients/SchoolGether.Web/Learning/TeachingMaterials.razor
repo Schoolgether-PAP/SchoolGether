@@ -4,7 +4,9 @@
 @inject LearningMaterialsApiClient Api
 @inject LearningContextsApiClient ContextsApi
 @inject IdentitySession Session
+@inject PendingLearningCreation<CreateLearningMaterialRequest> Creation
 @implements IDisposable
+<NavigationLock ConfirmExternalNavigation="@(pending is not null)" OnBeforeInternalNavigation="BeforeNavigation" />
 <section class="teaching-materials" aria-labelledby="materials-title">
  <h1 id="materials-title">@T("Title")</h1>
  @if (!Allowed) { <p>@T("Denied")</p> }
@@ -29,23 +31,56 @@
  }
 </section>
 @code {
- CancellationTokenSource lifetime = new(); long generation; bool busy, editing, uncertain; string year = DefaultYear(), title = "", content = "", url = ""; bool published; string? error; string contextKey = "", loadedYear = ""; int page = 1, total;
- LearningMaterialResponse? selected; CreateLearningMaterialRequest? pending; LearningContextResponse[] contexts = []; IReadOnlyList<LearningMaterialResponse> rows = [];
+ (int? Id, int? Institution, string? Role) identity;
+ (int?, int?, string?) CurrentIdentity() => (Session.Account?.Id, Session.Account?.InstitutionId, Session.Account?.Role);
+ CancellationTokenSource lifetime = new(); long generation; bool busy, editing; string year = DefaultYear(), title = "", content = "", url = ""; bool published; string? error; string contextKey = "", loadedYear = ""; int page = 1, total;
+ LearningMaterialResponse? selected; CreateLearningMaterialRequest? pending => Creation.Request; LearningContextResponse[] contexts = []; IReadOnlyList<LearningMaterialResponse> rows = [];
  bool Allowed => Session.Account?.Role is "Teacher" or "Student"; bool Active => !lifetime.IsCancellationRequested && generation == Session.Generation && Allowed;
  static string DefaultYear() { var start = DateTime.Today.Month >= 9 ? DateTime.Today.Year : DateTime.Today.Year - 1; return $"{start}/{start + 1}"; }
  static string ContextKey(LearningContextResponse c) => $"{c.CourseId}:{c.ClassId}:{c.UnitId}";
  string ContextLabel(LearningMaterialResponse p) { var c = contexts.FirstOrDefault(x => x.CourseId == p.CourseId && x.ClassId == p.ClassId && x.UnitId == p.UnitId); return c is null ? "" : $"{c.ClassName} · {c.UnitName}"; }
  static string T(string key) => LearningMaterialMessages.Get(key);
- protected override async Task OnInitializedAsync() { generation = Session.Generation; Session.Changed += SessionChanged; if (Allowed) await Load(); }
- void SessionChanged() { lifetime.Cancel(); lifetime.Dispose(); lifetime = new(); generation = Session.Generation; rows = []; contexts = []; selected = null; pending = null; uncertain = false; editing = false; busy = false; error = null; _ = InvokeAsync(StateHasChanged); }
- async Task Load() { if (!Active) return; var g = generation; var token = lifetime.Token; busy = true; error = null; try { var c = await ContextsApi.ListAsync(year, token); var p = await Api.ListAsync(year, page, token); if (Active && g == generation) { contexts = c; rows = p.Items; total = p.Total; loadedYear = year; } } catch { if (Active && g == generation) error = T("Failure"); } finally { if (Active && g == generation) busy = false; } }
- async Task Search() { if (busy || editing) return; page = 1; await Load(); }
- async Task Previous() { if (busy || editing || year != loadedYear || page <= 1) return; page--; await Load(); }
- async Task Next() { if (busy || editing || year != loadedYear || page * 30 >= total) return; page++; await Load(); }
+ protected override async Task OnInitializedAsync() { generation = Session.Generation; identity = CurrentIdentity(); Session.Changed += SessionChanged; if (Allowed) { if (pending is { } draft) { year = draft.AcademicYear; contextKey = $"{draft.CourseId}:{draft.ClassId}:{draft.UnitId}"; title = draft.Title; content = draft.Content ?? ""; url = draft.Url ?? ""; published = draft.IsPublished; editing = true; } await Load(); } }
+ void SessionChanged() { if (generation == Session.Generation && identity == CurrentIdentity()) return; identity = CurrentIdentity(); lifetime.Cancel(); lifetime.Dispose(); lifetime = new(); generation = Session.Generation; rows = []; contexts = []; selected = null;  editing = false; busy = false; error = null; _ = InvokeAsync(StateHasChanged); }
+ async Task Load(int? requestedPage = null) {
+  if (!Active) return;
+  var g = generation; var token = lifetime.Token;
+  var targetYear = year; var targetPage = requestedPage ?? page;
+  busy = true; error = null;
+  try {
+   var c = await ContextsApi.ListAsync(targetYear, token);
+   var p = await Api.ListAsync(targetYear, targetPage, token);
+   if (Active && g == generation) { contexts = c; rows = p.Items; total = p.Total; loadedYear = targetYear; page = targetPage; }
+  } catch { if (Active && g == generation) error = T("Failure"); }
+  finally { if (Active && g == generation) busy = false; }
+ }
+ async Task Search() { if (busy || editing) return; await Load(1); }
+ async Task Previous() { if (busy || editing || year != loadedYear || page <= 1) return; await Load(page - 1); }
+ async Task Next() { if (busy || editing || year != loadedYear || page * 30 >= total) return; await Load(page + 1); }
  void New() { if (busy || editing || year != loadedYear || pending is not null) return; selected = null; editing = true; contextKey = ""; title = content = url = ""; published = false; error = null; }
  void Edit(LearningMaterialResponse p) { if (busy || editing || year != loadedYear || pending is not null) return; selected = p; editing = true; contextKey = $"{p.CourseId}:{p.ClassId}:{p.UnitId}"; title = p.Title; content = p.Content ?? ""; url = p.Url ?? ""; published = p.IsPublished; error = null; }
  void Cancel() { if (busy || pending is not null) return; editing = false; selected = null; }
- async Task Save() { if (!Active || busy) return; var context = contexts.FirstOrDefault(x => ContextKey(x) == contextKey); if (context is null) return; var g = generation; var token = lifetime.Token; busy = true; error = null; try { if (selected is null) { pending ??= new(Guid.NewGuid(), context.CourseId, context.ClassId, context.UnitId, year, title, content, url, published); await Api.CreateAsync(pending, token); if (!Active || g != generation) return; pending = null; uncertain = false; } else await Api.UpdateAsync(selected.Id, new(selected.RowVersion, title, content, url, published), token); if (Active && g == generation) { editing = false; selected = null; await Load(); } } catch (IdentityApiException ex) { if (Active && g == generation) { if (pending is not null) { var status = (int)ex.StatusCode.GetValueOrDefault(); if (status >= 400 && status < 500 && status != 429 && !uncertain) pending = null; else uncertain = true; } error = (int)ex.StatusCode.GetValueOrDefault() == 409 ? T("Conflict") : T("Failure"); } } catch { if (Active && g == generation) { if (pending is not null) uncertain = true; error = T("Failure"); } } finally { if (Active && g == generation) busy = false; } }
+ async Task Save() {
+  if (!Active || busy) return;
+  var context = contexts.FirstOrDefault(x => ContextKey(x) == contextKey);
+  if (context is null && pending is null) return;
+  var g = generation; var token = lifetime.Token; busy = true; error = null;
+  try {
+   if (selected is null) {
+    var request = pending ?? Creation.Begin(new CreateLearningMaterialRequest(Guid.NewGuid(), context!.CourseId, context.ClassId, context.UnitId, year, title, content, url, published));
+    await Api.CreateAsync(request, token);
+    if (!Active || g != generation) return;
+    Creation.Complete(request);
+   } else await Api.UpdateAsync(selected.Id, new(selected.RowVersion, title, content, url, published), token);
+   if (Active && g == generation) { editing = false; selected = null; await Load(); }
+  } catch (IdentityApiException ex) {
+   if (Active && g == generation) { Creation.Fail((int)ex.StatusCode.GetValueOrDefault()); error = (int)ex.StatusCode.GetValueOrDefault() == 409 ? T("Conflict") : T("Failure"); }
+  } catch { if (Active && g == generation) { Creation.MarkUncertain(); error = T("Failure"); } }
+  finally { if (Active && g == generation) busy = false; }
+ }
+ void BeforeNavigation(Microsoft.AspNetCore.Components.Routing.LocationChangingContext context) {
+  if (pending is not null) { context.PreventNavigation(); error = T("Pending"); }
+ }
  async Task Archive(LearningMaterialResponse p) { if (!Active || busy || editing || year != loadedYear || pending is not null) return; var g = generation; busy = true; try { await Api.ArchiveAsync(p.Id, p.RowVersion, lifetime.Token); if (Active && g == generation) await Load(); } catch { if (Active && g == generation) error = T("Conflict"); } finally { if (Active && g == generation) busy = false; } }
- public void Dispose() { Session.Changed -= SessionChanged; lifetime.Cancel(); lifetime.Dispose(); }
+ public void Dispose() { Creation.MarkUncertain(); Session.Changed -= SessionChanged; lifetime.Cancel(); lifetime.Dispose(); }
 }
