@@ -25,3 +25,7 @@ Ramo próprio, não integrado. Não publicado em GitHub Pages nem noutro alojame
 ## Próximo passo
 
 Validar o desenho com o responsável do projeto.
+
+## Atualização
+
+Acrescentadas imagens PNG dos seis ecrãs em `docs/mockups/app/png/`, capturadas com o Edge sem janela. Conferidas três (entrar, turmas, docente).
