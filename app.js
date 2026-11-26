@@ -33,7 +33,7 @@ const activities = [
   { day: 2, row: 7, span: 1, title: 'Departamento', group: 'Línguas', time: '14:00–15:00', tone: 'sage', description: 'Reunião do departamento de Línguas para planificar atividades.' },
   { day: 3, row: 2, span: 1, title: 'Matemática', group: '7.º A', time: '09:00–10:00', tone: 'sand', description: 'Resolução de problemas e partilha das estratégias da turma.' },
   { day: 3, row: 4, span: 1, title: 'Ciências Naturais', group: '7.º B', time: '11:00–12:00', tone: 'plum', description: 'Aula de exploração e consolidação das aprendizagens.' },
-  { day: 4, row: 2, span: 3, title: 'Visita de estudo', group: 'Museu da Ciência · 8.º ano', time: '09:00–12:00', tone: 'sage', description: 'Visita de estudo demonstrativa, organizada para as turmas do 8.º ano.' }
+  { day: 4, row: 2, span: 3, title: 'Visita de estudo', group: 'Museu da Ciência · 8.º ano', time: '09:00–12:00', tone: 'sage', description: 'Visita de estudo organizada para as turmas do 8.º ano.' }
 ];
 let weekOffset = 0;
 let calendarView = 'week';
@@ -89,8 +89,21 @@ $$('[data-material]').forEach(button => button.addEventListener('click', () => {
 
 const planIds = { essencial: 'essential', profissional: 'evolution', institucional: 'campus' };
 $$('[data-plan]').forEach(button => button.addEventListener('click', () => { const destination = new URL('app/', document.baseURI); destination.searchParams.set('view', 'aderir'); destination.searchParams.set('plan', planIds[button.dataset.plan]); location.assign(destination); }));
-$('#contact-form')?.addEventListener('submit', event => { event.preventDefault(); $('#contact-status').textContent = 'Mensagem validada na pré-visualização. Nada foi enviado. Para contactar a equipa, utilize o endereço de e-mail acima.'; });
+
 const privacyDialog = $('#privacy-dialog');
 $('#privacy-open').addEventListener('click', () => privacyDialog.showModal());
 $('#privacy-close').addEventListener('click', () => privacyDialog.close());
 privacyDialog.addEventListener('click', event => { if (event.target === privacyDialog) { const box = privacyDialog.getBoundingClientRect(); if (event.clientX < box.left || event.clientX > box.right || event.clientY < box.top || event.clientY > box.bottom) privacyDialog.close(); } });
+
+const form = document.querySelector('#contact-form');
+form?.addEventListener('submit', event => {
+  event.preventDefault();
+  if (!form.reportValidity()) return;
+  const data = new FormData(form);
+  const subject = 'Contacto SchoolGether — ' + String(data.get('school') || '').trim();
+  const body = ['Nome: ' + data.get('name'), 'E-mail: ' + data.get('email'), 'Instituição: ' + data.get('school'), '', String(data.get('message') || '')].join('\r\n');
+  const link = document.createElement('a');
+  link.href = 'mailto:saguilearn@gmail.com?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  link.click();
+  document.querySelector('#contact-status').textContent = 'Mensagem preparada no seu programa de correio. Confirme aí o envio; se não abrir, escreva para saguilearn@gmail.com.';
+});

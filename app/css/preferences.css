@@ -1,0 +1,52 @@
+/* Shared presentation preferences. Logos keep their original colours. */
+:root{--surface:#fff;--surface-soft:#f5f7f8;--text:#263b34;--text-secondary:#607069;--border:#c7d2cc;--active:#e9f1ed;--brand-ink:#193f30}
+.appearance-controls{display:flex;align-items:center;gap:8px;margin-left:auto}
+.appearance-control{display:flex;align-items:center;gap:6px;margin:0;font-size:.8rem;color:inherit}
+.appearance-control select{min-height:40px;width:auto;max-width:145px;padding:6px 24px 6px 10px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px;font:inherit}
+#app .sidebar-collapse{display:inline-flex;align-items:center;justify-content:center;width:40px;min-height:40px;padding:8px;background:var(--surface);color:var(--text);border:1px solid var(--border);border-radius:6px}
+@media(min-width:901px){
+html[data-sidebar=collapsed] #app :is(.platform-shell,.institution-shell,.member-shell){grid-template-columns:80px minmax(0,1fr)}
+html[data-sidebar=collapsed] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar){padding-inline:12px}
+html[data-sidebar=collapsed] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar) nav button{justify-content:center;padding:10px}
+html[data-sidebar=collapsed] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar) nav button span{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
+html[data-sidebar=collapsed] #app :is(.workspace-context,.workspace-saved,.sidebar-institution){display:none}
+html[data-sidebar=collapsed] #app .platform-sidebar .workspace-brand strong{display:none}
+html[data-sidebar=collapsed] #app .workspace-account{flex-direction:column}
+html[data-sidebar=collapsed] #app .workspace-account>div{position:absolute;width:1px;height:1px;overflow:hidden;clip-path:inset(50%)}
+html[data-sidebar=collapsed] #app .workspace-return{font-size:0;justify-content:center}
+}
+@media(max-width:900px){#app .sidebar-collapse{display:none}.appearance-controls{gap:0}.appearance-control select{max-width:120px}}
+@media(max-width:520px){#app :is(.institution-header,.member-header){gap:8px;flex-wrap:wrap}#app :is(.institution-header,.member-header)>.workspace-brand{width:auto;flex:1}#app .appearance-control select{max-width:110px}}
+html[data-theme=dark]{--surface:#1a2522;--surface-soft:#111b18;--text:#e4ece7;--text-secondary:#afc1b7;--border:#4f675c;--active:#294337;--brand-ink:#b9ddbd;--ink:#e4ece7;--muted:#afc1b7;--line:#4f675c;--line-soft:#33493e;--canvas:#111b18;--action:#b9ddbd;--accent:#b4d6a2;--error:#ffb4b8;--forest:#b9ddbd;--plum:#ead1e5;--cream:#18231f;--lime:#294337;--white:#1a2522;color-scheme:dark}
+html[data-theme=dark] body{background:var(--surface-soft);color:var(--text)}
+html[data-theme=dark] #app :is(.site-header,.institution-header,.member-header,.platform-topbar,.platform-sidebar,.institution-sidebar,.member-sidebar,.account-content,.dashboard-widget,.data-panel,.metric-row,.metric-row>div,.metric-link,.member-profile,.platform-dialog,.institution-overview,.overview-details,.overview-capacity,.support-ticket,.support-conversation,.support-sidebar,.support-composer,.support-message,.support-new-ticket){background:var(--surface);color:var(--text);border-color:var(--border)}
+html[data-theme=dark] #app :is(.platform-shell,.institution-shell,.member-shell,.identity-layout,.account-panel,.brand-panel,.platform-workspace,.institution-content,.member-content,.site-shell>footer,.support-workspace,.support-layout){background:var(--surface-soft);color:var(--text)}
+html[data-theme=dark] #app :is(h1,h2,h3,h4,strong,dd,.workspace-brand,.workspace-breadcrumb strong,.trend-bars strong,.plan-name,.capacity-metrics dd,.institution-facts dd){color:var(--text)}
+html[data-theme=dark] #app :is(p,dt,small,.platform-intro,.workspace-context,.sidebar-institution,.workspace-return,.workspace-breadcrumb,.workspace-account>div>span,.metric-row span,.metric-row small,.trend-bars li,.institution-facts dt,.capacity-metrics dt){color:var(--text-secondary)}
+html[data-theme=dark] #app :is(input,select,textarea,button,.password-toggle,.feedback,.support-search){background:var(--surface);color:var(--text);border-color:var(--border)}
+html[data-theme=dark] #app :is(input,textarea)::placeholder{color:var(--text-secondary)}
+html[data-theme=dark] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar) nav button{color:var(--text-secondary)}
+html[data-theme=dark] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar) nav button[aria-current=page],html[data-theme=dark] #app .account-avatar{background:var(--active);color:#d3edd9}
+html[data-theme=dark] #app :is(.platform-sidebar,.institution-sidebar,.member-sidebar) nav button:hover:enabled{background:#253c30}
+html[data-theme=dark] #app :is(.primary-action,.button.primary,.wizard .primary,.platform-primary,.institution-content button.primary){background:#a9d29e;color:#102318;border-color:#a9d29e}
+html[data-theme=dark] #app :is(th,.state-pill,.demonstration-note,.capacity-help,.institution-note,.workspace-saved button){background:var(--active);color:var(--text);border-color:var(--border)}
+html[data-theme=dark] #app :is(td,.workspace-account,.workspace-saved,.profile-details>div,.account-help){border-color:var(--border)}
+html[data-theme=dark] #app tbody tr:hover{background:var(--active)}
+html[data-theme=dark] :focus-visible{outline-color:#c6e7b6}
+html[data-theme=dark] .company-site :is(.site-header,.company-summary,.product-introduction,.workflow,.faq,.contact-section,.company-story,.company-values,.product-preview,.app-panel,.product-topbar,.plan-card,.pricing,.plan,.feature-card,dialog){background:var(--surface);color:var(--text);border-color:var(--border)}
+html[data-theme=dark] .company-site :is(.company-hero,.section,.contact-main,.company-page,.pricing-section){background:var(--surface-soft);color:var(--text)}
+html[data-theme=dark] .company-site :is(h1,h2,h3,.pricing h2,.plan h3,.plan-price,.text-button,.main-nav>a,.product-brand,.company-footer a){color:var(--text)}
+html[data-theme=dark] .company-site :is(p,.pricing-copy p,.pricing-note,.plan-intro,.plan ul,.plan-price small,.calendar-subhead,.week-label,.calendar-heading,.calendar-grid){color:var(--text-secondary)}
+html[data-theme=dark] .company-site :is(input,textarea,select,.icon-button,.app-tabs button,.view-toggle button){background:var(--surface);color:var(--text);border-color:var(--border)}
+html[data-theme=dark] .company-site :is(.button-green,.plan .button,.app-tabs button[aria-selected=true],.view-toggle button[aria-pressed=true]){background:#a9d29e;color:#102318}
+html[data-theme=dark] .company-site .calendar-event{color:#182a20}
+html[data-theme=dark] .company-site .button-outline{color:var(--text);border-color:var(--border)}
+html[data-theme=dark] .company-site :is(.site-footer,.final-cta){background:#142a20;color:var(--text)}
+html[data-theme=dark] .company-site :is(.plan,.calendar-grid>*,details,.product-topbar,.calendar-subhead){border-color:var(--border)}
+html[data-theme=dark] #app .workspace-icon circle[fill=white]{fill:var(--surface)}
+html[data-theme=dark] #app :is(label,legend,.wordmark,.account-content .field label,.field-help,.wizard-review dt){color:var(--text)}
+html[data-theme=dark] #app :is(.platform-dialog,.institution-form,.academic-editor,.member-editor,.wizard,.wizard-review,.plan-option){background:var(--surface);border-color:var(--border);color:var(--text)}
+html[data-theme=dark] #app :is(.error-message,.field-error){color:#ffb4b8}
+html[data-theme=dark] #app .status-message{color:#b9ddbd}
+::selection{background:#b8d4bd;color:#102318}input,textarea{caret-color:currentColor}a{text-underline-offset:3px}
+@media(max-width:520px){#app .site-header{gap:10px;padding-inline:16px}#app .site-header>.wordmark{font-size:.8rem;gap:6px}#app .site-header>.wordmark img{width:34px;height:34px}#app .site-header>a:last-child{font-size:.75rem}}
