@@ -7,7 +7,9 @@ Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o esta
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether
 - Ramo atual: `feature/learning-workspace-reliability`, baseado em `feature/learning-materials` `9ff7277`.
 - Não partir do main antigo para continuar estes módulos. Usar um ramo próprio sobre a entrega atual, confirmar `git status` e consultar os PR antes de editar.
+- PR destas correções: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials.
 - O PR #19 continua a representar o checkpoint anterior `feature/school-workspaces` → `feature/site-ligacao`. Estas correções não reescrevem nem integram automaticamente esse PR.
+- Atualização concorrente do colega integrada: bdc49ae (reutilização dos tokens de aluno/administrador no teste; mantida esta solução) e 7678db1 (registo do respetivo CI verde). Preservado o registo original do colega.
 - Histórico: `014bd01` adesão; `c54b165` regras de avaliação; `d70779a` calendário, inscrições e planificações; `1f48b11` checkpoint; `9ff7277` migração e menu dos materiais.
 
 ## Implementado
@@ -23,7 +25,7 @@ Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o esta
 
 ## Correções de 26/11
 
-- O teste dos materiais reutiliza os tokens dos intervenientes: deixa de atingir o limite de autenticações. O limite de produção não foi alterado.
+- O teste dos materiais reutiliza os tokens do aluno e do administrador: deixa de atingir o limite de autenticações. O limite de produção não foi alterado.
 - Materiais e planificações só confirmam página/ano/resultados depois de uma resposta bem-sucedida. Uma falha não faz saltar páginas.
 - Pedidos de criação conservam chave e conteúdo imutáveis durante mudanças de área na mesma sessão, incluindo cancelamento de um POST em curso. Reabrir recupera o formulário e repete o mesmo pedido.
 - Atualizar o perfil mantém o pedido; terminar/mudar sessão ou identidade limpa-o. Não há gravação de conteúdos em armazenamento persistente do navegador.

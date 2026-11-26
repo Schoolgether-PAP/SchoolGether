@@ -15,17 +15,6 @@ public sealed class LearningMaterialsHttpTests
     {
         await using var factory = new IdentityFactory(mySqlConnectionString: connection); await factory.SeedAsync(); using var client = factory.CreateClient();
         var ids = await AcademicEnrolmentTests.Setup(factory, client);
-        var tokens = new Dictionary<string, System.Net.Http.Headers.AuthenticationHeaderValue> {
-            ["admin-a@example.test"] = client.DefaultRequestHeaders.Authorization!
-        };
-        async Task Login(string email) {
-            if (!tokens.TryGetValue(email, out var token)) {
-                await AcademicCourseTests.Login(client, email);
-                token = client.DefaultRequestHeaders.Authorization!;
-                tokens.Add(email, token);
-            }
-            client.DefaultRequestHeaders.Authorization = token;
-        }
         int teacher, unit;
         using (var scope = factory.Services.CreateScope())
         {
@@ -38,33 +27,36 @@ public sealed class LearningMaterialsHttpTests
         var assignment = await AcademicCourseTests.Read(await client.PostAsJsonAsync(assignments, new { ClientId = Guid.NewGuid(), TeacherId = teacher, UnitId = unit }), HttpStatusCode.Created);
         var other = await AcademicCourseTests.Read(await client.PostAsJsonAsync("/api/v1/identity/users", new { Email = "materials-other@example.test", Password = IdentityFactory.Password, Name = "Outro professor", Role = "Teacher" }), HttpStatusCode.Created);
         await AcademicCourseTests.Read(await client.PostAsJsonAsync(assignments, new { ClientId = Guid.NewGuid(), TeacherId = other.GetProperty("id").GetInt32(), UnitId = unit }), HttpStatusCode.Created);
-        await Login( "teacher-a@example.test");
+        await AcademicCourseTests.Login(client, "teacher-a@example.test");
         var body = new { ClientId = Guid.NewGuid(), CourseId = ids.Course, ClassId = ids.Class, UnitId = unit, AcademicYear = "2026/2027", Title = "Ficha", Content = "Texto", Url = "https://example.org/", IsPublished = false };
         Assert.Equal(HttpStatusCode.BadRequest, (await client.PostAsJsonAsync("/api/v1/learning/materials", new { ClientId = Guid.NewGuid(), body.CourseId, body.ClassId, body.UnitId, body.AcademicYear, body.Title, body.Content, Url = "javascript:alert(1)", body.IsPublished })).StatusCode);
         var created = await AcademicCourseTests.Read(await client.PostAsJsonAsync("/api/v1/learning/materials", body), HttpStatusCode.Created);
         var id = created.GetProperty("id").GetInt32();
         Assert.Equal(id, (await AcademicCourseTests.Read(await client.PostAsJsonAsync("/api/v1/learning/materials", body), HttpStatusCode.Created)).GetProperty("id").GetInt32());
         Assert.Equal(HttpStatusCode.Conflict, (await client.PostAsJsonAsync("/api/v1/learning/materials", new { body.ClientId, body.CourseId, body.ClassId, body.UnitId, body.AcademicYear, Title = "Outra", body.Content, body.Url, body.IsPublished })).StatusCode);
-        await Login( "materials-other@example.test");
+        await AcademicCourseTests.Login(client, "materials-other@example.test");
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
         Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsJsonAsync($"/api/v1/learning/materials/{id}/archive", new { RowVersion = 1 })).StatusCode);
-        await Login( "student-a@example.test");
+        await AcademicCourseTests.Login(client, "student-a@example.test");
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
-        await Login( "teacher-a@example.test");
+        await AcademicCourseTests.Login(client, "teacher-a@example.test");
         var update = new { RowVersion = 1, body.Title, body.Content, body.Url, IsPublished = true };
         await AcademicCourseTests.Read(await client.PutAsJsonAsync($"/api/v1/learning/materials/{id}", update));
         Assert.Equal(HttpStatusCode.Conflict, (await client.PutAsJsonAsync($"/api/v1/learning/materials/{id}", update)).StatusCode);
-        await Login( "student-a@example.test");
+        await AcademicCourseTests.Login(client, "student-a@example.test");
         Assert.Single((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
-        await Login( "admin-a@example.test");
+        // O login está limitado a 10 pedidos por minuto: reutiliza os tokens já obtidos.
+        var student = client.DefaultRequestHeaders.Authorization;
+        await AcademicCourseTests.Login(client, "admin-a@example.test");
+        var admin = client.DefaultRequestHeaders.Authorization;
         await AcademicCourseTests.Read(await client.PostAsJsonAsync($"{AcademicEnrolmentTests.Route(ids.Course, ids.Class)}/{enrolment.GetProperty("id").GetInt32()}/cancel", new { RowVersion = 1 }));
-        await Login( "student-a@example.test");
+        client.DefaultRequestHeaders.Authorization = student;
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
-        await Login( "admin-b@example.test");
+        await AcademicCourseTests.Login(client, "admin-b@example.test");
         Assert.Equal(HttpStatusCode.Forbidden, (await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027")).StatusCode);
-        await Login( "admin-a@example.test");
+        client.DefaultRequestHeaders.Authorization = admin;
         await AcademicCourseTests.Read(await client.PostAsJsonAsync($"{assignments}/{assignment.GetProperty("id").GetInt32()}/cancel", new { RowVersion = 1 }));
-        await Login( "teacher-a@example.test");
+        await AcademicCourseTests.Login(client, "teacher-a@example.test");
         Assert.Empty((await AcademicCourseTests.Read(await client.GetAsync("/api/v1/learning/materials?academicYear=2026%2F2027"))).GetProperty("items").EnumerateArray());
         Assert.Equal(HttpStatusCode.NotFound, (await client.PostAsJsonAsync($"/api/v1/learning/materials/{id}/archive", new { RowVersion = 2 })).StatusCode);
     }

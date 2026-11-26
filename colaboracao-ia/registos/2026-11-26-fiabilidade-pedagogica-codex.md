@@ -7,7 +7,7 @@
 
 ## Alterações e razão
 
-1. O teste HTTP dos materiais excedia 10 autenticações/minuto e recebia 429. Conserva agora o token do administrador da preparação e reutiliza os tokens dos restantes papéis. Não foi alterado o rate limit nem contornada a autorização do servidor.
+1. O teste HTTP dos materiais excedia 10 autenticações/minuto e recebia 429. A implementação inicial conservava os tokens de todos os papéis; na integração foi mantida a correção mais pequena do colega, que reutiliza os tokens do aluno e do administrador (9 autenticações). Não foi alterado o rate limit nem contornada a autorização do servidor.
 2. `Load` recebe a página pretendida e confirma página/ano/contextos/resultados apenas depois do sucesso. Uma falha deixa a página confirmada intacta; a repetição pede a página correta.
 3. `PendingLearningCreation<T>` conserva o pedido imutável na sessão quando o componente é desmontado. Reabrir repõe o formulário, a chave e o conteúdo originais. Desmontar durante um POST marca o resultado como incerto. Respostas da sessão antiga não limpam estado da nova.
 4. Um refresh de perfil não muda a sessão: conservar os pedidos quando geração e identidade são iguais. Limpar em logout/mudança de geração, conta, papel ou instituição. Não gravar conteúdos pedagógicos no armazenamento persistente do navegador.
@@ -49,4 +49,4 @@ Integrar este incremento com o ramo dos materiais após CI remoto e revisão da 
 
 ## Integração e publicação
 
-Preparado para commit/push neste ramo, com registo no mesmo commit. Confirmar o SHA e PR no histórico remoto. Não integrado nos ramos estáveis, não publicado e sem migrações na produção. Não confundir as verificações locais com o estado do CI remoto.
+Correções enviadas no commit 42ba2e2. PR: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials. Durante a entrega, o colega enviou bdc49ae (correção de autenticações) e 7678db1 (registo de CI verde); integrados preservando o registo do colega, a sua correção mais pequena e o estado consolidado desta entrega. O registo do colega refere CI aprovado de bdc49ae; não equivale a CI aprovado deste PR. Confirmar o resultado do head atual antes de integrar. Não integrado nos ramos estáveis, não publicado e sem migrações na produção. Não confundir as verificações locais com o estado do CI remoto.
