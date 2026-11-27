@@ -1,11 +1,19 @@
-# Estado de colaboração — 26/11/2026
+# Estado de colaboração — 27/11/2026
 
 Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o estado atual; os registos datados conservam o histórico e os limites de cada entrega.
+
+## Publicação confirmada — 27/11
+
+- API win-x86 publicada; health/ready 200 e três perfis existentes verificados, sem contas adicionais. A manutenção terminou.
+- TiDB tem 17 migrações, incluindo InstitutionSignupContacts; 2 instituições e 7 contas preservadas. Cópias privadas verificadas.
+- GitHub Pages publicado em gh-pages 19c2e69, a partir de código 8309e21; job remoto concluído com sucesso. Confirmados estilos, mensagem removida e recursos da adesão.
+- Registo: registos/2026-11-27-publicacao-adesao-codex.md. PR #22 contém a borda que ficou fora do merge #21 e o registo final.
+- Um merge não publica automaticamente. Executar scripts/Test-PublicDeployment.ps1 com o SHA esperado após a publicação e confirmar API/base/site separadamente.
 
 ## Base de trabalho
 
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether
-- Ramo atual: `feature/institution-signup-checkout`, baseado em `feature/learning-materials` `4e1cd45` (PR #20 integrado).
+- Ramo atual: `fix/publish-signup-checkout`, baseado no merge #21 `8d0ad87`, com ajuste das bordas `8309e21`.
 - Não partir do main antigo para continuar estes módulos. Usar um ramo próprio sobre a entrega atual, confirmar `git status` e consultar os PR antes de editar.
 - PR destas correções: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials.
 - O PR #19 continua a representar o checkpoint anterior `feature/school-workspaces` → `feature/site-ligacao`. Estas correções não reescrevem nem integram automaticamente esse PR.
@@ -15,12 +23,12 @@ Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o esta
 ## Adesão e pagamento simulado — 26/11
 
 - Novo percurso de cinco passos: plano, instituição, responsável, pagamento simulado e confirmação. Os contactos institucionais são validados e guardados na mesma transação da conta.
-- Migração `20261126094610_InstitutionSignupContacts`: sete campos opcionais para compatibilidade com instituições antigas. Aplicar à base antes de publicar API/Web. Não aplicada ao TiDB online.
+- Migração `20261126094610_InstitutionSignupContacts`: sete campos opcionais para compatibilidade com instituições antigas. Aplicada ao TiDB online na publicação confirmada em 27/11.
 - API: 351 aprovados/13 excluídos; domínio: 119; aplicação: 7; ApiClient: 93; Web: 10. MySQL temporário: Onboarding 1/1 aprovado.
 - Pagamento sem cartão, IBAN, referência pagável, fatura ou cobrança. Preferência de pagamento apenas visual, não persistida. Verificação de e-mail ainda indisponível, indicada junto do campo.
 - Textos públicos revistos; ficheiros, comunicação e manutenção identificados como funcionalidades em desenvolvimento.
 - Revisão independente sem pendências após corrigir o estado do módulo de manutenção. Navegador local: criação/entrada com API fictícia e disposição móvel a 390 px.
-- Registo completo: `registos/2026-11-26-adesao-pagamento-codex.md`. Entrega não publicada.
+- Registo completo: `registos/2026-11-26-adesao-pagamento-codex.md`. Entrega publicada em 27/11; ver o registo da publicação.
 
 ## Implementado
 
@@ -67,7 +75,7 @@ Não foi realizado ensaio no TiDB online, publicação, execução nativa MAUI o
 
 - TiDB não suporta SERIALIZABLE. Preservar os bloqueios e verificações do diretório pedagógico, versões otimistas, isolamento e auditoria.
 - DateOnly dos planos tem conversão explícita DateTime/date para o provider Oracle.
-- Migrações novas desde calendário/inscrições/planificações/materiais ainda não aplicadas à base publicada.
+- Migrações de calendário/inscrições/planificações/materiais/contactos aplicadas ao TiDB; histórico confirmado com 17 migrações.
 - Site: https://schoolgether-pap.github.io/SchoolGether/; API: https://schoolgether-api.runasp.net/. Base online: TiDB, não Aiven.
 - Cópia privada da API anteriormente autorizada em `C:\PAP\artifacts\workspaces-production-2026-11-25\api-before`. Scripts privados e segredos ficam fora do GitHub.
 - Distinguir implementado, testado, revisto, enviado, integrado e publicado. Nunca enviar palavras-passe, tokens, configurações de produção ou backups.

@@ -1,3 +1,22 @@
+# Publicação atual — 27/11/2026
+
+- API e Web publicadas a partir de 8309e21596979546c860407f6d86bd7564328468. API autocontida win-x86, hosting inprocess; comparar sempre runtimeTarget da cópia atual e do pacote antes de transferir. Não assumir win-x64.
+- GitHub Pages serve a raiz de gh-pages, agora 19c2e69. O merge #21 no código-fonte não publicou automaticamente. Job Pages 45973713729 concluído com sucesso.
+- TiDB: 17 migrações EF, com calendário, inscrições, planificações, materiais e contactos. Antes da migração: cópia privada da API e SQL cifrado/verificado; API parada durante a exportação, devido à incompatibilidade SAVEPOINT no mysqldump single-transaction. 2 instituições e 7 contas preservadas.
+- Health/ready 200; três perfis existentes verificados com login, leitura, recusa de operações globais e logout. Contactos inválidos rejeitados, sem criação de contas novas.
+- Site público: bordas pretas uniformes, mensagem antiga removida, recursos da adesão de cinco passos e WASM idêntico ao pacote preparado. Inspeção visual online não repetida devido ao bloqueio da extensão; não confundir esta evidência HTTP com um ensaio de interface.
+- Registo operacional: ../colaboracao-ia/registos/2026-11-27-publicacao-adesao-codex.md. Backups e perfis de publicação permanecem fora do GitHub.
+
+Após cada publicação, executar:
+
+    ./scripts/Test-PublicDeployment.ps1 -ExpectedSourceCommit <SHA completo do código empacotado>
+
+A verificação falha se o manifesto, os planos, os recursos da adesão ou a prontidão não corresponderem. Publicar primeiro migrações/API e só depois os artefactos Web. Preservar história de gh-pages e bytes dos recursos, sem force push. Pagamentos continuam simulados; não há cobrança, cartão, fatura ou renovação real.
+
+---
+
+## Histórico anterior (não representa a versão atual)
+
 # Publicação de demonstração
 
 ## Endereços
