@@ -1,5 +1,16 @@
 # Publicação da adesão — 27/11/2026
 
+## Estado final — concluído em 27/11/2026
+
+- API win-x86 publicada e fora de manutenção. Health e readiness HTTP 200.
+- Login, leitura, recusa de operações globais e logout aprovados para InstitutionAdmin, Student e Teacher. Contrato de contactos presente e contacto inválido rejeitado com 400, sem criar contas novas.
+- Catálogo online: 1 750/2 950/4 000 EUR; adesão ativa.
+- Artefactos enviados a gh-pages em 19c2e69; job Pages 45973713729 concluído com sucesso. Manifesto público identifica sourceCommit 8309e21596979546c860407f6d86bd7564328468.
+- Verificação HTTP pública confirmou três bordas pretas uniformes, ausência da mensagem antiga e CSS da adesão de cinco passos. WASM SchoolGether.Web servido publicamente coincide byte a byte (SHA-256) com o pacote preparado.
+- Script público scripts/Test-PublicDeployment.ps1 primeiro falhou contra a versão antiga e passou após a publicação. Não contém credenciais.
+- A inspeção visual online pelo navegador não foi repetida: a ligação da extensão exige atualização do Codex. Evidência desta publicação é HTTP/binários/API; a inspeção visual local anterior consta do registo de 26/11.
+- PR de código e registo: https://github.com/Schoolgether-PAP/SchoolGether/pull/22. Não é necessário integrar código-fonte no ramo gh-pages.
+
 ## Causa da versão antiga
 O PR #21 foi integrado em feature/learning-materials (8d0ad87), mas o GitHub Pages publica gh-pages, que continuava em 2a71d1d e com manifesto de origem 855a2ac, de 24/11. O ajuste de bordas 92536be foi posterior ao merge; está incluído neste ramo como 8309e21.
 

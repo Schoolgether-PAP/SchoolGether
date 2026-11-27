@@ -1,3 +1,5 @@
+> Publicado em 27/11/2026: API/base e recursos Web da adesão atualizados. Ver deployment.md e o registo de publicação de 27/11 para o estado online verificado.
+
 > Estado atual de 26/11/2026: a adesão tem cinco passos (plano, instituição, responsável, pagamento simulado, confirmação). Catálogo atual: 1 750/2 950/4 000 EUR anuais + IVA, 20/50/100 docentes. Perfil completo e contactos opcionais são guardados na transação de criação; Details omitido mantém compatibilidade. Pagamentos reais e verificação de e-mail indisponíveis. Aplicar a migração InstitutionSignupContacts antes de publicar API e Web. Registo detalhado em ../colaboracao-ia/registos/2026-11-26-adesao-pagamento-codex.md. O texto abaixo conserva o histórico e não deve ser usado como estado funcional atual.
 
 > Atualização local de 2026-11-09: o novo catálogo 2026-11-09-v1 usa anuidades de 1 000/2 500/4 000 EUR e 20/50/100 lugares docentes. Estudantes/responsáveis não consomem esses lugares. Subscrições antigas mantêm Monthly/Accounts e os respetivos valores. A documentação abaixo descreve a entrega anterior; ver billing-annual-plans.md para o contrato atual.
