@@ -1,11 +1,18 @@
-# Estado de colaboração — 26/11/2026
+# Estado de colaboração — 27/11/2026
 
 Desenvolvimento retomado por pedido do utilizador. Este ficheiro descreve o estado atual; os registos datados conservam o histórico e os limites de cada entrega.
+
+## Incidente de publicação — prioridade
+
+- API online em manutenção (503). Pacote win-x86 corrigido pronto, mas ligação WebDeploy 8172 bloqueada na rede atual. Aguardar ligação móvel pedida ao utilizador. Não anunciar a publicação como concluída.
+- TiDB já tem 17 migrações, incluindo InstitutionSignupContacts; 2 instituições e 7 contas preservadas. Cópias privadas verificadas.
+- Pacote Web/commit de artefactos ainda local; gh-pages continua antigo.
+- Continuidade e recuperação: `registos/2026-11-27-publicacao-adesao-codex.md`.
 
 ## Base de trabalho
 
 - Repositório: https://github.com/Schoolgether-PAP/SchoolGether
-- Ramo atual: `feature/institution-signup-checkout`, baseado em `feature/learning-materials` `4e1cd45` (PR #20 integrado).
+- Ramo atual: `fix/publish-signup-checkout`, baseado no merge #21 `8d0ad87`, com ajuste das bordas `8309e21`.
 - Não partir do main antigo para continuar estes módulos. Usar um ramo próprio sobre a entrega atual, confirmar `git status` e consultar os PR antes de editar.
 - PR destas correções: https://github.com/Schoolgether-PAP/SchoolGether/pull/20, destino feature/learning-materials.
 - O PR #19 continua a representar o checkpoint anterior `feature/school-workspaces` → `feature/site-ligacao`. Estas correções não reescrevem nem integram automaticamente esse PR.
